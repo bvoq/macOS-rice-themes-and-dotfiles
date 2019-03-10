@@ -2,3 +2,4 @@
 I care about visuals (a lot). Here are my XCode/(n)vim/terminal configurations.
 
 ![Alt text](xcode/xcodetheme.png?raw=true "XCode Theme")
+![Alt text](terminalmacos/terminaltheme.png?raw=true "Terminal Theme")
