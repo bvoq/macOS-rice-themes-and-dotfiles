@@ -1,0 +1,262 @@
+[user]
+	name = Kevin De Keyser
+	email = k.dekeyser@mwam.com
+[branch]
+    autosetuprebase = always
+[help]
+    autocorrect = 1
+[color]
+    ui = true
+    diff = auto
+    status = auto
+    branch = auto
+    interactive = auto
+    grep = true
+[color "branch"]
+    current = green bold
+    local   = magenta bold
+    remote  = yellow bold
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red
+    new = green
+    whitespace = white reverse
+[diff]
+    algorithm = patience
+    submodule = log
+[log]
+    decorate = true
+    date = relative
+[color "status"]
+    added = bold green
+    changed = bold red
+    untracked = bold cyan
+    unmerged = magenta bold
+[rebase]
+    autoStash = true
+[alias]
+    # via http://blog.apiaxle.com/post/handy-git-tips-to-stop-you-getting-fired/
+    snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
+    snapshots = !git stash list --grep snapshot
+    #via http://stackoverflow.com/questions/5188320/how-can-i-get-a-list-of-git-branches-ordered-by-most-recent-commit
+    recent-branches = !git for-each-ref --count=5 --sort=-committerdate refs/heads/ --format='%(refname:short)'
+    amend = commit --amend --no-edit   # amend your last commit and don't edit the commit message
+    edit = commit --amend --only       # amend your last commit without adding the already staged files
+    amend-push = "!f() { git amend && git push -f;  }; f" # this is force pushing and hence it is unsafe to do if you're not the only one working on a repo. Use with care
+
+    archive-zip = archive -o "$(basename $PWD).zip" HEAD
+    archive-tgz = archive -o "$(basename $PWD).tgz" HEAD
+
+    # amend a specific commit. Example usage: "git add -p; git fixup HEAD~5"
+    # OR "git add -p; git stash --keep-index; git fixup HEAD~5; git stash pop"
+    # via http://stackoverflow.com/questions/3103589/how-can-i-easily-fixup-a-past-commit
+    fixup = "!sh -c '(git diff-files --quiet || (echo Unstaged changes, please commit or stash with --keep-index; exit 1)) && COMMIT=$(git rev-parse $1) && git commit --fixup=$COMMIT && git rebase -i --autosquash $COMMIT~1' -"
+    cm = commit -m
+    csm = commit -S -m
+    ec = config --global -e
+    current-branch = git symbolic-ref -q --short HEAD
+
+    # sync with the remote origin branch given as argument OR with master if no argument is given
+    syncbr = !CURRENT_BRANCH="$(git symbolic-ref -q --short HEAD)" && git pull --rebase --autostash --prune origin "${@-$CURRENT_BRANCH}"
+    # sync with the upstream remote on the given branch OR with master if no argument is given
+    syncupbr = !CURRENT_BRANCH="$(git symbolic-ref -q --short HEAD)" && TARGET_BRANCH="${@-$CURRENT_BRANCH}" && git checkout "$TARGET_BRANCH" && git pull --rebase --autostash --prune upstream "$TARGET_BRANCH"
+
+    # pretty one-line log with tags, branches and authors
+    ls = "!f() { git log --format='%aN' 2> /dev/null | awk '!len || length($0) > len {len=length($0);s=$0} END{print len}'; }; git log --graph --pretty=format:\"%C(red)%h %C(bold blue)%<($(f),trunc)<%an>%Creset %C(green)(%cr) %Creset%s%C(yellow)%d\" --decorate --all --date=short"
+    # a verbose ls, shows changed files too
+    lsf = "!f() { git log --format='%aN' 2> /dev/null | awk '!len || length($0) > len {len=length($0);s=$0} END{print len}'; }; git log --graph --pretty=format:\"%C(red)%h %C(bold blue)%<($(f),trunc)<%an>%Creset %C(green)(%cr) %Creset%s%C(yellow)%d\" --decorate --all --date=iso --numstat"
+
+    # http://ses4j.github.io/2020/04/01/git-alias-recent-branches/ 
+    last-branches = !git reflog show --pretty=format:'%gs ~ %gd' --date=relative | grep 'checkout:' | grep -oE '[^ ]+ ~ .*' | awk -F~ '!seen[$1]++' | head -n 10 | awk -F' ~ HEAD@{' '{printf(\"  \\033[33m%s: \\033[37m %s\\033[0m\\n\", substr($2, 1, length($2)-1), $1)}'
+    
+     # Log of changes on origin not yet on branch (aka hg incoming).
+    incoming = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --decorate --date=short HEAD..@{upstream}
+    # Log of changes on branch not yet on branch (aka hg outgoing).
+    outgoing = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --decorate --date=short @{upstream}..HEAD
+    # List contributors with number of commits
+    contributors = shortlog --summary --numbered
+
+    # from mathiasbynens dotfiles:
+    # Find branches containing commit
+    find-commit-in-branches = "!f() { git branch -a --contains $1; }; f"
+
+    # Find tags containing commit
+    find-commit-in-tags = "!f() { git describe --always --contains $1; }; f"
+
+    # Find commits by source code
+    find-commits-with-source-code = "!f() { git lsf -S$1; }; f"
+
+    # Find commits by commit message
+    find-commits-with-commit-message = "!f() { git lsf --grep=$1; }; f"
+
+    diff-for-branches = "!f() { git lsf $1..$2 ; }; f"
+
+    # some resets without explanation
+    unadd = reset --mixed
+    uncommit = reset --soft
+    undo = reset --hard
+    unstage = reset
+    undolastcommit = reset HEAD~
+
+    # basic shortcuts
+    cp = cherry-pick
+    cl = clone --recurse-submodules -j8
+    lsuntracked = ls-files . --ignored --exclude-standard --others
+    s = status
+    lsfo = ls-files -o -u
+    c = clone --recursive
+    ci = commit
+    co = checkout
+    br = branch
+    diff = difftool -y -x "colordiff -y " | less -R
+    d = diff
+    dc = diff --cached
+    ds = diff --staged
+
+    # stash shortcuts
+    sl = stash list
+    sa = stash apply
+    ss = stash save
+    clone = clone --recursive
+    cleanup = "!f() { git fsck && git gc; }; f"
+
+    # Show verbose output about tags, branches or remotes
+    tags = tag -l
+    branches = branch -a
+    remotes = remote -v
+    lsuntracked = ls-files . --ignored --exclude-standard --others
+
+    # Show latest commits since last pull from remote
+    news = log -p HEAD@{1}..HEAD@{0}
+
+    # Submodule related
+    sdiff = !git diff && git submodule foreach 'git diff'
+    spush = push --recurse-submodules=on-demand
+    supdateall = submodule foreach 'git syncbr || true' # for each submodule update the branch it currently is on
+
+    push-ref = push origin HEAD:refs/for/master
+
+    # Prune all stale remote branches not found locally
+    prune-all-remote-branches = !git remote | xargs -n 1 git remote prune
+
+    # Prune all local branches not found remotely. Accepts as argument the name
+    # of the default (otherwise assumes it's master)
+    prune-all-local-branches = "!f() { git branch --merged ${1-master} | grep -v " ${1-master}$" | xargs -r git branch -d; }; f"
+
+    # Push to all remotes, by default to master branch or to the branch provided as argument
+    push-to-all-remotes = "!for r in $(git remote); do git push $r ${1-master}; done"
+
+    # Untrack a file
+    untrack = rm --cache --
+
+    # Rebase and sign all commits until whatever commit you add to the end of the alias
+    aggressive-sign-all = rebase --exec 'git commit --amend --no-edit -n -S' -i 
+
+    # Inject a change/ammendement to an older commit. E.g.:
+    # git inject <commit-ref> <patch-ref>
+    # git inject HEAD^^ -a # inject all work-dir modifications
+    # git inject a28kd8 -p # interactively select patches to inject
+    # git inject HEAD~4 file1 # inject the modifications in file1
+    # OR add a new commit and do `git rebase -i` to re-order and squash the two commits together
+    inject = "!f() { set -e; local HASH=$(git show $1 --pretty=format:\"%H\" -q); shift; git commit -m \"fixup $HASH\" \"$@\"; [ -n \"$(git diff-files)\" ] && git stash && local DIRTY=1; git rebase $HASH^^ -i --autosquash; [ -n \"$DIRTY\" ] && git stash pop;}; f"
+	rebase-last-five = "!b=\"$(git branch --no-color | cut -c3-)\" ; h=\"$(git rev-parse $b)\" ; echo \"Current branch: $b $h\" ; c=\"$(git rev-parse $b~4)\" ; echo \"Recreating $b branch with initial commit $c ...\" ; git checkout --orphan new-start $c ; git commit -C $c ; git rebase --onto new-start $c $b ; git branch -d new-start ; git gc"
+
+    gc-dangling-blobs = "gc --prune=\"0 days\""
+[push]
+    default = current
+[status]
+    branch = true
+    displayCommentPrefix = true
+    relativePaths = false
+    submodulesummary = true
+[merge]
+    log = true
+	tool = meld
+[include]
+    path = .gitconfig.user
+[core]
+    excludesfile = ~/.gitignore_global
+    editor = vim
+    autocrlf = input
+    quotepath = false
+    legacyheaders = false
+	filemode = false
+    whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
+
+# URL shorthands
+
+[url "git@github.com:"]
+    insteadOf = "gh:"
+    pushInsteadOf = "github:"
+    pushInsteadOf = "git://github.com/"
+
+[url "git://github.com/"]
+    insteadOf = "github:"
+
+[url "git@gist.github.com:"]
+    insteadOf = "gst:"
+    pushInsteadOf = "gist:"
+    pushInsteadOf = "git://gist.github.com/"
+
+[url "git://gist.github.com/"]
+    insteadOf = "gist:"
+
+[url "git@heroku.com:"]
+    insteadOf = "heroku:"
+
+[transfer]
+        fsckObjects = true
+[fetch]
+        fsckObjects = true
+[receive]
+        fsckObjects = true
+[rebase]
+        autoStash = true
+
+# QuickNote: To modify an old commit
+# You can use git rebase
+# for example, if you want to modify back to commit bbc643cd, run
+#
+# $ git rebase --interactive bbc643cd^
+#
+# In the default editor, modify 'pick' to 'edit' in the line whose commit you want to modify.
+# Make your changes and then stage them with
+#
+# $ git add <filepattern>
+#
+# Now you can use
+#
+# $ git commit --amend
+#
+# to modify the commit, and after that
+#
+# $ git rebase --continue
+#
+# to return back to the previous head commit.
+#
+################################################
+#
+# QuickNote2: To cherry-pick a commit to a new branch for a separate pull request
+#
+# Create a branch from the SHA where the original project was forked
+# $ git branch my_cherry_picked_feature 251ea14
+#
+# Move to the branch
+# $ git checkout my_cherry_picked_feature
+#
+# Cherry pick the commit I want to submit as a pull request
+# $ git cherry-pick 4252331
+#
+# Push the branch and do the pull request from the head of the new branch
+# $ git push origin my_cherry_picked_feature
+#
+################################################
+# QuickNote3: Properly remove a git submodule
+#
+# git submodule deinit asubmodule
+# git rm asubmodule
+# # Note: asubmodule (no trailing slash)
+# # or, if you want to leave it in your working tree
+# git rm --cached asubmodule
+# rm -rf .git/modules/asubmodule
