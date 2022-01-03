@@ -11,11 +11,18 @@
 git submodule init
 git submodule update
 
-cp .inputrc ~/.inputrc
+# create a backup, better safe than sorry.
+mv ~/.inputrc   ~/.inputrc.old
+mv ~/.gitconfig ~/.gitconfig.old
+mv ~/.tmux.conf ~/.tmux.conf.old
+mv ~/.tmux ~/.tmux.old
+mv ~/.zshrc ~/.zshrc.old
+
+cp .inputrc   ~/.inputrc
 cp .gitconfig ~/.gitconfig
 cp .tmux.conf ~/.tmux.conf
-cp -r .tmux/ ~/.tmux
-cp .zshrc ~/.zshrc
+cp -r .tmux/  ~/.tmux
+cp .zshrc     ~/.zshrc
 
 # install vundle for vim
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
@@ -36,13 +43,13 @@ nvim +'PlugInstall --sync' +qa
 if [[ $OSTYPE == 'darwin'* ]]; then
   read -n 1 -p "Continue with macOS settings install?";
   bash .macos
-  echo "Almost done. Next we will install some Xcode themes."
+  echo "Almost done. Next we will install some Terminal and Xcode themes. You can also install them manually or press ˆC to exit."
   read -n 1 -p "Continue?";
   mkdir -p ~/Library/Developer/Xcode/UserData/FontAndColorThemes/ && cp xcode/Zenburn.xccolortheme ~/Library/Developer/Xcode/UserData/FontAndColorThemes/Zenburn.xccolortheme
   echo "Done. It will need to be manually selected under Xcode > Preferences > Themes > Zenburn"
   echo "Also, in the new Xcode you may need to set Xcode > Preferences > General > Appearance > Dark"
   read -n 1 -p "Afer this Terminal.app will be killed. Note that in order to apply all settings a full restart is required. Continue with applying style changes to Terminal.app?";
-  cp terminalmacos/com.apple.Terminal.plist ~/Library/Preferences/com.apple.Terminal.plist
+  cp terminal.app/com.apple.Terminal.plist ~/Library/Preferences/com.apple.Terminal.plist
   defaults read com.apple.Terminal
   echo "Done. Goodbye."
   killall "Terminal"
