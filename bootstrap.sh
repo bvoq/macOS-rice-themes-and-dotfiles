@@ -1,14 +1,23 @@
-#!/bin/sh
+#!/bin/zsh
 
-# if [[ $OSTYPE == 'darwin'* ]]; then
-#   brew install nvim
-#   brew install tmux
-#   brew install git
-#   brew install tree
-#   brew install bat
-#   brew install npm
-#   brew install bash-completion
-# fi
+if [[ $OSTYPE == 'darwin'* ]]; then
+  brew install bat git npm nvim tmux tree zsh-completions
+  brewprefixlocation=$(brew --prefix)
+  echo "$(brew --prefix)/share/zsh"
+
+  # zsh-completions first install
+  if type brew &>/dev/null; then
+   rm -f ~/.zcompdump
+   FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+   autoload -Uz compinit compaudit
+   compaudit | xargs chmod g-w
+   # rm -f ~/.zcompdump # may be necessary
+   compinit
+  fi
+fi
+
+
+
 
 git submodule init
 git submodule update

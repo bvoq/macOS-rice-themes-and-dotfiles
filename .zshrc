@@ -59,6 +59,17 @@ alias mergepdf='gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=_merged.p
 # macOS specific 
 # ==============
 
+# enable zsh-completions
+if type brew &>/dev/null; then
+ FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+
+ autoload -Uz compinit
+ compinit
+fi
+
+# old: bash completion support
+# [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
+
 # open command line tab in same location
 alias hopen='open -a /Applications/Utilities/Terminal.app .'
 
