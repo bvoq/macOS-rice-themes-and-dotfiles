@@ -7,6 +7,7 @@
 #   brew install tree
 #   brew install bat
 #   brew install npm
+#   brew install bash-completion
 # fi
 
 git submodule init

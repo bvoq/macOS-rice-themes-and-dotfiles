@@ -66,13 +66,12 @@ nnoremap <leader>gd :YcmCompleter GoToDeclaration<CR>
 " pip3 install flake8
 " use :lopen and :lclose to see a list of errors!
 autocmd BufRead,BufNewFile *.py let python_highlight_all=1
-
-let g:neomake_place_signs = 0 " disable the error column
-set signcolumn=no " needed for some neomake configs
-autocmd FileType python map <buffer> <leader>s :Neomake<CR><c-w><c-w>
-autocmd BufWritePost * :Neomake
-hi NeomakeErrorSign ctermfg=160 guifg=#ff0000
-hi NeomakeVirtualtextError ctermfg=203 guifg=#bfbfbf
+"let g:neomake_place_signs = 0 " disable the error column
+"set signcolumn=no " needed for some neomake configs
+"autocmd FileType python map <buffer> <leader>s :Neomake<CR><c-w><c-w>
+"autocmd BufWritePost * :Neomake
+"hi NeomakeErrorSign ctermfg=160 guifg=#ff0000
+"hi NeomakeVirtualtextError ctermfg=203 guifg=#bfbfbf
 
 
 """ nvim-lspconfig
