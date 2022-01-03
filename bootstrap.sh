@@ -15,10 +15,10 @@ git submodule update
 # create a backup, better safe than sorry.
 mv ~/.inputrc   ~/.inputrc.old
 mv ~/.gitconfig ~/.gitconfig.old
-mv ~/.tmux.conf ~/.tmux.conf.old
-mv ~/.tmux      ~/.tmux.old
 mv ~/.zshrc     ~/.zshrc.old
 mv ~/.vimrc     ~/.vimrc.old
+mv ~/.tmux.conf ~/.tmux.conf.old
+rm -r ~/.tmux && mv ~/.tmux ~/.tmux.old
 mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
 
 cp .inputrc   ~/.inputrc
