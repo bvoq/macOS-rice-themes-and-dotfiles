@@ -5,11 +5,6 @@ syntax on
 "set nu " set rnu for relative numbering
 set hidden
 
-set tabstop=4
-set autoindent softtabstop=0 noexpandtab
-set shiftwidth=4
-set paste
-
 if has('nvim')
 call plug#begin('~/.local/share/nvim/plugged')
 else
@@ -165,15 +160,6 @@ augroup lsp_install
 augroup END
 
 
-
-
-
-
-
-
-
-
-
 """ Tamarin source code (for .spthy and .sapic)
 augroup filetypedetect
 au BufNewFile,BufRead *.spthy	setf spthy
@@ -181,9 +167,26 @@ au BufNewFile,BufRead *.sapic	setf sapic
 augroup END
 
 
-
 """ File executions
 " Run with Shift+R
 autocmd FileType python map <buffer> <S-r> :w<CR>:exec 'w !python3' shellescape(@%, 1)<CR>
 autocmd FileType cpp map <buffer> <S-r> :w<CR>:exec 'w !g++ -std=c++17 -Wall -Wextra -g3 -ggdb3 -fsanitize=address ' shellescape(@%, 1) ';./a.out' <CR>
 
+
+fun! TrimWhitespace()
+    let l:save = winsaveview()
+    keeppatterns %s/\s\+$//e
+    call winrestview(l:save)
+endfun
+command! TrimWhitespace call TrimWhitespace()
+
+
+
+
+
+
+set paste
+set list
+set showbreak=↪\
+set listchars=tab:→-,nbsp:␣,trail:·,extends:⟩,precedes:⟨
+set autoindent tabstop=4 softtabstop=0 shiftwidth=4 expandtab
