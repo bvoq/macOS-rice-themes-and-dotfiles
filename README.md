@@ -1,4 +1,4 @@
-# macOS-rice-themes-and-dotfiles
+# macOS-rice-themes-and-dotfiles macOS Monterey compatible
 Here are my XCode/(n)vim/terminal themes and configurations, hope you like them!
 
 Check out install.sh and see what it does.
