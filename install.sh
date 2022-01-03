@@ -1,12 +1,15 @@
 #!/bin/sh
 
-if [[ $OSTYPE == 'darwin'* ]]; then
-  brew install nvim
-  brew install tmux
-  brew install git
-  brew install tree
-  brew install bat
-fi
+# if [[ $OSTYPE == 'darwin'* ]]; then
+#   brew install nvim
+#   brew install tmux
+#   brew install git
+#   brew install tree
+#   brew install bat
+# fi
+
+git submodule init
+git submodule update
 
 cp .inputrc ~/.inputrc
 cp .gitconfig ~/.gitconfig
