@@ -6,6 +6,7 @@
 #   brew install git
 #   brew install tree
 #   brew install bat
+#   brew install npm
 # fi
 
 git submodule init
@@ -26,6 +27,7 @@ cp .tmux.conf ~/.tmux.conf
 cp -r .tmux/  ~/.tmux
 cp .zshrc     ~/.zshrc
 
+# Install vim and neovim
 # install vundle for vim
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -37,9 +39,16 @@ sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.
 mkdir -p ~/.config/nvim && cp .config/nvim/init.vim ~/.config/nvim/init.vim
 cp .vimrc ~/.vimrc
 nvim +'PlugInstall --sync' +qa
+nvim +'PlugClean --sync' +qa
+\vim +'PlugInstall --sync' +qa
+\vim +'PlugClean --sync' +qa
 
-# all thats left is to run :PlugInstall in vim and nvim respectively and you should be ready to go.
+# use \vim to use vim
 
+# Language servers for vim and vscode (also edit in init.vim)
+read -n 1 -p "Continue with installing language servers for nvim?";
+npm install -g pyright
+npm install -g bash-language-server
 
 # System changes for macOS
 if [[ $OSTYPE == 'darwin'* ]]; then
@@ -56,5 +65,3 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   echo "Done. Goodbye."
   killall "Terminal"
 fi
-
-
