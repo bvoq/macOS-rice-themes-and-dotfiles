@@ -34,7 +34,7 @@ mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
 cp .inputrc   ~/.inputrc
 cp .gitconfig ~/.gitconfig
 cp .tmux.conf ~/.tmux.conf
-cp -r .tmux/  ~/.tmux
+cp -r .tmux   ~/.tmux
 cp .zshrc     ~/.zshrc
 
 # Install vim and neovim
