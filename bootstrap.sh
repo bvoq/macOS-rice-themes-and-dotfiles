@@ -25,8 +25,10 @@ sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
 # copy the vim config files
-mkdir -p ~/.config/nvim/init.vim && cp .config/nvim/init.vim ~/.config/nvim/init.vim
+mkdir -p ~/.config/nvim && cp .config/nvim/init.vim ~/.config/nvim/init.vim
 cp .vimrc ~/.vimrc
+nvim +'PlugInstall --sync' +qa
+
 # all thats left is to run :PlugInstall in vim and nvim respectively and you should be ready to go.
 
 
