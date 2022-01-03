@@ -15,8 +15,10 @@ git submodule update
 mv ~/.inputrc   ~/.inputrc.old
 mv ~/.gitconfig ~/.gitconfig.old
 mv ~/.tmux.conf ~/.tmux.conf.old
-mv ~/.tmux ~/.tmux.old
-mv ~/.zshrc ~/.zshrc.old
+mv ~/.tmux      ~/.tmux.old
+mv ~/.zshrc     ~/.zshrc.old
+mv ~/.vimrc     ~/.vimrc.old
+mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
 
 cp .inputrc   ~/.inputrc
 cp .gitconfig ~/.gitconfig
@@ -39,7 +41,7 @@ nvim +'PlugInstall --sync' +qa
 # all thats left is to run :PlugInstall in vim and nvim respectively and you should be ready to go.
 
 
-# System changes
+# System changes for macOS
 if [[ $OSTYPE == 'darwin'* ]]; then
   read -n 1 -p "Continue with macOS settings install?";
   bash .macos
