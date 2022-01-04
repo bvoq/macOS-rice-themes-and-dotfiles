@@ -1,5 +1,5 @@
 #!/bin/zsh
-
+# set -x
 if [[ $OSTYPE == 'darwin'* ]]; then
   brew install bat git npm nvim tmux tree zsh-completions
   brewprefixlocation=$(brew --prefix)
@@ -17,7 +17,13 @@ if [[ $OSTYPE == 'darwin'* ]]; then
 fi
 
 
-
+waitconfirm() {
+    if read -q "choice?Continue [press y/n]? "; then
+        echo "Continuing..."
+    else
+        exit 0
+    fi
+}
 
 git submodule init
 git submodule update
@@ -53,23 +59,26 @@ nvim +'PlugClean --sync' +qa
 \vim +'PlugInstall --sync' +qa
 \vim +'PlugClean --sync' +qa
 
-# use \vim to use vim
-
 # Language servers for vim and vscode (also edit in init.vim)
-read -n 1 -p "Continue with installing language servers for nvim?";
+echo "Next: Installing language servers."
+waitconfirm
+
 npm install -g pyright
 npm install -g bash-language-server
 
 # System changes for macOS
 if [[ $OSTYPE == 'darwin'* ]]; then
-  read -n 1 -p "Continue with macOS settings install?";
+  echo "Next: Tuning macOS settings. Some updates will only take effect after restarting the system."
+  waitconfirm
   bash .macos
-  echo "Almost done. Next we will install some Terminal and Xcode themes. You can also install them manually or press ˆC to exit."
-  read -n 1 -p "Continue?";
+  echo "Almost done. Next we will install some Terminal and Xcode themes. You can also install them manually alternatively."
+  waitconfirm
   mkdir -p ~/Library/Developer/Xcode/UserData/FontAndColorThemes/ && cp xcode/Zenburn.xccolortheme ~/Library/Developer/Xcode/UserData/FontAndColorThemes/Zenburn.xccolortheme
   echo "Done. It will need to be manually selected under Xcode > Preferences > Themes > Zenburn"
   echo "Also, in the new Xcode you may need to set Xcode > Preferences > General > Appearance > Dark"
-  read -n 1 -p "Afer this Terminal.app will be killed. Note that in order to apply all settings a full restart is required. Continue with applying style changes to Terminal.app?";
+  echo "Afer this Terminal.app will be killed. Note that in order to apply all settings a full restart is required."
+  waitconfirm
+
   cp terminal.app/com.apple.Terminal.plist ~/Library/Preferences/com.apple.Terminal.plist
   defaults read com.apple.Terminal
   echo "Done. Goodbye."
