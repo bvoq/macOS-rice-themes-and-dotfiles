@@ -55,6 +55,7 @@ alias map="xargs -n1"
 # Usage: `mergepdf input{1,2,3}.pdf`
 alias mergepdf='gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=_merged.pdf'
 
+alias grabsite='wget -r -np --wait=1 -k --execute="robots = off" --mirror --wait=1 --user-agent="Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0"'
 # ==============
 # macOS specific 
 # ==============
@@ -120,6 +121,8 @@ done
 # [C] explained: http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
 alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
 
+# make sure that enter key works: https://askubuntu.com/questions/441744/pressing-enter-produces-m-instead-of-a-newline
+stty sane
 
 # =======================
 # specific for my machine
@@ -127,16 +130,22 @@ alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v exten
 # external hard drive not mounting https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
 alias vim=nvim
 
-# look for virtual keycode macos for a chart
-brokenkeys() {
-    hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000029,"HIDKeyboardModifierMappingDst":0x70000002D},{"HIDKeyboardModifierMappingSrc":0x700000027,"HIDKeyboardModifierMappingDst":0x70000000B}]}'
+# Add python3 to bin
+PYBIN=$(realpath ~/Library/Python/3.8/bin)
+export PATH="$PYBIN:$PATH"
+
+
+# look for usage id key macos:
+# https://developer.apple.com/library/archive/technotes/tn2450/_index.html
+fixkeys() {
+    hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000033,"HIDKeyboardModifierMappingDst":0x700000011},{"HIDKeyboardModifierMappingSrc":0x700000034,"HIDKeyboardModifierMappingDst":0x700000005}]}'
 }
-nobrokenkeys() {
+nofixkeys() {
     hidutil property --set '{"UserKeyMapping":[]}'
 }
 
-export -f brokenkeys > /dev/null
-export -f nobrokenkeys > /dev/null
+export -f fixkeys > /dev/null
+export -f nofixkeys > /dev/null
 
 # some useful flags
 # set -x # activate debugging
