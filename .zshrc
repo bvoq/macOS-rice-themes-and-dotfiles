@@ -145,3 +145,8 @@ export -f nobrokenkeys > /dev/null
 # set +o verbose
 # set -e # exit on error, useful for debugging but add || exit 1
 # set +e
+
+# useful bash expansions
+# SOURCEDIR=${SOURCEDIR::-1%/*} # remove last character and then remove path
+# SOURCEDIR=${SOURCEDIR%/*}  # get base path
+

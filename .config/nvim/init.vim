@@ -10,6 +10,13 @@ end
 Plug 'kassio/neoterm' " better terminal, launch with T
 Plug 'jnurmine/Zenburn'
 
+" Allows :History
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+
+" Smoother scrolling
+Plug 'petertriho/nvim-scrollbar'
+
 """ neovim only
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
@@ -201,7 +208,18 @@ set hidden " hide buffers instead of closing them.
 "set nu " set rnu for relative numbering.
 set paste
 set list
+set ruler
 set showbreak=↪\
 set listchars=tab:↦-,nbsp:␣,trail:∙,extends:⟩,precedes:⟨
 set autoindent tabstop=4 softtabstop=0 shiftwidth=4 expandtab
 " let mapleader = ","
+nnoremap <F6> yiw:%s/\<<C-r>"\>/<C-r>"/gc<Left><Left><Left>
+vnoremap <F6> y:%s/\<<C-r>"\>/<C-r>"/gc<Left><Left><Left>
+" delete the black hole register: https://vim.fandom.com/wiki/Replace_a_word_with_yanked_text
+" so i can use vi"p
+xnoremap <silent> p p:let @+=@0<CR>:let @"=@0<CR>
+" repeat last macro
+nnoremap Q @@
+if has('nvim')
+    set inccommand=nosplit
+endif
