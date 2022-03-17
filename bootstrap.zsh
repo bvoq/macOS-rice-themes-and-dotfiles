@@ -2,6 +2,8 @@
 # set -x
 if [[ $OSTYPE == 'darwin'* ]]; then
   brew install bat git npm nvim tmux tree zsh-completions
+  # devops tools
+  brew install kubectl fluxcd/tap/flux
   brewprefixlocation=$(brew --prefix)
   echo "$(brew --prefix)/share/zsh"
 
