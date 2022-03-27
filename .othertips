@@ -1,0 +1,17 @@
+#!/bin/zsh
+
+# some useful flags
+# set -x # activate debugging
+# set +x # disable debugging
+# set -o verbose # simply showing the commands
+# set +o verbose
+# set -e # exit on error, useful for debugging but add || exit 1
+# set +e
+
+# useful bash expansions
+# SOURCEDIR=${SOURCEDIR::-1%/*} # remove last character and then remove path
+# SOURCEDIR=${SOURCEDIR%/*}  # get base path
+
+# disk won't mount
+# https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
+# ps aux | grep fsck

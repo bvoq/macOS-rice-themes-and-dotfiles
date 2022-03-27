@@ -66,8 +66,9 @@ alias grabsite='wget -r -np --wait=1 -k --execute="robots = off" --mirror --wait
 # DevOps
 # ==============
 source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
-echo "[[ $commands[kubectl] ]] && source <(kubectl completion zsh)"
 alias k=kubectl
+alias kns='kubectl config set-context --current --namespace '
+alias kubens='kubectl config set-context --current --namespace '
 complete -F __start_kubectl k
 
 
