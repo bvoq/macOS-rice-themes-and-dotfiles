@@ -1,5 +1,4 @@
 Set-Location C:\
-$Shell.WindowTitle="kdkdkdkdkdkdkddkdkdkdkdkdkdkdk"
 new-alias -Name clip -Value "C:\Windows\System32\clip.exe"
 
 function which($name) { Get-Command $name -ErrorAction SilentlyContinue | Select-Object Definition }
