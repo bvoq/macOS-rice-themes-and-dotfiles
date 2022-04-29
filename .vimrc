@@ -7,6 +7,23 @@ else
 call plug#begin('~/.vim/plugged')
 end
 
+if !exists("g:os")
+    if has("win64") || has("win32") || has("win16")
+        let g:os = "Windows"
+    else
+        let g:os = substitute(system('uname'), '\n', '', '')
+    endif
+endif
+
+" List messages using :messages
+echom "OS is" g:os
+
+if g:os == "Darwin"
+elseif g:os == "Linux"
+elseif g:os == "Windows"
+Plug 'neomake/neomake' " nvim-lspconfig takes care of most things I cared about.
+endif
+
 Plug 'kassio/neoterm' " better terminal, launch with T
 Plug 'jnurmine/Zenburn'
 
@@ -97,6 +114,7 @@ command! TrimWhitespace call TrimWhitespace()
 
 """ Various vim settings
 syntax on
+set nobackup " swap files are enough
 set hidden " hide buffers instead of closing them.
 "set nu " set rnu for relative numbering.
 set paste
