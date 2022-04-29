@@ -123,3 +123,7 @@ set showbreak=↪\
 set listchars=tab:↦-,nbsp:␣,trail:∙,extends:⟩,precedes:⟨
 set autoindent tabstop=4 softtabstop=0 shiftwidth=4 expandtab
 " let mapleader = ","
+
+" useful commands
+" :vimgrep /DistributionStatus/g %:h/*
+

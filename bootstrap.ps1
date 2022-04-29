@@ -43,9 +43,13 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 
 # Installing choco packages
 choco install 7zip
+choco install dotnet
 choco install ffmpeg
+choco install nvm.portable
+choco install nuget.commandline
 choco install ripgrep # or use :vimgrep (using :cnext), :lvimgrep (using :lnext)
 choco install screentogif
+choco install webpi
 choco install vim
 choco install vcredist140
 choco install vcredist2015
