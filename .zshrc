@@ -157,6 +157,7 @@ export -f nofixkeys > /dev/null
 # ==============
 # DevOps
 # ==============
+# make sure to enable zsh-completions first
 source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
 alias k=kubectl
 alias kns='kubectl config set-context --current --namespace '
