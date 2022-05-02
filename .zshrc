@@ -61,16 +61,7 @@ alias mergepdf='gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=_merged.p
 
 alias grabsite='wget -r -np --wait=1 -k --execute="robots = off" --mirror --wait=1 --user-agent="Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0"'
 
-
-# ==============
-# DevOps
-# ==============
-source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
-alias k=kubectl
-alias kns='kubectl config set-context --current --namespace '
-alias kubens='kubectl config set-context --current --namespace '
-complete -F __start_kubectl k
-
+alias ymp3=youtube-dl -x --audio-format mp3 --add-metadata --embed-thumbnail
 
 # ==============
 # macOS specific 
@@ -162,6 +153,16 @@ nofixkeys() {
 
 export -f fixkeys > /dev/null
 export -f nofixkeys > /dev/null
+
+# ==============
+# DevOps
+# ==============
+source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
+alias k=kubectl
+alias kns='kubectl config set-context --current --namespace '
+alias kubens='kubectl config set-context --current --namespace '
+compdef _kubectl k
+
 
 # some useful flags
 # set -x # activate debugging
