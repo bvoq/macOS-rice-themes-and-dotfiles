@@ -16,7 +16,7 @@ if !exists("g:os")
 endif
 
 " List messages using :messages
-echom "OS is" g:os
+" echom "OS is" g:os
 
 if g:os == "Darwin"
 elseif g:os == "Linux"
