@@ -1,4 +1,4 @@
-# Windows Dotfiles Powershell & Vim
+# Bootstrap Windows dotfiles for Powershell & Vim
 
 $profileDir = Split-Path -parent $profile
 $componentDir = Join-Path $profileDir "components"
@@ -20,6 +20,8 @@ $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 
 # copy config files 
 Copy-Item -Path ./.gitconfig -Destination $HOME/.gitconfig
+=======
+# copy the vim config files
 Copy-Item -Path ./.vimrc -Destination $HOME/.vimrc
 
 # Installing vim plug (make sure to run for admin and user)
@@ -34,7 +36,6 @@ pushd $HOME\.vim\plugged\YouCompleteMe
 # git submodule update --init --recursive
 # python $HOME\.vim\plugged\YouCompleteMe\install.py --clang-completer
 popd
-
 
 # Installing chocolatey
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))

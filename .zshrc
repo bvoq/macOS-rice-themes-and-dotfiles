@@ -61,16 +61,7 @@ alias mergepdf='gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=_merged.p
 
 alias grabsite='wget -r -np --wait=1 -k --execute="robots = off" --mirror --wait=1 --user-agent="Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0"'
 
-
-# ==============
-# DevOps
-# ==============
-source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
-alias k=kubectl
-alias kns='kubectl config set-context --current --namespace '
-alias kubens='kubectl config set-context --current --namespace '
-complete -F __start_kubectl k
-
+alias ymp3=youtube-dl -x --audio-format mp3 --add-metadata --embed-thumbnail
 
 # ==============
 # macOS specific 
@@ -140,6 +131,9 @@ alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v exten
 # make sure that enter key works: https://askubuntu.com/questions/441744/pressing-enter-produces-m-instead-of-a-newline
 stty sane
 
+# List packages and sort them by memory, may take a while: https://stackoverflow.com/questions/40065188/get-size-of-each-installed-formula-in-homebrew
+alias brewmem="brew list --formula | xargs -n1 -P8 -I {} sh -c \"brew info {} | egrep '[0-9]* files, ' | sed 's/^.*[0-9]* files, \(.*\)).*$/{} \1/'\" | sort -h -r -k2 - | column -t"
+
 # =======================
 # specific for my machine
 # =======================
@@ -162,6 +156,17 @@ nofixkeys() {
 
 export -f fixkeys > /dev/null
 export -f nofixkeys > /dev/null
+
+# ==============
+# DevOps
+# ==============
+# make sure to enable zsh-completions first
+source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
+alias k=kubectl
+alias kns='kubectl config set-context --current --namespace '
+alias kubens='kubectl config set-context --current --namespace '
+compdef _kubectl k
+
 
 # some useful flags
 # set -x # activate debugging
