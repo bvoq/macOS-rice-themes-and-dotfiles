@@ -25,6 +25,7 @@
 [diff]
     algorithm = patience
     submodule = log
+    tool = vimdiff
 [log]
     decorate = true
     date = relative

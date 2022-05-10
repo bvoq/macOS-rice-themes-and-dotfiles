@@ -18,10 +18,8 @@ Write-Host "Installed dotfiles."
 Write-Host "Press any key to continue installing choco packages...."
 $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 
-
-
-
-# copy the vim config files
+# copy config files 
+Copy-Item -Path ./.gitconfig -Destination $HOME/.gitconfig
 Copy-Item -Path ./.vimrc -Destination $HOME/.vimrc
 
 # Installing vim plug (make sure to run for admin and user)
