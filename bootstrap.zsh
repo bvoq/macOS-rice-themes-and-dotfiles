@@ -1,9 +1,10 @@
 #!/bin/zsh
 # set -x
 if [[ $OSTYPE == 'darwin'* ]]; then
-  brew install bat git npm nvim tmux tree zsh-completions
+  brew install bat git nvim tmux tree zsh-completions
   # devops tools
-  brew install kubectl fluxcd/tap/flux
+  brew install kubectl fluxcd/tap/flux kubetail
+  brew tap johanhaleby/kubetail && brew install kubetail
   brewprefixlocation=$(brew --prefix)
   echo "$(brew --prefix)/share/zsh"
 
@@ -18,6 +19,8 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   fi
 fi
 
+# zgen for zsh plugin management
+# git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
 
 waitconfirm() {
     if read -q "choice?Continue [press y/n]? "; then
