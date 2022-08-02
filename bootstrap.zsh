@@ -1,6 +1,8 @@
 #!/bin/zsh
 # set -x
 if [[ $OSTYPE == 'darwin'* ]]; then
+  brew autoremove
+  brew cleanup
   brew install bat git nvim tmux tree zsh-completions jq yq
   # devops tools
   brew install kubectl fluxcd/tap/flux kubetail
