@@ -1,7 +1,7 @@
 #!/bin/zsh
 # set -x
 if [[ $OSTYPE == 'darwin'* ]]; then
-  brew install bat git nvim tmux tree zsh-completions
+  brew install bat git nvim tmux tree zsh-completions jq yq
   # devops tools
   brew install kubectl fluxcd/tap/flux kubetail
   brew tap johanhaleby/kubetail && brew install kubetail

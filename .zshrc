@@ -124,6 +124,13 @@ for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
     alias "${method}"="lwp-request -m '${method}'"
 done
 
+#NGET, NHEAD, etc. for uncertified requests and most likely headers.
+for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
+    alias "N${method}"="PERL_LWP_SSL_VERIFY_HOSTNAME=0 lwp-request -m '${method}' -H 'Content-type: application/json' -H 'Accept: application/json'"
+done
+
+
+
 # Kill all the tabs in Chrome to free up memory
 # [C] explained: http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
 alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
@@ -131,8 +138,24 @@ alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v exten
 # make sure that enter key works: https://askubuntu.com/questions/441744/pressing-enter-produces-m-instead-of-a-newline
 stty sane
 
+
+alias brewleaves="brew deps --installed | grep -E '$(paste -sd "|" <(brew leaves))'"
+$(
+# ========
+# Homebrew 
+# ========
+
+alias brewleaves='brew deps --installed | grep -E "$(paste -sd "|" <(brew leaves))"'
+
+# takes a long while but sorts packages by their size and states their leaf dependencies.
+alias brewmem="brew list --formula | xargs -n1 -P8 -I {} sh -c \"brew info {} | egrep '[0-9]* files, ' | sed 's/^.*[0-9]* files, \(.*\)).*$/{} \1/'\" | sort -h -r -k2 - | xargs -L1 bash -c 'echo $0 $1 Leaves: $(brew uses --installed --recursive $0 | grep -E "( |^)$(paste -sd " " <(brew leaves) | sed "s/ /( |$)|( |^)/g")( |$)")'"
+
 # List packages and sort them by memory, may take a while: https://stackoverflow.com/questions/40065188/get-size-of-each-installed-formula-in-homebrew
-alias brewmem="brew list --formula | xargs -n1 -P8 -I {} sh -c \"brew info {} | egrep '[0-9]* files, ' | sed 's/^.*[0-9]* files, \(.*\)).*$/{} \1/'\" | sort -h -r -k2 - | column -t"
+alias brewmemsimple="brew list --formula | xargs -n1 -P8 -I {} sh -c \"brew info {} | egrep '[0-9]* files, ' | sed 's/^.*[0-9]* files, \(.*\)).*$/{} \1/'\" | sort -h -r -k2 - | column -t"
+
+# useful:
+# brew uses --installed --recursive <package>
+# brew deps --installed --tree <package>
 
 # =======================
 # specific for my machine
@@ -144,7 +167,10 @@ alias vim=nvim
 PYBIN=$(realpath ~/Library/Python/3.8/bin)
 export PATH="$PYBIN:$PATH"
 
+# Add secrets and auth from private repo
+export GOOGLE_APPLICATION_CREDENTIALS="private/keys/mooddex-key.json"
 
+# fix my keys on macOS
 # look for usage id key macos:
 # https://developer.apple.com/library/archive/technotes/tn2450/_index.html
 fixkeys() {
@@ -153,7 +179,6 @@ fixkeys() {
 nofixkeys() {
     hidutil property --set '{"UserKeyMapping":[]}'
 }
-
 export -f fixkeys > /dev/null
 export -f nofixkeys > /dev/null
 
