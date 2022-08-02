@@ -138,9 +138,6 @@ alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v exten
 # make sure that enter key works: https://askubuntu.com/questions/441744/pressing-enter-produces-m-instead-of-a-newline
 stty sane
 
-
-alias brewleaves="brew deps --installed | grep -E '$(paste -sd "|" <(brew leaves))'"
-$(
 # ========
 # Homebrew 
 # ========
