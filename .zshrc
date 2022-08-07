@@ -61,7 +61,7 @@ alias mergepdf='gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=_merged.p
 
 alias grabsite='wget -r -np --wait=1 -k --execute="robots = off" --mirror --wait=1 --user-agent="Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0"'
 
-alias ymp3=youtube-dl -x --audio-format mp3 --add-metadata --embed-thumbnail
+alias ymp3='youtube-dl -x --audio-format mp3 --add-metadata --embed-thumbnail'
 
 # ==============
 # macOS specific 
@@ -168,7 +168,7 @@ PYBIN=$(realpath ~/Library/Python/3.8/bin)
 export PATH="$PYBIN:$PATH"
 
 # Add secrets and auth from private repo
-export GOOGLE_APPLICATION_CREDENTIALS="private/keys/mooddex-key.json"
+# export GOOGLE_APPLICATION_CREDENTIALS="~/private/keys/mooddex-key.json"
 
 # fix my keys on macOS
 # look for usage id key macos:
