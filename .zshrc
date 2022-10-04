@@ -182,6 +182,10 @@ nofixkeys() {
 export -f fixkeys > /dev/null
 export -f nofixkeys > /dev/null
 
+
+totp() { oathtool --totp -b $(<~/".totp_${1:-zuhlke}") | pbcopy; }
+# add more (umask 0077;pbpaste > ~/.totp_github)
+
 # ==============
 # DevOps
 # ==============

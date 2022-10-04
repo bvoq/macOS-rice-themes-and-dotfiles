@@ -3,7 +3,10 @@
 if [[ $OSTYPE == 'darwin'* ]]; then
   brew autoremove
   brew cleanup
-  brew install bat git nvim tmux tree zsh-completions jq yq
+  brew install bat git nvim realpath tmux tree zsh-completions jq yq
+  brew install kubectl
+  brew install caffeine dash --cask
+
   # devops tools
   brew install kubectl fluxcd/tap/flux kubetail
   brew tap johanhaleby/kubetail && brew install kubetail
@@ -86,7 +89,7 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   echo "Afer this Terminal.app will be killed. Note that in order to apply all settings a full restart is required."
   waitconfirm
 
-  cp terminal.app/com.apple.Terminal.plist ~/Library/Preferences/com.apple.Terminal.plist
+  cp terminal/com.apple.Terminal.plist ~/Library/Preferences/com.apple.Terminal.plist
   defaults read com.apple.Terminal
   echo "Done. Goodbye."
   killall "Terminal"
