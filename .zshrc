@@ -163,9 +163,9 @@ alias brewmemsimple="brew list --formula | xargs -n1 -P8 -I {} sh -c \"brew info
 # external hard drive not mounting https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
 alias vim=nvim
 
-# Add python3 to bin
-PYBIN=$(realpath ~/Library/Python/3.8/bin)
-export PATH="$PYBIN:$PATH"
+# # Add python3 to bin
+# PYBIN=$(realpath ~/Library/Python/3.8/bin)
+# export PATH="$PYBIN:$PATH"
 
 # Add secrets and auth from private repo
 # export GOOGLE_APPLICATION_CREDENTIALS="~/private/keys/mooddex-key.json"
