@@ -3,7 +3,7 @@
 if [[ $OSTYPE == 'darwin'* ]]; then
   brew autoremove
   brew cleanup
-  brew install bat git nvim realpath tmux tree zsh-completions jq yq
+  brew install bat git nvim tmux tree zsh-completions jq yq
   brew install kubectl
   brew install caffeine dash --cask
 
