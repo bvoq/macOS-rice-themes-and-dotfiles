@@ -167,8 +167,13 @@ alias vim=nvim
 # PYBIN=$(realpath ~/Library/Python/3.8/bin)
 # export PATH="$PYBIN:$PATH"
 
+# Add flutter to path
+export PATH="$PATH:$HOME/Development/flutter/bin" 
+
 # Add secrets and auth from private repo
 # export GOOGLE_APPLICATION_CREDENTIALS="~/private/keys/mooddex-key.json"
+
+# cat "~/private/keys/bitbucketpat.txt"
 
 # fix my keys on macOS
 # look for usage id key macos:
@@ -182,6 +187,7 @@ nofixkeys() {
 export -f fixkeys > /dev/null
 export -f nofixkeys > /dev/null
 
+pat() { pbcopy < ~/private/keys/ptabb.txt }
 
 totp() { oathtool --totp -b $(<~/".totp_${1:-zuhlke}") | pbcopy; }
 # add more (umask 0077;pbpaste > ~/.totp_github)
