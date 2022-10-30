@@ -189,6 +189,9 @@ hi NeomakeVirtualtextError ctermfg=203 guifg=#bfbfbf
 "autocmd FileType cpp map <buffer> <S-r> :w<CR>:exec 'w !g++ -std=c++17 -Wall -Wextra -g3 -ggdb3 -fsanitize=address ' shellescape(@%, 1) ';./a.out' <CR>
 
 
+" Fzf plugin
+set rtp+=/usr/local/opt/fzf
+
 " Trim Whitespace at the end of the line.
 fun! TrimWhitespace()
     let l:save = winsaveview()

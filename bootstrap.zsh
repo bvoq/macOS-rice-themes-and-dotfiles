@@ -6,6 +6,8 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   brew install bat git nvim tmux tree zsh-completions jq yq
   brew install caffeine dash docker --cask
   brew install kubectl go
+  brew install fzf
+  /usr/local/opt/fzf/install
 
   # flutter-stylizer
   export GOPATH=${HOME}/go

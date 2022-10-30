@@ -201,6 +201,8 @@ fun! TrimWhitespace()
 endfun
 command! TrimWhitespace call TrimWhitespace()
 
+" Fzf plugin
+set rtp+=/usr/local/opt/fzf
 
 """ Various vim settings
 syntax on
