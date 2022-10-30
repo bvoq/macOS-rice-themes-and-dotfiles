@@ -224,3 +224,27 @@ if has('nvim')
     set inccommand=nosplit
 endif
 set mouse=a " for mouse to work in tmux and vim
+
+
+
+" Vim Rabbit Hole Hierarchy:
+" ---
+" BUFFERS
+" use buffers when navigating code in the same context.
+" when closing vim only unsaved buffers will block you from quitting
+" for example when looking up a definition using gd, gD, \ti, \ti
+" :bp :bn buffer previous/next
+
+" TAB PAGES
+" gt gT 3gt to switch between tabs
+" :tabn :tabp to switch between tabs
+" :tabs
+" spread buffers into tab pages: sball
+
+" WINDOWS
+" :vsplit and :split
+" <c-w><c-w> to switch between windows
+" spread buffers into windows :vertical ball 
+" VIMGREP
+" :vimgrep /DistributionStatus/g %:h/**
+" use :cnext :cprevious :clist or :lnext :lprevious :llist for :lvimgrep

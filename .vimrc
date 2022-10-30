@@ -233,7 +233,7 @@ set splitbelow "move preview window to below, so it doesn't move the code
 " :vsplit and :split
 " <c-w><c-w> to switch between windows
 " spread buffers into windows :vertical ball 
-" VIMGREP
-" :vimgrep /DistributionStatus/g %:h/*
+" VIMGREP , note ** is globstar
+" :vimgrep /DistributionStatus/g %:h/** 
 " use :cnext :cprevious :clist or :lnext :lprevious :llist for :lvimgrep
 

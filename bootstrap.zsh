@@ -4,8 +4,14 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   brew autoremove
   brew cleanup
   brew install bat git nvim tmux tree zsh-completions jq yq
-  brew install kubectl
-  brew install caffeine dash --cask
+  brew install caffeine dash docker --cask
+  brew install kubectl go
+
+  # flutter-stylizer
+  export GOPATH=${HOME}/go
+  mkdir -p $GOPATH
+  export PATH=${PATH}:${HOME}/go/bin
+  go install github.com/gmlewis/go-flutter-stylizer/cmd/flutter-stylizer@latest
 
   # devops tools
   brew install kubectl fluxcd/tap/flux kubetail

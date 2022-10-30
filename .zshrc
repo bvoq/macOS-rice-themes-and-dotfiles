@@ -5,6 +5,14 @@ export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
+# Enable aliases to be sudo’ed
+alias sudo='sudo '
+
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+
 # Detect which `ls` flavor is in use
 if ls --color > /dev/null 2>&1; then # GNU `ls`
     colorflag="--color"
@@ -13,20 +21,12 @@ else # macOS `ls`
     colorflag="-G"
     export LSCOLORS='BxBxhxDxfxhxhxhxhxcxcx'
 fi
-
-alias ..="cd .."
-alias ...="cd ../.."
-alias ....="cd ../../.."
-alias .....="cd ../../../.."
-
 # Always use color output for `ls`
 alias ls="command ls ${colorflag}"
 # List all files colorized in long format
 alias l="ls -lF ${colorflag}"
-
 # List all files colorized in long format, excluding . and ..
 alias la="ls -lAF ${colorflag}"
-
 # List only directories
 alias lsd="ls -lF ${colorflag} | grep --color=never '^d'"
 
@@ -46,9 +46,6 @@ alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
 
-# Enable aliases to be sudo’ed
-alias sudo='sudo '
-
 # Intuitive map function
 # For example, to list all directories that contain a certain file:
 # find . -name .gitattributes | map dirname
@@ -58,6 +55,7 @@ alias map="xargs -n1"
 # Merge PDF files, preserving hyperlinks
 # Usage: `mergepdf input{1,2,3}.pdf`
 alias mergepdf='gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=_merged.pdf'
+alias mergepdf2='pdfjoin --rotateoversize false'
 
 alias grabsite='wget -r -np --wait=1 -k --execute="robots = off" --mirror --wait=1 --user-agent="Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0"'
 
@@ -78,7 +76,7 @@ fi
 # [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
 
 # open command line tab in same location
-alias hopen='open -a /Applications/Utilities/Terminal.app .'
+alias hopen='open . -a Terminal.app'
 
 # Flush Directory Service cache
 alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder"
@@ -160,20 +158,22 @@ alias brewmemsimple="brew list --formula | xargs -n1 -P8 -I {} sh -c \"brew info
 # =======================
 # specific for my machine
 # =======================
-# external hard drive not mounting https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
-alias vim=nvim
 
-# # Add python3 to bin
+# Add binaries
+# Python
 # PYBIN=$(realpath ~/Library/Python/3.8/bin)
 # export PATH="$PYBIN:$PATH"
+# Flutter
+export PATH="$PATH:$HOME/Developer/flutter/bin" 
+export PATH="$PATH":"$HOME/.pub-cache/bin"
+# Go
+export GOPATH=${HOME}/go
+mkdir -p $GOPATH
+export PATH=${PATH}:${HOME}/go/bin
 
-# Add flutter to path
-export PATH="$PATH:$HOME/Development/flutter/bin" 
 
-# Add secrets and auth from private repo
-# export GOOGLE_APPLICATION_CREDENTIALS="~/private/keys/mooddex-key.json"
-
-# cat "~/private/keys/bitbucketpat.txt"
+# external hard drive not mounting https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
+alias vim=nvim
 
 # fix my keys on macOS
 # look for usage id key macos:
@@ -187,10 +187,18 @@ nofixkeys() {
 export -f fixkeys > /dev/null
 export -f nofixkeys > /dev/null
 
-pat() { pbcopy < ~/private/keys/ptabb.txt }
+
+# Add secrets and auth from private repo
+# export GOOGLE_APPLICATION_CREDENTIALS="~/private/keys/mooddex-key.json"
+
+# bb auth, private access token
+bbauth() { pbcopy < ~/private/keys/bbauth.txt }
 
 totp() { oathtool --totp -b $(<~/".totp_${1:-zuhlke}") | pbcopy; }
 # add more (umask 0077;pbpaste > ~/.totp_github)
+# call others usig totp github for e.g.
+
+simulatordata() { cd ~/Library/Developer/CoreSimulator/Devices/"${1}"/data/Containers/Data/Application ; ls -lt ; pwd}
 
 # ==============
 # DevOps
