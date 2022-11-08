@@ -18,6 +18,8 @@ endif
 " List messages using :messages
 " echom "OS is" g:os
 
+Plug 'will133/vim-dirdiff'
+
 if g:os == "Darwin"
 elseif g:os == "Linux"
 elseif g:os == "Windows"

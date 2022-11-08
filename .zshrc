@@ -191,8 +191,9 @@ export -f nofixkeys > /dev/null
 # Add secrets and auth from private repo
 # export GOOGLE_APPLICATION_CREDENTIALS="~/private/keys/mooddex-key.json"
 
-# bb auth, private access token
+# bb & azure auth, private access token
 bbauth() { pbcopy < ~/private/keys/bbauth.txt }
+azauth() { pbcopy < ~/private/keys/azureauth.txt }
 
 totp() { oathtool --totp -b $(<~/".totp_${1:-zuhlke}") | pbcopy; }
 # add more (umask 0077;pbpaste > ~/.totp_github)
@@ -217,6 +218,16 @@ compdef _kubectl k
 # kubectl exec -it <pod> [-c <container>] -- sh
 # kubectl debug -it debugcontainer --image=busybox:1.28 --target=<pod>
 # kubectl debug myapp -it --image=debugcontainerimage --share-processes --copy-to=myapp-debug
+
+# stop and delete docker containers by their image id
+dsi() { docker stop $(docker ps -a | awk -v i="^$1.*" '{if($2~i){print$1}}'); }
+drmi() { docker rm $(dsi $1  | tr '\n' ' '); }
+
+# make sure rm just trashes
+alias rm='trash'
+
+# enable fuzzy finder
+# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 
 # some useful flags

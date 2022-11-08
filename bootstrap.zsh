@@ -3,11 +3,11 @@
 if [[ $OSTYPE == 'darwin'* ]]; then
   brew autoremove
   brew cleanup
-  brew install bat git nvim tmux tree zsh-completions jq yq
-  brew install caffeine dash docker --cask
+  brew install bat git nvim tmux trash tree zsh-completions jq yq
+  brew install caffeine dash docker visual-studio-code --cask
   brew install kubectl go
-  brew install fzf
-  /usr/local/opt/fzf/install
+  # brew install fzf
+  # $(brew --prefix)/opt/fzf/install
 
   # flutter-stylizer
   export GOPATH=${HOME}/go
@@ -31,6 +31,30 @@ if [[ $OSTYPE == 'darwin'* ]]; then
    compinit
   fi
 fi
+
+
+
+echo "Installing VSCode extensions"
+# general
+code --install-extension aaron-bond.better-comments
+code --install-extension GitHub.copilot
+code --install-extension deerawan.vscode-dash
+code --install-extension Gruntfuggly.todo-tree
+code --install-extension robertohuertasm.vscode-icons
+#code --install-extension waymondo.todoist
+
+# flutter
+code --install-extension Dart-Code.dart-code
+code --install-extension Dart-Code.flutter
+code --install-extension Nash.awesome-flutter-snippets
+code --install-extension localizely.flutter-intl
+code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
+
+# generic linters
+code --install-extension DavidAnson.vscode-markdownlint
+code --install-extension redhat.vscode-yaml
+code --install-extension vscjava.vscode-gradle
+code --install-extension twxs.cmake
 
 # zgen for zsh plugin management
 # git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
@@ -61,6 +85,8 @@ cp .tmux.conf ~/.tmux.conf
 cp -r .tmux   ~/.tmux
 cp .zshrc     ~/.zshrc
 
+echo "Installing Vim and Neovim configurations and plugins"
+
 # Install vim and neovim
 # install vundle for vim
 curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
@@ -77,6 +103,7 @@ nvim +'PlugClean --sync' +qa
 \vim +'PlugInstall --sync' +qa
 \vim +'PlugClean --sync' +qa
 
+echo "To enable trace, run: 'csrutil enable --without dtrace --without debug' in reboot mode."
 # Language servers for vim and vscode (also edit in init.vim)
 echo "Next: Installing language servers."
 waitconfirm

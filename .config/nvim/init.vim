@@ -17,6 +17,8 @@ Plug 'junegunn/fzf.vim'
 " Smoother scrolling
 Plug 'petertriho/nvim-scrollbar'
 
+" Plug 'will133/vim-dirdiff'
+
 """ neovim only
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
