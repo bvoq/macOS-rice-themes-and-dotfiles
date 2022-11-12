@@ -36,5 +36,7 @@ function Verify-Elevated {
 # TODO add vim
 function Edit-Profile { Invoke-Expression "$(if($env:EDITOR -ne $null)  {$env:EDITOR } else { 'notepad' }) $profile" }
 
+# TODO test
+# Write-Host "`e]0;$PWD`a" -NoNewLine
 Clear-Host
 

@@ -136,6 +136,14 @@ alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v exten
 # make sure that enter key works: https://askubuntu.com/questions/441744/pressing-enter-produces-m-instead-of-a-newline
 stty sane
 
+# iTerm2 or other terminals, make sure that the last two folders of PWD is shown in the tab bar.
+if [ $ITERM_SESSION_ID ]; then
+precmd() {
+  echo -ne "\033]0;${PWD#*${PWD%*/*/*}}\007"
+}
+fi
+# export PROMPT_COMMAND='echo -ne "\033]0;$PWD\007"'
+
 # ========
 # Homebrew 
 # ========
