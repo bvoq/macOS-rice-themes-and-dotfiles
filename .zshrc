@@ -61,6 +61,11 @@ alias grabsite='wget -r -np --wait=1 -k --execute="robots = off" --mirror --wait
 
 alias ymp3='youtube-dl -x --audio-format mp3 --add-metadata --embed-thumbnail'
 
+alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | awk '/^blob/ {print substr($""0,6)}' | sort --numeric-sort --key=2 | gnumfmt --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest"
+# then remove using
+# rm -Rf .git/refs/original
+# git gc --aggressive --prune=now
+
 # ==============
 # macOS specific 
 # ==============
