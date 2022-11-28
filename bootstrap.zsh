@@ -105,6 +105,13 @@ nvim +'PlugClean --sync' +qa
 
 echo "To enable trace, run: 'csrutil enable --without dtrace --without debug' in reboot mode."
 # Language servers for vim and vscode (also edit in init.vim)
+echo "Next: Installing rclone and others that need root permission"
+waitconfirm
+sudo -v ; curl https://rclone.org/install.sh | sudo bash
+brew install macfuse --cask # reinstall after changing security properties
+#later use:
+#using: https://wasabi-support.zendesk.com/hc/en-us/articles/115001600252-How-do-I-use-Rclone-with-Wasabi-
+#rclone mount wasabi-kdkdk:kdkdk/ wasabi-kdkdk/ &
 echo "Next: Installing language servers."
 waitconfirm
 
