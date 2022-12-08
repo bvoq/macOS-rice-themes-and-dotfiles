@@ -30,6 +30,10 @@ if [[ $OSTYPE == 'darwin'* ]]; then
    # rm -f ~/.zcompdump # may be necessary
    compinit
   fi
+
+  # formal methods
+  brew install stack
+  stack install Agda # installs GHC automatically
 fi
 
 
@@ -41,6 +45,7 @@ code --install-extension GitHub.copilot
 code --install-extension deerawan.vscode-dash
 code --install-extension Gruntfuggly.todo-tree
 code --install-extension robertohuertasm.vscode-icons
+code --install-extension johnpapa.vscode-peacock
 #code --install-extension waymondo.todoist
 
 # flutter
@@ -53,8 +58,11 @@ code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
 # generic linters
 code --install-extension DavidAnson.vscode-markdownlint
 code --install-extension redhat.vscode-yaml
-code --install-extension vscjava.vscode-gradle
-code --install-extension twxs.cmake
+#code --install-extension vscjava.vscode-gradle
+#code --install-extension twxs.cmake
+
+# formal
+code --install-extension banacorn.agda-mode
 
 # zgen for zsh plugin management
 # git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
@@ -78,6 +86,11 @@ mv ~/.vimrc     ~/.vimrc.old
 mv ~/.tmux.conf ~/.tmux.conf.old
 rm -r ~/.tmux.old && mv ~/.tmux ~/.tmux.old
 mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
+
+if [[ $OSTYPE == 'darwin'* ]]; then
+  mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.old
+  cp .vscode-settings.json ~/Library/Application\ Support/Code/User/settings.json
+fi
 
 cp .inputrc   ~/.inputrc
 cp .gitconfig ~/.gitconfig
@@ -108,10 +121,14 @@ echo "To enable trace, run: 'csrutil enable --without dtrace --without debug' in
 echo "Next: Installing rclone and others that need root permission"
 waitconfirm
 sudo -v ; curl https://rclone.org/install.sh | sudo bash
-brew install macfuse --cask # reinstall after changing security properties
+if [[ $OSTYPE == 'darwin'* ]]; then
+  brew install macfuse --cask # reinstall after changing security properties
+fi
 #later use:
 #using: https://wasabi-support.zendesk.com/hc/en-us/articles/115001600252-How-do-I-use-Rclone-with-Wasabi-
+# restart and make sure macfuse works, then:
 #rclone mount wasabi-kdkdk:kdkdk/ wasabi-kdkdk/ &
+# rclone copy source:path destination:path
 echo "Next: Installing language servers."
 waitconfirm
 

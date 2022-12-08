@@ -1,0 +1,60 @@
+{
+    "editor.codeLensFontFamily": "SourceCodePro",
+    "editor.fontFamily": "SourceCodePro, Menlo, Monaco, 'Courier New', monospace",
+    "editor.fontLigatures": false,
+
+    "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "editor.rulers": [
+            80
+        ],
+        "editor.selectionHighlight": false,
+        "editor.suggest.snippetsPreventQuickSuggestions": false,
+        "editor.suggestSelection": "first",
+        "editor.tabCompletion": "onlySnippets",
+        "editor.wordBasedSuggestions": false,
+        "editor.suggest.filterGraceful": true,
+        "editor.suggest.showClasses": false,
+    },
+    "dart.debugExternalPackageLibraries": true,
+    "dart.debugSdkLibraries": true,
+
+    "editor.inlineSuggest.enabled": true,
+    "github.copilot.enable": {
+        "*": true,
+        "yaml": false,
+        "plaintext": true,
+        "markdown": false
+    },
+
+    "redhat.telemetry.enabled": false,
+    "http.proxyAuthorization": null,
+    
+    "dash.fileNameToDocsetMap": {
+
+        "[dD]ocker*": [
+            "docker"
+        ],
+        "Vagrantfile": [
+            "vagrant"
+        ],
+        "gruntfile.js": [
+            "grunt"
+        ],
+        "gulpfile.js": [
+            "gulp"
+        ],
+        "*.ino": [
+            "arduino"
+        ],
+        "*.dart": [
+            "dartlang",
+            "dartdocs"
+        ]
+    },
+    "window.zoomLevel": -1,
+    "cmake.configureOnOpen": false,
+
+
+}

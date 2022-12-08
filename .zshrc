@@ -184,6 +184,8 @@ export PATH="$PATH":"$HOME/.pub-cache/bin"
 export GOPATH=${HOME}/go
 mkdir -p $GOPATH
 export PATH=${PATH}:${HOME}/go/bin
+# Agda
+export PATH=${PATH}:${HOME}/.local/bin
 
 
 # external hard drive not mounting https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
