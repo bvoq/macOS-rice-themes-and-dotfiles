@@ -131,8 +131,9 @@ sudo -v ; curl https://rclone.org/install.sh | sudo bash
 if [[ $OSTYPE == 'darwin'* ]]; then
   brew install macfuse --cask # reinstall after changing security properties
 fi
-#later use:
+#later setup wasabi-kdkdk:
 #using: https://wasabi-support.zendesk.com/hc/en-us/articles/115001600252-How-do-I-use-Rclone-with-Wasabi-
+#s3.ap-northeast-1.wasabisys.com with PW in pass
 # restart and make sure macfuse works, then:
 #rclone mount wasabi-kdkdk:kdkdk/ wasabi-kdkdk/ &
 # rclone copy source:path destination:path

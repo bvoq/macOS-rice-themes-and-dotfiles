@@ -69,7 +69,8 @@ alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(obj
 
 # First argument = dir, Second argument = location and name (.tar.xz)
 compressdir() {
-    tar --xz -cf "$1.tar.xz" "$1"
+    if [ $# -eq 1 ]; then tar --xz -cf "$1.tar.xz" "$1"; fi
+    if [ $# -eq 2 ]; then tar --xz -cf "$2.tar.xz" "$1"; fi
 }
 export -f compressdir > /dev/null
 
