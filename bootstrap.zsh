@@ -129,7 +129,7 @@ echo "Next: Installing rclone and others that need root permission"
 waitconfirm
 sudo -v ; curl https://rclone.org/install.sh | sudo bash
 if [[ $OSTYPE == 'darwin'* ]]; then
-  brew install macfuse --cask # reinstall after changing security properties
+  # brew install macfuse --cask # reinstall after changing security properties
 fi
 #later setup wasabi-kdkdk:
 #using: https://wasabi-support.zendesk.com/hc/en-us/articles/115001600252-How-do-I-use-Rclone-with-Wasabi-
