@@ -187,6 +187,8 @@ export PATH=${PATH}:${HOME}/go/bin
 # Agda
 export PATH=${PATH}:${HOME}/.local/bin
 
+# make sure that my global drive is mounted.
+rclone mount -q wasabi-kdkdk:kdkdk/ wasabi-kdkdk/ &
 
 # external hard drive not mounting https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
 alias vim=nvim
