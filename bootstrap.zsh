@@ -34,6 +34,11 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   # formal methods
   brew install stack
   stack install Agda # installs GHC automatically
+  # install emacs from mituharu: https://github.com/railwaycat/homebrew-emacsmacport
+  brew tap railwaycat/emacsmacport
+  brew install --cask emacs-mac
+  agda-mode setup
+
 fi
 
 
@@ -79,19 +84,21 @@ git submodule init
 git submodule update
 
 # create a backup, better safe than sorry.
+mv ~/.emacs     ~/.emacs.old
 mv ~/.inputrc   ~/.inputrc.old
 mv ~/.gitconfig ~/.gitconfig.old
-mv ~/.zshrc     ~/.zshrc.old
-mv ~/.vimrc     ~/.vimrc.old
 mv ~/.tmux.conf ~/.tmux.conf.old
 rm -r ~/.tmux.old && mv ~/.tmux ~/.tmux.old
+mv ~/.vimrc     ~/.vimrc.old
 mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
+mv ~/.zshrc     ~/.zshrc.old
 
 if [[ $OSTYPE == 'darwin'* ]]; then
   mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.old
   cp .vscode-settings.json ~/Library/Application\ Support/Code/User/settings.json
 fi
 
+cp .emacs ~/.emacs
 cp .inputrc   ~/.inputrc
 cp .gitconfig ~/.gitconfig
 cp .tmux.conf ~/.tmux.conf

@@ -67,6 +67,22 @@ alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(obj
 # rm -Rf .git/refs/original
 # git gc --aggressive --prune=now
 
+# First argument = dir, Second argument = location and name (.tar.xz)
+compressdir() {
+    tar --xz -cf "$1.tar.xz" "$1"
+}
+export -f compressdir > /dev/null
+
+decompressdir() {
+    bname=$(basename $1)
+    fname=${bname%.tar.xz}
+    tar --xz -xvf "$1"
+    if [ $# -eq 2 ]; then mv "$fname" "$2";  fi
+}
+export -f decompressdir > /dev/null
+
+
+
 # ==============
 # macOS specific 
 # ==============
