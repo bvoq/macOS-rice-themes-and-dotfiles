@@ -186,23 +186,14 @@ alias brewmemsimple="brew list --formula | xargs -n1 -P8 -I {} sh -c \"brew info
 # brew uses --installed --recursive <package>
 # brew deps --installed --tree <package>
 
+# Usage: pdfjoings merged.pdf file1.pdf file2.pdf ... fileN.pdf
+pdfjoings () { 
+  gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile="$1" "${@:2}"
+}
+
 # =======================
 # specific for my machine
 # =======================
-
-# Add binaries
-# Python
-# PYBIN=$(realpath ~/Library/Python/3.8/bin)
-# export PATH="$PYBIN:$PATH"
-# Flutter
-export PATH="$PATH:$HOME/Developer/flutter/bin" 
-export PATH="$PATH":"$HOME/.pub-cache/bin"
-# Go
-export GOPATH=${HOME}/go
-mkdir -p $GOPATH
-export PATH=${PATH}:${HOME}/go/bin
-# Agda
-export PATH=${PATH}:${HOME}/.local/bin
 
 # make sure that my global drive is mounted.
 # mkdir -p ~/wasabi-kdkdk

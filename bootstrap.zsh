@@ -1,11 +1,18 @@
 #!/bin/zsh
+
+FORMALMETHODS=1
+GENERICTOOLS=1
+
 # set -x
 if [[ $OSTYPE == 'darwin'* ]]; then
+  # generic useful
   brew autoremove
   brew cleanup
   brew install bat git nvim tmux trash tree zsh-completions jq yq
   brew install caffeine dash docker visual-studio-code --cask
   brew install kubectl go
+  brew install gs
+  brew install ncurses
   # brew install fzf
   # $(brew --prefix)/opt/fzf/install
 
@@ -31,13 +38,39 @@ if [[ $OSTYPE == 'darwin'* ]]; then
    compinit
   fi
 
-  # formal methods
-  brew install stack
-  stack install Agda # installs GHC automatically
-  # install emacs from mituharu: https://github.com/railwaycat/homebrew-emacsmacport
-  brew tap railwaycat/emacsmacport
-  brew install --cask emacs-mac
-  agda-mode setup
+  if [ $FORMALMETHODS = 1 ]; then
+    # formal methods
+    brew install eprover
+    brew install spin
+    brew install --cask tla-plus-toolbox
+    # PsiSolver
+    brew tap bvoq/bvoq
+    brew install psisolver --HEAD
+    # Kframework
+    brew tap kframework/k
+    brew install kframework
+    # Agda
+    brew install stack
+    stack install Agda # installs GHC automatically
+    # install emacs from mituharu: https://github.com/railwaycat/homebrew-emacsmacport
+    brew tap railwaycat/emacsmacport
+    brew install --cask emacs-mac
+    agda-mode setup
+  fi
+
+  if [ $GENERICTOOLS = 1 ]; then
+    brew install --cask tor-browser
+    brew tap kframework/k
+    brew install kframework
+    # light version
+    brew install --cask basictex
+    brew install --cask tex-live-utility
+    # full version
+    # brew install --cask mactex
+    # https://www.texifier.com/mac
+    ## you own a license: 97gmail I..4
+    # daisydisk for mac cleanup space... but install using the right apple account...
+  fi
 
 fi
 
@@ -92,6 +125,7 @@ rm -r ~/.tmux.old && mv ~/.tmux ~/.tmux.old
 mv ~/.vimrc     ~/.vimrc.old
 mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
 mv ~/.zshrc     ~/.zshrc.old
+mv ~/.zshenv     ~/.zshenv.old
 
 if [[ $OSTYPE == 'darwin'* ]]; then
   mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.old
@@ -104,6 +138,7 @@ cp .gitconfig ~/.gitconfig
 cp .tmux.conf ~/.tmux.conf
 cp -r .tmux   ~/.tmux
 cp .zshrc     ~/.zshrc
+cp .zshenv    ~/.zshenv
 
 echo "Installing Vim and Neovim configurations and plugins"
 
