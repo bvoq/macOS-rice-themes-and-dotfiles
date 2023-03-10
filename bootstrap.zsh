@@ -16,6 +16,9 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   # brew install fzf
   # $(brew --prefix)/opt/fzf/install
 
+  # apple development
+  brew install robotsandpencils/made/xcodes
+
   # flutter-stylizer
   export GOPATH=${HOME}/go
   mkdir -p $GOPATH
@@ -74,35 +77,6 @@ fi
 
 
 
-echo "Installing VSCode extensions"
-# general
-code --install-extension aaron-bond.better-comments
-code --install-extension GitHub.copilot
-code --install-extension deerawan.vscode-dash
-code --install-extension Gruntfuggly.todo-tree
-code --install-extension robertohuertasm.vscode-icons
-code --install-extension johnpapa.vscode-peacock
-#code --install-extension waymondo.todoist
-
-# flutter
-code --install-extension Dart-Code.dart-code
-code --install-extension Dart-Code.flutter
-code --install-extension Nash.awesome-flutter-snippets
-code --install-extension localizely.flutter-intl
-code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
-
-curl -sL https://firebase.tools | bash
-dart pub global activate flutterfire_cli
-
-# generic linters
-code --install-extension DavidAnson.vscode-markdownlint
-code --install-extension redhat.vscode-yaml
-#code --install-extension vscjava.vscode-gradle
-#code --install-extension twxs.cmake
-
-# formal
-code --install-extension banacorn.agda-mode
-
 # zgen for zsh plugin management
 # git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
 
@@ -160,7 +134,49 @@ nvim +'PlugClean --sync' +qa
 \vim +'PlugClean --sync' +qa
 
 echo "To enable trace, run: 'csrutil enable --without dtrace --without debug' in reboot mode."
+
+echo "Installing VSCode extensions"
+# general
+code --install-extension aaron-bond.better-comments
+code --install-extension GitHub.copilot
+code --install-extension deerawan.vscode-dash
+code --install-extension Gruntfuggly.todo-tree
+code --install-extension robertohuertasm.vscode-icons
+code --install-extension johnpapa.vscode-peacock
+#code --install-extension waymondo.todoist
+
+# generic linters
+code --install-extension DavidAnson.vscode-markdownlint
+code --install-extension redhat.vscode-yaml
+#code --install-extension vscjava.vscode-gradle
+#code --install-extension twxs.cmake
+
+# formal
+code --install-extension banacorn.agda-mode
+
+# flutter
+code --install-extension Dart-Code.dart-code
+code --install-extension Dart-Code.flutter
+code --install-extension Nash.awesome-flutter-snippets
+code --install-extension localizely.flutter-intl
+code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
+
+echo "Next: Installing firebase, requires root permission."
+waitconfirm
+
+curl -sL https://firebase.tools | bash
+dart pub global activate flutterfire_cli 0.3.0-dev.16 --overwrite
+
+
+
+
 # Language servers for vim and vscode (also edit in init.vim)
+echo "Next: Installing language servers."
+waitconfirm
+
+npm install -g pyright
+npm install -g bash-language-server
+
 echo "Next: Installing rclone and others that need root permission"
 waitconfirm
 sudo -v ; curl https://rclone.org/install.sh | sudo bash
@@ -173,11 +189,8 @@ fi
 # restart and make sure macfuse works, then:
 #rclone mount wasabi-kdkdk:kdkdk/ wasabi-kdkdk/ &
 # rclone copy source:path destination:path
-echo "Next: Installing language servers."
+echo "Next: Installing system changes for macOS."
 waitconfirm
-
-npm install -g pyright
-npm install -g bash-language-server
 
 # System changes for macOS
 if [[ $OSTYPE == 'darwin'* ]]; then
