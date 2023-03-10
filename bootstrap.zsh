@@ -47,8 +47,8 @@ if [[ $OSTYPE == 'darwin'* ]]; then
     brew tap bvoq/bvoq
     brew install psisolver --HEAD
     # Kframework
-    brew tap kframework/k
-    brew install kframework
+    #brew tap kframework/k
+    #brew install kframework
     # Agda
     brew install stack
     stack install Agda # installs GHC automatically
@@ -60,8 +60,6 @@ if [[ $OSTYPE == 'darwin'* ]]; then
 
   if [ $GENERICTOOLS = 1 ]; then
     brew install --cask tor-browser
-    brew tap kframework/k
-    brew install kframework
     # light version
     brew install --cask basictex
     brew install --cask tex-live-utility
@@ -92,6 +90,9 @@ code --install-extension Dart-Code.flutter
 code --install-extension Nash.awesome-flutter-snippets
 code --install-extension localizely.flutter-intl
 code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
+
+curl -sL https://firebase.tools | bash
+dart pub global activate flutterfire_cli
 
 # generic linters
 code --install-extension DavidAnson.vscode-markdownlint
