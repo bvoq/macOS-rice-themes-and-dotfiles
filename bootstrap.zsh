@@ -143,6 +143,8 @@ code --install-extension deerawan.vscode-dash
 code --install-extension Gruntfuggly.todo-tree
 code --install-extension robertohuertasm.vscode-icons
 code --install-extension johnpapa.vscode-peacock
+code --install-extension usernamehw.errorlens
+code --install-extension eamodio.gitlens
 #code --install-extension waymondo.todoist
 
 # generic linters
