@@ -9,7 +9,7 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   brew autoremove
   brew cleanup
   brew install bat git nvim tmux trash tree zsh-completions jq yq
-  brew install caffeine dash docker visual-studio-code --cask
+  brew install baidunetdisk caffeine dash docker visual-studio-code --cask
   brew install kubectl go
   brew install gs
   brew install ncurses
@@ -145,6 +145,8 @@ code --install-extension robertohuertasm.vscode-icons
 code --install-extension johnpapa.vscode-peacock
 code --install-extension usernamehw.errorlens
 code --install-extension eamodio.gitlens
+code --install-extension PKief.material-icon-theme
+code --install-extension Ho-Wan.setting-toggle
 #code --install-extension waymondo.todoist
 
 # generic linters

@@ -17,7 +17,8 @@ Plug 'junegunn/fzf.vim'
 " Smoother scrolling
 Plug 'petertriho/nvim-scrollbar'
 
-" Plug 'will133/vim-dirdiff'
+" Color codes are highlighted in the correct color!
+Plug 'NvChad/nvim-colorizer.lua'
 
 """ neovim only
 Plug 'neovim/nvim-lspconfig'
@@ -28,6 +29,9 @@ Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-vsnip'
 Plug 'hrsh7th/vim-vsnip'
+
+" color codes:
+Plug 'norcalli/nvim-colorizer.lua'
 
 """ Plugins I stopped using
 "Plug 'Valloric/YouCompleteMe' " now using nvim-lspconfig (language servers) instead. Pain to setup.
@@ -47,6 +51,12 @@ call plug#end()
 
 """ airline-theme compatible with Zenburn
 let g:airline_theme = 'zenburn'
+
+""" colorizer
+if (has("termguicolors"))
+  set termguicolors
+  lua require 'colorizer'.setup()
+endif
 
 """ YouCompleteMe (Now using nvim-lspconfig instead)
 " pip3 uninstall neovim pynvim
@@ -205,6 +215,9 @@ command! TrimWhitespace call TrimWhitespace()
 
 " Fzf plugin
 set rtp+=/usr/local/opt/fzf
+
+" Plugin for colorizer
+lua require'colorizer'.setup()
 
 """ Various vim settings
 syntax on

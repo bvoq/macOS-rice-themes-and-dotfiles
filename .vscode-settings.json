@@ -16,6 +16,7 @@
         "editor.wordBasedSuggestions": false,
         "editor.suggest.filterGraceful": true,
         "editor.suggest.showClasses": false,
+        "editor.inlayHints.enabled": "onUnlessPressed"
     },
     "dart.debugExternalPackageLibraries": true,
     "dart.debugSdkLibraries": true,
@@ -55,6 +56,18 @@
     },
     "window.zoomLevel": -1,
     "cmake.configureOnOpen": false,
-
-
+    "workbench.sideBar.location": "right",
+    "workbench.colorCustomizations": {
+       "editorInlayHint.background": "#00000000",
+       "editorInlayHint.foreground": "#666666FF",
+       "editorInlayHint.parameterBackground": "#00000000",
+       "editorInlayHint.parameterForeground": "#666666FF",
+       "editorInlayHint.typeBackground": "#00000000",
+       "editorInlayHint.typeForeground": "#666666FF",
+    },
+    "toggle.settingTitle": "[dart]editor.inlayHints.enabled",
+    "toggle.setting1Title": "off",
+    "toggle.settingState1": "offUnlessPressed",
+    "toggle.setting2Title": "on",
+    "toggle.settingState2": "onUnlessPressed"
 }

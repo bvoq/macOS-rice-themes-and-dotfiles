@@ -256,7 +256,6 @@ alias rm='trash'
 # enable fuzzy finder
 # [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-
 # some useful flags
 # set -x # activate debugging
 # set +x # disable debugging
