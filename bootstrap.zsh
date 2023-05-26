@@ -9,7 +9,8 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   brew autoremove
   brew cleanup
   brew install bat git nvim tmux trash tree zsh-completions jq yq
-  brew install baidunetdisk caffeine dash docker visual-studio-code --cask
+  brew install appcleaner baidunetdisk caffeine dash docker --cask
+  # brew install visual-studio-code --cask # started using insider builds instead.
   brew install kubectl go
   brew install gs
   brew install ncurses
@@ -104,7 +105,8 @@ mv ~/.zshenv     ~/.zshenv.old
 
 if [[ $OSTYPE == 'darwin'* ]]; then
   mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.old
-  cp .vscode-settings.json ~/Library/Application\ Support/Code/User/settings.json
+  cp .vscode-settings.json ~/Library/Application\ Support/Code/User/settings.json # VSCode
+  cp .vscode-settings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/settings.json # VSCode Insiders
 fi
 
 cp .emacs ~/.emacs
@@ -136,24 +138,20 @@ nvim +'PlugClean --sync' +qa
 echo "To enable trace, run: 'csrutil enable --without dtrace --without debug' in reboot mode."
 
 echo "Installing VSCode extensions"
+waitconfirm
 # general
 code --install-extension aaron-bond.better-comments
 code --install-extension GitHub.copilot
 code --install-extension deerawan.vscode-dash
-code --install-extension Gruntfuggly.todo-tree
-code --install-extension robertohuertasm.vscode-icons
 code --install-extension johnpapa.vscode-peacock
 code --install-extension usernamehw.errorlens
 code --install-extension eamodio.gitlens
 code --install-extension PKief.material-icon-theme
 code --install-extension Ho-Wan.setting-toggle
-#code --install-extension waymondo.todoist
 
 # generic linters
 code --install-extension DavidAnson.vscode-markdownlint
 code --install-extension redhat.vscode-yaml
-#code --install-extension vscjava.vscode-gradle
-#code --install-extension twxs.cmake
 
 # formal
 code --install-extension banacorn.agda-mode
@@ -161,8 +159,6 @@ code --install-extension banacorn.agda-mode
 # flutter
 code --install-extension Dart-Code.dart-code
 code --install-extension Dart-Code.flutter
-code --install-extension Nash.awesome-flutter-snippets
-code --install-extension localizely.flutter-intl
 code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
 
 echo "Next: Installing firebase, requires root permission."
@@ -170,8 +166,6 @@ waitconfirm
 
 curl -sL https://firebase.tools | bash
 dart pub global activate flutterfire_cli 0.3.0-dev.16 --overwrite
-
-
 
 
 # Language servers for vim and vscode (also edit in init.vim)

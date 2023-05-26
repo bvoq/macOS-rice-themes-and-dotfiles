@@ -6,6 +6,8 @@
 # Flutter
 export PATH="$PATH:$HOME/Developer/flutter/bin" 
 export PATH="$PATH":"$HOME/.pub-cache/bin"
+# VSCode Insiders
+export PATH="$PATH:/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin"
 # Go
 export GOPATH=${HOME}/go
 mkdir -p $GOPATH
