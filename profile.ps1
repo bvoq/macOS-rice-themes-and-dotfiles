@@ -41,3 +41,6 @@ function Edit-Profile { Invoke-Expression "$(if($env:EDITOR -ne $null)  {$env:ED
 # Write-Host "`e]0;$PWD`a" -NoNewLine
 Clear-Host
 
+# Disable this is you don't use Flutter or have problems with pub.dev
+$env:FLUTTER_STORAGE_BASE_URL='https://storage.flutter-io.cn'
+$env:PUB_HOSTED_URL='https://pub.flutter-io.cn'
