@@ -2,6 +2,8 @@
 Set-Location C:\
 new-alias -Name clip -Value "C:\Windows\System32\clip.exe"
 
+function open($name) { start $name  }
+
 function which($name) { Get-Command $name -ErrorAction SilentlyContinue | Select-Object Definition }
 function sudo() {
     if ($args.Length -eq 1) {
