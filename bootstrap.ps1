@@ -37,12 +37,31 @@ winget install Microsoft.VisualStudioCode --override '/SILENT /mergetasks="!runc
 winget install --id Git.Git -e --source winget --interactive
 # Install vim, make sure to enable .bat scripts
 winget install vim.vim --interactive
+
 # Installing vim plug
 iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim |`
     ni $HOME/vimfiles/autoload/plug.vim -Force
 vim +'PlugInstall --sync' +qa
 vim +'PlugClean --sync' +qa
 
+# Installing VSCode plugins
+# General:
+code --install-extension aaron-bond.better-comments
+code --install-extension GitHub.copilot
+code --install-extension johnpapa.vscode-peacock
+code --install-extension usernamehw.errorlens
+code --install-extension eamodio.gitlens
+code --install-extension PKief.material-icon-theme
+code --install-extension Ho-Wan.setting-toggle
+
+# generic linters
+code --install-extension DavidAnson.vscode-markdownlint
+code --install-extension redhat.vscode-yaml
+
+# flutter
+code --install-extension Dart-Code.dart-code
+code --install-extension Dart-Code.flutter
+code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
 
 
 # Alternatively: Installing chocolatey
