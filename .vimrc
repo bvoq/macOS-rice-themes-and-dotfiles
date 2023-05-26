@@ -29,6 +29,9 @@ let g:OmniSharp_server_use_net6 = 1
 Plug 'dense-analysis/ale'
 endif
 
+
+
+
 Plug 'kassio/neoterm' " better terminal, launch with T
 Plug 'jnurmine/Zenburn'
 " Plug 'ervandew/supertab' " tab instead of ctrl-n and ctrl-p
@@ -219,6 +222,9 @@ set splitbelow "move preview window to below, so it doesn't move the code
 " let mapleader = ","
 " let localmapleader = "\Space"
 
+if g:os == "Windows"
+  set mouse-=a
+endif
 
 " Vim Rabbit Hole Hierarchy:
 " ---
@@ -241,4 +247,3 @@ set splitbelow "move preview window to below, so it doesn't move the code
 " VIMGREP , note ** is globstar
 " :vimgrep /DistributionStatus/g %:h/** 
 " use :cnext :cprevious :clist or :lnext :lprevious :llist for :lvimgrep
-

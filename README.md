@@ -1,8 +1,12 @@
 # macOS-rice-themes-and-dotfiles
-Here are my XCode/(n)vim/terminal themes and configurations, hope you like them!
+Here are my macOS/XCode/(n)vim/terminal configurations and themes, hope you like them!
 
-Check out bootstrap.zsh and see what it does.
-You may want to enable/disable some options in .macos and not overwrite your own vimrc, etc.
+I recommend copying and pasting snippets you like from this repo and host your own dotfiles.
+
+If you are on macOS/unix check out `bootstrap.zsh`
+
+If you are on Windows check out `bootstrap.ps1`
+
 Install using:
 ```
 zsh bootstrap.zsh

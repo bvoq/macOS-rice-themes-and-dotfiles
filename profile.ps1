@@ -33,7 +33,6 @@ function Verify-Elevated {
     # Check to see if we are currently running "as Administrator"
     return $myPrincipal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
 }
-# TODO add vim
 function Edit-Profile { Invoke-Expression "$(if($env:EDITOR -ne $null)  {$env:EDITOR } else { 'notepad' }) $profile" }
 
 # TODO test
