@@ -18,18 +18,18 @@ Remove-Variable profileDir
 
 ### copy config files 
 Copy-Item -Path ./.gitconfig -Destination $HOME/.gitconfig
-Copy-Item -Path ./.vscode-settings.json -Destination %APPDATA%\Code\User\settings.json
+Copy-Item -Path ./.vscode-settings.json -Destination $env:APPDATA\Code\User\settings.json
 Copy-Item -Path ./.vimrc -Destination $HOME/.vimrc
 
-If ($Roles -eq '1') {
-    $Cursor = [System.Console]::CursorTop
-    Do {
-        [System.Console]::CursorTop = $Cursor
-        Clear-Host
-        $Answer = Read-Host -Prompt 'Installed dotfiles, continue to install winget packages and vim? (y/n)'
-    }
-    Until ($Answer -eq 'y' -or $Answer -eq 'n')
+do {
+    $answer = Read-Host "Installed dotfiles, continue to install winget packages and vim packages? (y/n)"
 }
+while("y","n" -notcontains $answer)
+
+if ($answer -eq "n") {
+    exit 0
+}
+
 
 # Install using winget:
 winget install Microsoft.VisualStudioCode --override '/SILENT /mergetasks="!runcode,addcontextmenufiles,addcontextmenufolders"'
