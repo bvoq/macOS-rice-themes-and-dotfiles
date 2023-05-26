@@ -1,9 +1,35 @@
 # Windows dotfiles
-Set-Location C:\
+# Set-Location C:\
 new-alias -Name clip -Value "C:\Windows\System32\clip.exe"
 
-function open($name) { start $name  }
+# Usage: Set-PathVariable -AddPath C:\tmp\bin -RemovePath C:\path\java
+# To persist changes set the -Scope User or -Scope Machine
 
+Function Set-PathVariable {
+    param (
+        [string]$AddPath,
+        [string]$RemovePath,
+        [ValidateSet('Process', 'User', 'Machine')]
+        [string]$Scope = 'Process'
+    )
+    $regexPaths = @()
+    if ($PSBoundParameters.Keys -contains 'AddPath') {
+        $regexPaths += [regex]::Escape($AddPath)
+    }
+
+    if ($PSBoundParameters.Keys -contains 'RemovePath') {
+        $regexPaths += [regex]::Escape($RemovePath)
+    }
+    $arrPath = [System.Environment]::GetEnvironmentVariable('PATH', $Scope) -split ';'
+    foreach ($path in $regexPaths) {
+        $arrPath = $arrPath | Where-Object { $_ -notMatch "^$path\\?" }
+    }
+    $value = ($arrPath + $addPath) -join ';'
+    [System.Environment]::SetEnvironmentVariable('PATH', $value, $Scope)
+}
+
+
+function open($name) { start $name  }
 function which($name) { Get-Command $name -ErrorAction SilentlyContinue | Select-Object Definition }
 function sudo() {
     if ($args.Length -eq 1) {
@@ -13,10 +39,6 @@ function sudo() {
         start-process $args[0] -ArgumentList $args[1..$args.Length] -verb "runAs"
     }
 }
-function Prepend-EnvPath([String]$path) { $env:PATH = $env:PATH + ";$path" }
-function Prepend-EnvPathIfExists([String]$path) { if (Test-Path $path) { Prepend-EnvPath $path } }
-function Append-EnvPath([String]$path) { $env:PATH = $env:PATH + ";$path" }
-function Append-EnvPathIfExists([String]$path) { if (Test-Path $path) { Append-EnvPath $path } }
 
 function System-Update() {
     Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll

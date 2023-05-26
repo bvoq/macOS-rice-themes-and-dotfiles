@@ -2,6 +2,9 @@
 # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 # Bootstrap Windows dotfiles for Powershell & Vim
 
+# need some functions from profile.ps1
+. $PSScriptRoot\profile.ps1
+
 ### Move profile.ps1 into the main powershell location
 $profileDir = Split-Path -parent $profile
 $componentDir = Join-Path $profileDir "components"
@@ -31,12 +34,34 @@ if ($answer -eq "n") {
 }
 
 
-# Install using winget:
-winget install Microsoft.VisualStudioCode --override '/SILENT /mergetasks="!runcode,addcontextmenufiles,addcontextmenufolders"'
+### Install packages using winget
+$packageToInstall=winget list "Microsoft.VisualStudio.2022.Community"
+if ($packageToInstall -lt 4) {
+    winget install --id Microsoft.VisualStudio.2022.Community --interactive
+}
+$packageToInstall=winget list "Microsoft.VisualStudioCode"
+if ($packageToInstall -lt 4) {
+    winget install Microsoft.VisualStudioCode --override '/SILENT /mergetasks="!runcode,addcontextmenufiles,addcontextmenufolders"'
+}
 # Git, make sure to select openssh and use recommendations. You can add ssh keys to $HOME/.ssh
-winget install --id Git.Git -e --source winget --interactive
+$packageToInstall=winget list "Git.Git"
+if ($packageToInstall -lt 4) {
+    winget install --id Git.Git -e --source winget --interactive
+}
+
+# NPM
+$packageToInstall=winget list "OpenJS.NodeJS"
+if ($packageToInstall -lt 4) {
+    winget install OpenJS.NodeJS
+}
+
 # Install vim, make sure to enable .bat scripts
-winget install vim.vim --interactive
+$packageToInstall=winget list "Vim.Vim"
+if ($packageToInstall -lt 4) {
+    winget install vim.vim --interactive
+}
+
+
 
 # Installing vim plug
 iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim |`
@@ -44,7 +69,7 @@ iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim |`
 vim +'PlugInstall --sync' +qa
 vim +'PlugClean --sync' +qa
 
-# Installing VSCode plugins
+### Installing VSCode plugins
 # General:
 code --install-extension aaron-bond.better-comments
 code --install-extension GitHub.copilot
@@ -62,6 +87,17 @@ code --install-extension redhat.vscode-yaml
 code --install-extension Dart-Code.dart-code
 code --install-extension Dart-Code.flutter
 code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
+
+
+### Install flutter
+# make sure git is configured first
+git clone -b stable git@github.com:flutter/flutter.git C:\flutter
+Set-PathVariable -AddPath "C:\flutter\bin" -Scope "User"
+
+### Installing npm packages
+npm install -g firebase-tools
+
+
 
 
 # Alternatively: Installing chocolatey
