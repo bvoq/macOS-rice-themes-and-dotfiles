@@ -49,7 +49,7 @@ if [[ $OSTYPE == 'darwin'* ]]; then
     brew install --cask tla-plus-toolbox
     # PsiSolver
     brew tap bvoq/bvoq
-    brew install psisolver --HEAD
+    brew install psisolver
     # Kframework
     #brew tap kframework/k
     #brew install kframework
@@ -102,6 +102,9 @@ mv ~/.vimrc     ~/.vimrc.old
 mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
 mv ~/.zshrc     ~/.zshrc.old
 mv ~/.zshenv     ~/.zshenv.old
+#mkdir -p /usr/local/etc/periodic/weekly
+#mv /usr/local/etc/periodic/weekly/weekly_macos_script.local /usr/local/etc/periodic/weekly/weekly_macos_script.local.old
+
 
 if [[ $OSTYPE == 'darwin'* ]]; then
   mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.old
@@ -116,6 +119,7 @@ cp .tmux.conf ~/.tmux.conf
 cp -r .tmux   ~/.tmux
 cp .zshrc     ~/.zshrc
 cp .zshenv    ~/.zshenv
+#cp weekly_macos_script.local /usr/local/etc/periodic/weekly/weekly_macos_script.local
 
 echo "Installing Vim and Neovim configurations and plugins"
 

@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Change Safari downloads location
+defaults write com.apple.Safari DownloadsPath -string "/tmp"
+
+# Change Screencapture location
+defaults write com.apple.screencapture /tmp
+
+# Rest is modified from:
 # ~/.macos — https://mths.be/macos
 
 # Close any open System Preferences panes, to prevent them from overriding

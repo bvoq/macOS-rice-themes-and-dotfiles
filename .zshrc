@@ -139,6 +139,11 @@ alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
 # Finally, clear download history from quarantine. https://mths.be/bum
 alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
 
+# Open ios simulator
+alias ios="open /Applications/Xcode.app/Contents/Developer/Applications/Simulator.app"
+# Open first .xcworkspace file in folder `x folder`, else xcodeproj, else playground.
+alias x='matches=("xcworkspace" "xcodeproj" "playground"); for i in "${matches[@]}"; do if [ -d *.${i} ]; then open -a Xcode *.${i}; break; fi; done'
+
 
 # One of @janmoesen’s ProTip™s
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
