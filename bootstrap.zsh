@@ -9,7 +9,7 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   brew autoremove
   brew cleanup
   brew install bat git nvim tmux trash tree zsh-completions jq yq
-  brew install appcleaner baidunetdisk caffeine dash docker --cask
+  brew install appcleaner baidunetdisk caffeine dash docker keka --cask
   # brew install visual-studio-code --cask # started using insider builds instead.
   brew install kubectl go
   brew install gs
@@ -42,8 +42,8 @@ if [[ $OSTYPE == 'darwin'* ]]; then
    compinit
   fi
 
+  ### Formal methods
   if [ $FORMALMETHODS = 1 ]; then
-    # formal methods
     brew install eprover
     brew install spin
     brew install --cask tla-plus-toolbox
@@ -60,6 +60,11 @@ if [[ $OSTYPE == 'darwin'* ]]; then
     brew tap railwaycat/emacsmacport
     brew install --cask emacs-mac
     agda-mode setup
+  fi
+
+  ### Diaphora
+  if [ $SECURITYTOOLS = 1]; then
+    # https://github.com/joxeankoret/diaphora
   fi
 
   if [ $GENERICTOOLS = 1 ]; then
@@ -152,6 +157,7 @@ code --install-extension usernamehw.errorlens
 code --install-extension eamodio.gitlens
 code --install-extension PKief.material-icon-theme
 code --install-extension Ho-Wan.setting-toggle
+code --install-extension ctf0.close-tabs-to-the-left
 
 # generic linters
 code --install-extension DavidAnson.vscode-markdownlint
