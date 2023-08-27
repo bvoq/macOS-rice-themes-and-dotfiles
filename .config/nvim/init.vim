@@ -20,6 +20,7 @@ Plug 'petertriho/nvim-scrollbar'
 " Color codes are highlighted in the correct color!
 Plug 'NvChad/nvim-colorizer.lua'
 
+
 """ neovim only
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
@@ -32,6 +33,10 @@ Plug 'hrsh7th/vim-vsnip'
 
 " color codes:
 Plug 'norcalli/nvim-colorizer.lua'
+
+
+" copilot
+Plug 'github/copilot.vim'
 
 """ Plugins I stopped using
 "Plug 'Valloric/YouCompleteMe' " now using nvim-lspconfig (language servers) instead. Pain to setup.
@@ -120,6 +125,63 @@ lua << EOF
         c = cmp.mapping.close(),
       }),
       ['<CR>'] = cmp.mapping.confirm({ select = true }),
+      ['<C-n>'] = cmp.mapping({
+        c = function()
+            if cmp.visible() then
+                cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+            else
+                vim.api.nvim_feedkeys(t("<Down>"), "n", true)
+            end
+        end,
+        i = function(fallback)
+            if cmp.visible() then
+                cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+            else
+                fallback()
+            end
+        end,
+    }),
+    ['<C-p>'] = cmp.mapping({
+        c = function()
+            if cmp.visible() then
+                cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
+            else
+                vim.api.nvim_feedkeys(t("<Up>"), "n", true)
+            end
+        end,
+        i = function(fallback)
+            if cmp.visible() then
+                cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
+            else
+                fallback()
+            end
+        end,
+    }),
+    -- ['<Tab>'] = cmp.mapping(function(fallback)
+    --   if require("copilot.suggestion").is_visible() then
+    --     require("copilot.suggestion").accept()
+    --   elseif cmp.visible() then
+    --     cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
+    --   elseif luasnip.expandable() then
+    --     luasnip.expand()
+    --   elseif has_words_before() then
+    --     cmp.complete()
+    --   else
+    --     fallback()
+    --   end
+    -- end, {
+    --   "i",
+    --   "s",
+    -- }),
+    -- ['<S-Tab>'] = cmp.mapping(function()
+    --   if cmp.visible() then
+    --     cmp.select_prev_item({ behavior = cmp.SelectBehavior.Insert })
+    --   end
+    -- end, {
+    --   "i",
+    --   "s",
+    -- }),
+ 
     },
     sources = cmp.config.sources({
       { name = 'nvim_lsp' },
@@ -156,7 +218,24 @@ lua << EOF
   require('lspconfig')['pyright'].setup {
     capabilities = capabilities
   }
+  -- require'lspconfig'.pylsp.setup {
+  --   capabilities = require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities()),
+  --   settings = {
+  --       pylsp = {
+  --           plugins = {
+  --          jedi_completion = {
+  --            include_params = true,
+  --         },
+  --       },
+  --     },
+  --   },
+  -- }
+
   require'lspconfig'.bashls.setup{
+    capabilities = capabilities
+  }
+  require'lspconfig'.dartls.setup{ 
+    cmd = { "dart", 'language-server', '--protocol=lsp' },
     capabilities = capabilities
   }
 
@@ -219,11 +298,15 @@ set rtp+=/usr/local/opt/fzf
 " Plugin for colorizer
 lua require'colorizer'.setup()
 
+" Copilot
+imap <silent> <C-j> <Plug>(copilot-next)
+imap <silent> <C-k> <Plug>(copilot-previous)
+
+
 """ Various vim settings
 syntax on
 set hidden " hide buffers instead of closing them.
 "set nu " set rnu for relative numbering.
-set paste
 set list
 set ruler
 set showbreak=↪\

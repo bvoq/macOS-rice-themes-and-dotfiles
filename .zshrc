@@ -100,6 +100,7 @@ fi
 
 # open command line tab in same location
 alias hopen='open . -a Terminal.app'
+alias hopen='open . -a iTerm'
 
 # Flush Directory Service cache
 alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder"

@@ -171,11 +171,17 @@ code --install-extension Dart-Code.dart-code
 code --install-extension Dart-Code.flutter
 code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
 
+
 echo "Next: Installing firebase, requires root permission."
 waitconfirm
 
 curl -sL https://firebase.tools | bash
 dart pub global activate flutterfire_cli 0.3.0-dev.16 --overwrite
+
+
+echo "Next: Installing chatgpt cli"
+curl -sS https://raw.githubusercontent.com/0xacx/chatGPT-shell-cli/main/install.sh | sudo -E bash
+
 
 
 # Language servers for vim and vscode (also edit in init.vim)
@@ -184,6 +190,7 @@ waitconfirm
 
 npm install -g pyright
 npm install -g bash-language-server
+
 
 echo "Next: Installing rclone and others that need root permission"
 waitconfirm
