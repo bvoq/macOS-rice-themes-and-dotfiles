@@ -17,10 +17,6 @@ Plug 'junegunn/fzf.vim'
 " Smoother scrolling
 Plug 'petertriho/nvim-scrollbar'
 
-" Color codes are highlighted in the correct color!
-Plug 'NvChad/nvim-colorizer.lua'
-
-
 """ neovim only
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
