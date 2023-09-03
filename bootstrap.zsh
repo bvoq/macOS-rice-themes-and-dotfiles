@@ -8,8 +8,9 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   # generic useful
   brew autoremove
   brew cleanup
-  brew install bat git nvim tmux trash tree zsh-completions jq yq
+  brew install bat git nvim tmux trash tree zsh-completions jq yq yt-dlp
   brew install appcleaner baidunetdisk caffeine dash docker keka --cask
+  
   # brew install visual-studio-code --cask # started using insider builds instead.
   brew install kubectl go
   brew install gs

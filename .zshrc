@@ -59,7 +59,8 @@ alias mergepdf2='pdfjoin --rotateoversize false'
 
 alias grabsite='wget -r -np --wait=1 -k --execute="robots = off" --mirror --wait=1 --user-agent="Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0"'
 
-alias ymp3='youtube-dl -x --audio-format mp3 --add-metadata --embed-thumbnail'
+# make sure to use " around url when using ymp3, works for playlists and single videos.
+alias ymp3='yt-dlp -x --audio-format mp3 --add-metadata --embed-thumbnail'
 
 alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | awk '/^blob/ {print substr($""0,6)}' | sort --numeric-sort --key=2 | gnumfmt --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest"
 # then remove using
@@ -233,6 +234,15 @@ totp() { oathtool --totp -b $(<~/".totp_${1:-zuhlke}") | pbcopy; }
 # call others usig totp github for e.g.
 
 simulatordata() { cd ~/Library/Developer/CoreSimulator/Devices/"${1}"/data/Containers/Data/Application ; ls -lt ; pwd}
+
+
+### How to disable the SD card drive on macOS:
+# mdutil -i off /Volumes/yourUSBstick
+# cd /Volumes/yourUSBstick
+# rm -rf .{,_.}{fseventsd,Spotlight-V*,Trashes}
+# mkdir .fseventsd
+# touch .fseventsd/no_log .metadata_never_index .Trashes
+# cd -
 
 # ==============
 # DevOps

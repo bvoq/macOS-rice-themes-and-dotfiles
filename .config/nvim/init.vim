@@ -207,7 +207,7 @@ lua << EOF
   })
 
   -- Setup lspconfig.
-  local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+  local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
   -- other language servers: clangd', 'rust_analyzer', 'pyright', 'tsserver'
   -- TODO: Add your own languageservers here.
   -- See: https://github.com/neovim/nvim-lspconfig/blob/b01c0d0542c7a942f8f2ebf1232e0557a85a9045/doc/server_configurations.md
@@ -215,7 +215,7 @@ lua << EOF
     capabilities = capabilities
   }
   -- require'lspconfig'.pylsp.setup {
-  --   capabilities = require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities()),
+  --   capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities()),
   --   settings = {
   --       pylsp = {
   --           plugins = {
