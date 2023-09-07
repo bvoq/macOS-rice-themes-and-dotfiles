@@ -57,6 +57,7 @@
     "window.zoomLevel": -1,
     "cmake.configureOnOpen": false,
     "workbench.sideBar.location": "right",
+    "workbench.editor.tabCloseButton": "left",
     "workbench.colorCustomizations": {
        "editorInlayHint.background": "#00000000",
        "editorInlayHint.foreground": "#666666FF",
