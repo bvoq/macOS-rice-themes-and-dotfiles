@@ -55,8 +55,10 @@ let g:airline_theme = 'zenburn'
 
 """ colorizer
 if (has("termguicolors"))
-  set termguicolors
-  lua require 'colorizer'.setup()
+  if $TERM_PROGRAM != "Apple_Terminal"
+    set termguicolors
+    lua require 'colorizer'.setup()
+  endif
 endif
 
 """ YouCompleteMe (Now using nvim-lspconfig instead)
@@ -290,9 +292,6 @@ command! TrimWhitespace call TrimWhitespace()
 
 " Fzf plugin
 set rtp+=/usr/local/opt/fzf
-
-" Plugin for colorizer
-lua require'colorizer'.setup()
 
 " Copilot
 imap <silent> <C-j> <Plug>(copilot-next)

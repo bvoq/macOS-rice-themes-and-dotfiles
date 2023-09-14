@@ -54,13 +54,13 @@ if [[ $OSTYPE == 'darwin'* ]]; then
     # Kframework
     #brew tap kframework/k
     #brew install kframework
-    # Agda
-    brew install stack
-    stack install Agda # installs GHC automatically
-    # install emacs from mituharu: https://github.com/railwaycat/homebrew-emacsmacport
-    brew tap railwaycat/emacsmacport
-    brew install --cask emacs-mac
-    agda-mode setup
+    ## Agda
+    # brew install stack
+    # stack install Agda # installs GHC automatically
+    # # install emacs from mituharu: https://github.com/railwaycat/homebrew-emacsmacport
+    # brew tap railwaycat/emacsmacport
+    # brew install --cask emacs-mac
+    # agda-mode setup
   fi
 
   ### Diaphora
@@ -70,10 +70,10 @@ if [[ $OSTYPE == 'darwin'* ]]; then
 
   if [ $GENERICTOOLS = 1 ]; then
     brew install --cask tor-browser
-    # light version
-    brew install --cask basictex
-    brew install --cask tex-live-utility
-    # full version
+    ## tex light version
+    # brew install --cask basictex
+    # brew install --cask tex-live-utility
+    ## tex full version
     # brew install --cask mactex
     # https://www.texifier.com/mac
     ## you own a license: 97gmail I..4
