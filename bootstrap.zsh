@@ -32,12 +32,17 @@ if [[ $OSTYPE == 'darwin'* ]]; then
     fi
   fi
 
-  # flutter-stylizer
-  brew install go
-  export GOPATH=${HOME}/go
-  mkdir -p $GOPATH
-  export PATH=${PATH}:${HOME}/go/bin
-  go install github.com/gmlewis/go-flutter-stylizer/cmd/flutter-stylizer@latest
+  if [ $FLUTTERTOOLS = 1 ]; then
+    # flutter-stylizer
+    brew install go
+    export GOPATH=${HOME}/go
+    mkdir -p $GOPATH
+    export PATH=${PATH}:${HOME}/go/bin
+    go install github.com/gmlewis/go-flutter-stylizer/cmd/flutter-stylizer@latest
+
+    mkdir -p ~/Developer # create the ~/Developer folder if it doesn't exist yet.
+    git clone -b main https://github.com/flutter/flutter.git ~/Developer/flutter
+  fi
 
   if [ $CPPTOOLS = 1]; then
     brew install gmp mpfr ncurses
@@ -181,12 +186,6 @@ if [ $FORMALMETHODS = 1 ]; then
 fi
 
 if [ $FLUTTERTOOLS = 1 ]; then
-  # flutter
-  ## If in China, see: https://docs.flutter.dev/community/china
-  ## export PUB_HOSTED_URL=https://pub.flutter-io.cn
-  ## export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
-  mkdir -p ~/Developer # create the ~/Developer folder if it doesn't exist yet.
-  git clone -b dev https://github.com/flutter/flutter.git ~/Developer/flutter
   code --install-extension Dart-Code.dart-code
   code --install-extension Dart-Code.flutter
   code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
