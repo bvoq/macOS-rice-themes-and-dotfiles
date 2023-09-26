@@ -39,9 +39,17 @@ if [[ $OSTYPE == 'darwin'* ]]; then
     mkdir -p $GOPATH
     export PATH=${PATH}:${HOME}/go/bin
     go install github.com/gmlewis/go-flutter-stylizer/cmd/flutter-stylizer@latest
-
     mkdir -p ~/Developer # create the ~/Developer folder if it doesn't exist yet.
-    git clone -b main https://github.com/flutter/flutter.git ~/Developer/flutter
+    country=$(curl -s ipinfo.io/country --connect-timeout 5)
+    if [[ "$country" == "CN" ]]; then
+      # if in china:
+      export PUB_HOSTED_URL=https://mirror.sjtu.edu.cn
+      export FLUTTER_STORAGE_BASE_URL=https://mirror.sjtu.edu.cn/dart-pub
+      git clone -b main https://git.sjtu.edu.cn/sjtug/flutter-sdk.git
+    else
+      # else:
+      git clone -b main https://github.com/flutter/flutter.git ~/Developer/flutter
+    fi 
   fi
 
   if [ $CPPTOOLS = 1]; then

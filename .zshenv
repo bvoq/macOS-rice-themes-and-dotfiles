@@ -9,8 +9,8 @@ export PATH="$PATH":"$HOME/.pub-cache/bin"
 # If in China:
 country=$(curl -s ipinfo.io/country --connect-timeout 5)
 if [[ "$country" == "CN" ]]; then
-  export PUB_HOSTED_URL=https://pub.flutter-io.cn
-  export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
+  export PUB_HOSTED_URL=https://mirror.sjtu.edu.cn
+  export FLUTTER_STORAGE_BASE_URL=https://mirror.sjtu.edu.cn/dart-pub
 fi 
 # VSCode Insiders (picked first if installed)
 export PATH="$PATH:/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin"
