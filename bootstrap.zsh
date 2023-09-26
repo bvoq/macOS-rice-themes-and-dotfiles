@@ -1,46 +1,53 @@
 #!/bin/zsh
 
+# enable what you want to install
 FORMALMETHODS=1
 GENERICTOOLS=1
+GENERICCASKTOOLS=1
+DEVOPSTOOLS=0
+FLUTTERTOOLS=1
+CPPTOOLS=1
+TEXLIGHT=0
+TEXFULL=0
 
 # set -x
 if [[ $OSTYPE == 'darwin'* ]]; then
-  # generic useful
+  # clean up brew
   brew autoremove
   brew cleanup
-  brew install bat git nvim tmux trash tree zsh-completions jq yq yt-dlp
-  brew install appcleaner baidunetdisk caffeine dash docker keka --cask
-  
-  # brew install visual-studio-code --cask # started using insider builds instead.
-  brew install kubectl go
-  brew install gs
-  brew install ncurses
-  # brew install fzf
-  # $(brew --prefix)/opt/fzf/install
 
-  # apple development
-  brew install robotsandpencils/made/xcodes
+  if [ $GENERICTOOLS = 1 ]; then
+    brew install bat git gs jq nvim tmux trash tree yq yt-dlp zsh-completions
+    # apple development, switch between xcode versions.
+    brew install robotsandpencils/made/xcodes
+
+    # zsh-completions setup script
+    if type brew &>/dev/null; then
+     rm -f ~/.zcompdump
+     FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+     autoload -Uz compinit compaudit
+     compaudit | xargs chmod g-w
+     # rm -f ~/.zcompdump # may be necessary
+     compinit
+    fi
+  fi
 
   # flutter-stylizer
+  brew install go
   export GOPATH=${HOME}/go
   mkdir -p $GOPATH
   export PATH=${PATH}:${HOME}/go/bin
   go install github.com/gmlewis/go-flutter-stylizer/cmd/flutter-stylizer@latest
 
-  # devops tools
-  brew install kubectl fluxcd/tap/flux kubetail
-  brew tap johanhaleby/kubetail && brew install kubetail
-  brewprefixlocation=$(brew --prefix)
-  echo "$(brew --prefix)/share/zsh"
+  if [ $CPPTOOLS = 1]; then
+    brew install gmp mpfr ncurses
+  fi
 
-  # zsh-completions first install
-  if type brew &>/dev/null; then
-   rm -f ~/.zcompdump
-   FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
-   autoload -Uz compinit compaudit
-   compaudit | xargs chmod g-w
-   # rm -f ~/.zcompdump # may be necessary
-   compinit
+  if [ $DEVOPSTOOLS = 1]; then
+    brew install kubectl fluxcd/tap/flux kubetail
+    brew tap johanhaleby/kubetail && brew install kubetail
+    brewprefixlocation=$(brew --prefix)
+    echo "$(brew --prefix)/share/zsh"
   fi
 
   ### Formal methods
@@ -67,33 +74,33 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   if [ $SECURITYTOOLS = 1]; then
     # https://github.com/joxeankoret/diaphora
   fi
+  if [ $GENERICCASKTOOLS = 1 ]; then
+    brew install appcleaner baidunetdisk caffeine dash docker keka tor-browser --cask
+    # brew install visual-studio-code --cask # started using insider builds instead.
+    # reminder to self: you own a license to use this:
+    brew install daisydisk --cask
+  fi
 
-  if [ $GENERICTOOLS = 1 ]; then
-    brew install --cask tor-browser
-    ## tex light version
+  if [ $TEXLIGHT = 1 ]; then
+    # reminder to self: you own a license to use this:
+    # comes with its own latex.
+    brew install texifier --cask
+    ## tex light version CLI
     # brew install --cask basictex
     # brew install --cask tex-live-utility
-    ## tex full version
-    # brew install --cask mactex
-    # https://www.texifier.com/mac
-    ## you own a license: 97gmail I..4
-    # daisydisk for mac cleanup space... but install using the right apple account...
+  fi
+
+  if [ $TEXFULL = 1]; then
+    # reminder to self: you own a license to use this:
+    # comes with its own latex.
+    brew install texifier --cask
+    brew install mactex --cask
   fi
 
 fi
 
-
-
 # zgen for zsh plugin management
 # git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
-
-waitconfirm() {
-    if read -q "choice?Continue [press y/n]? "; then
-        echo "Continuing..."
-    else
-        exit 0
-    fi
-}
 
 git submodule init
 git submodule update
@@ -110,7 +117,6 @@ mv ~/.zshrc     ~/.zshrc.old
 mv ~/.zshenv     ~/.zshenv.old
 #mkdir -p /usr/local/etc/periodic/weekly
 #mv /usr/local/etc/periodic/weekly/weekly_macos_script.local /usr/local/etc/periodic/weekly/weekly_macos_script.local.old
-
 
 if [[ $OSTYPE == 'darwin'* ]]; then
   mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.old
@@ -147,6 +153,13 @@ nvim +'PlugClean --sync' +qa
 
 echo "To enable trace, run: 'csrutil enable --without dtrace --without debug' in reboot mode."
 
+waitconfirm() {
+  if read -q "choice?Continue [press y/n]? "; then
+    echo "Continuing..."
+  else
+    exit 0
+  fi
+}
 echo "Installing VSCode extensions"
 waitconfirm
 # general
@@ -159,30 +172,37 @@ code --install-extension eamodio.gitlens
 code --install-extension PKief.material-icon-theme
 code --install-extension Ho-Wan.setting-toggle
 code --install-extension ctf0.close-tabs-to-the-left
-
 # generic linters
 code --install-extension DavidAnson.vscode-markdownlint
 code --install-extension redhat.vscode-yaml
 
-# formal
-code --install-extension banacorn.agda-mode
+if [ $FORMALMETHODS = 1 ]; then
+  code --install-extension banacorn.agda-mode
+fi
 
-# flutter
-code --install-extension Dart-Code.dart-code
-code --install-extension Dart-Code.flutter
-code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
+if [ $FLUTTERTOOLS = 1 ]; then
+  # flutter
+  ## If in China, see: https://docs.flutter.dev/community/china
+  ## export PUB_HOSTED_URL=https://pub.flutter-io.cn
+  ## export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
+  mkdir -p ~/Developer # create the ~/Developer folder if it doesn't exist yet.
+  git clone -b dev https://github.com/flutter/flutter.git ~/Developer/flutter
+  code --install-extension Dart-Code.dart-code
+  code --install-extension Dart-Code.flutter
+  code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
+fi
 
 
-echo "Next: Installing firebase, requires root permission."
-waitconfirm
-
-curl -sL https://firebase.tools | bash
-dart pub global activate flutterfire_cli 0.3.0-dev.16 --overwrite
+if [ $FLUTTERTOOLS = 1 ]; then
+  echo "Next: Installing firebase, requires root permission."
+  waitconfirm
+  curl -sL https://firebase.tools | bash
+  dart pub global activate flutterfire_cli 0.3.0-dev.16 --overwrite
+fi
 
 
 echo "Next: Installing chatgpt cli"
 curl -sS https://raw.githubusercontent.com/0xacx/chatGPT-shell-cli/main/install.sh | sudo -E bash
-
 
 
 # Language servers for vim and vscode (also edit in init.vim)
