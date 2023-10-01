@@ -33,6 +33,9 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   fi
 
   if [ $FLUTTERTOOLS = 1 ]; then
+    # Android
+    brew install android-platform-tools
+    brew install --cask android-file-transfer
     # flutter-stylizer
     brew install go
     export GOPATH=${HOME}/go
