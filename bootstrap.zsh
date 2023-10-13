@@ -64,6 +64,9 @@ if [[ $OSTYPE == 'darwin'* ]]; then
     brew tap johanhaleby/kubetail && brew install kubetail
     brewprefixlocation=$(brew --prefix)
     echo "$(brew --prefix)/share/zsh"
+
+    # For MQTT connections.
+    brew install mqttx --cask
   fi
 
   ### Formal methods
