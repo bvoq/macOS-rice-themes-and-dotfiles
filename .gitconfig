@@ -25,7 +25,6 @@
 [diff]
     algorithm = patience
     submodule = log
-    tool = vimdiff
 [log]
     decorate = true
     date = relative
@@ -36,7 +35,10 @@
     unmerged = magenta bold
 [rebase]
     autoStash = true
+[difftool "vimdirdiff"]
+    cmd = nvim -f '+next' '+execute \"DirDiff\" argv(0) argv(1)' $LOCAL $REMOTE
 [alias]
+    dirdiff = difftool --ignore-submodules --dir-diff --no-symlinks --tool=vimdirdiff
     # via http://blog.apiaxle.com/post/handy-git-tips-to-stop-you-getting-fired/
     snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
     snapshots = !git stash list --grep snapshot

@@ -4,7 +4,7 @@
 FORMALMETHODS=1
 GENERICTOOLS=1
 GENERICCASKTOOLS=1
-DEVOPSTOOLS=0
+DEVOPSTOOLS=1
 FLUTTERTOOLS=1
 CPPTOOLS=1
 TEXLIGHT=0
@@ -18,8 +18,11 @@ if [[ $OSTYPE == 'darwin'* ]]; then
 
   if [ $GENERICTOOLS = 1 ]; then
     brew install bat git gs jq nvim tmux trash tree yq yt-dlp zsh-completions
+
     # apple development, switch between xcode versions.
     brew install robotsandpencils/made/xcodes
+    # xcode cleaner app
+    brew install --cask devcleaner
 
     # zsh-completions setup script
     if type brew &>/dev/null; then
@@ -55,15 +58,25 @@ if [[ $OSTYPE == 'darwin'* ]]; then
     fi 
   fi
 
-  if [ $CPPTOOLS = 1]; then
+  if [ $CPPTOOLS = 1 ]; then
     brew install gmp mpfr ncurses
   fi
 
-  if [ $DEVOPSTOOLS = 1]; then
+  if [ $DEVOPSTOOLS = 1 ]; then
     brew install kubectl fluxcd/tap/flux kubetail
     brew tap johanhaleby/kubetail && brew install kubetail
     brewprefixlocation=$(brew --prefix)
     echo "$(brew --prefix)/share/zsh"
+
+    (
+      set -x; cd "$(mktemp -d)" &&
+      OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
+      ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
+      KREW="krew-${OS}_${ARCH}" &&
+      curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
+      tar zxvf "${KREW}.tar.gz" &&
+      ./"${KREW}" install krew
+    )
 
     # For MQTT connections.
     brew install mqttx --cask
@@ -109,7 +122,7 @@ if [[ $OSTYPE == 'darwin'* ]]; then
     # brew install --cask tex-live-utility
   fi
 
-  if [ $TEXFULL = 1]; then
+  if [ $TEXFULL = 1 ]; then
     # reminder to self: you own a license to use this:
     # comes with its own latex.
     brew install texifier --cask

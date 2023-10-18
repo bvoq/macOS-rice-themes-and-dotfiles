@@ -30,6 +30,8 @@ Plug 'hrsh7th/vim-vsnip'
 " color codes:
 Plug 'norcalli/nvim-colorizer.lua'
 
+" DirDiff
+Plug 'will133/vim-dirdiff'
 
 " copilot
 Plug 'github/copilot.vim'

@@ -29,3 +29,5 @@ export PATH=${PATH}:${HOME}/.local/bin
 export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 #export JAVA_HOME=$(/usr/libexec/java_home)
 
+# Devops
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
