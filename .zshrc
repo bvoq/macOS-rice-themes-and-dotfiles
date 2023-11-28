@@ -124,7 +124,6 @@ jscbin="/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources
 [ -e "${jscbin}" ] && alias jsc="${jscbin}";
 unset jscbin;
 
-
 # Show/hide hidden files in Finder
 alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
 alias hide="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
@@ -251,7 +250,6 @@ simulatordata() { cd ~/Library/Developer/CoreSimulator/Devices/"${1}"/data/Conta
 source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
 alias k=kubectl
 alias kns='kubectl config set-context --current --namespace '
-alias kubens='kubectl config set-context --current --namespace '
 alias kall='kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found' # add -n <namespace>
 export EDITOR=vim # enable `k edit` on macOS
 # export KUBE_EDITOR=vim # alternatively

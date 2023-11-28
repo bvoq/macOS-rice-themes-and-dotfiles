@@ -5,7 +5,8 @@ FORMALMETHODS=1
 GENERICTOOLS=1
 GENERICCASKTOOLS=1
 DEVOPSTOOLS=1
-FLUTTERTOOLS=1
+MOBILETOOLS=1
+UNITYTOOLS=1
 CPPTOOLS=1
 TEXLIGHT=0
 TEXFULL=0
@@ -17,7 +18,7 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   brew cleanup
 
   if [ $GENERICTOOLS = 1 ]; then
-    brew install bat git gs jq nvim tmux trash tree yq yt-dlp zsh-completions
+    brew install bat git gs jq nvim tmux trash tree yq yt-dlp watch zsh-completions
 
     # apple development, switch between xcode versions.
     brew install robotsandpencils/made/xcodes
@@ -35,7 +36,7 @@ if [[ $OSTYPE == 'darwin'* ]]; then
     fi
   fi
 
-  if [ $FLUTTERTOOLS = 1 ]; then
+  if [ $MOBILETOOLS = 1 ]; then
     # Android
     brew install android-platform-tools
     brew install --cask android-file-transfer
@@ -60,6 +61,12 @@ if [[ $OSTYPE == 'darwin'* ]]; then
 
   if [ $CPPTOOLS = 1 ]; then
     brew install gmp mpfr ncurses
+    # Boehm-Demers-Weiser garbage collector
+    brew install bdw-gc
+  fi
+
+  if [ $UNITYTOOLS = 1 ]; then
+    brew install dotnet
   fi
 
   if [ $DEVOPSTOOLS = 1 ]; then
@@ -103,7 +110,7 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   fi
 
   ### Diaphora
-  if [ $SECURITYTOOLS = 1]; then
+  if [ $SECURITYTOOLS = 1 ]; then
     # https://github.com/joxeankoret/diaphora
   fi
   if [ $GENERICCASKTOOLS = 1 ]; then
@@ -208,18 +215,23 @@ code --install-extension ctf0.close-tabs-to-the-left
 code --install-extension DavidAnson.vscode-markdownlint
 code --install-extension redhat.vscode-yaml
 
+if [ $UNITYTOOLS = 1 ]; then
+  code --install-extension visualstudiotoolsforunity.vstuc
+fi
+
 if [ $FORMALMETHODS = 1 ]; then
   code --install-extension banacorn.agda-mode
 fi
 
-if [ $FLUTTERTOOLS = 1 ]; then
+if [ $MOBILETOOLS = 1 ]; then
   code --install-extension Dart-Code.dart-code
   code --install-extension Dart-Code.flutter
   code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
+  code --install-extension mariomatheu.syntax-project-pbxproj
 fi
 
 
-if [ $FLUTTERTOOLS = 1 ]; then
+if [ $MOBILETOOLS = 1 ]; then
   echo "Next: Installing firebase, requires root permission."
   waitconfirm
   curl -sL https://firebase.tools | bash
