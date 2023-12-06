@@ -99,9 +99,13 @@ fi
 # old: bash completion support
 # [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
 
-# open command line tab in same location
-alias hopen='open . -a Terminal.app'
-alias hopen='open . -a iTerm'
+# open new window in same location as current terminal.
+if [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
+    alias hopen='open . -a Terminal.app'
+fi
+elif [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
+    alias hopen='open . -a iTerm'
+fi
 
 # Flush Directory Service cache
 alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder"
