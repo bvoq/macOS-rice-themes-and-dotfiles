@@ -102,7 +102,6 @@ fi
 # open new window in same location as current terminal.
 if [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
     alias hopen='open . -a Terminal.app'
-fi
 elif [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
     alias hopen='open . -a iTerm'
 fi
