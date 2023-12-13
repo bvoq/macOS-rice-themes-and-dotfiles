@@ -55,12 +55,23 @@ if ($packageToInstall -lt 4) {
     winget install OpenJS.NodeJS
 }
 
+# NuGet
+$packageToInstall=winget list "Microsoft.NuGet"
+if ($packageToInstall -lt 4) {
+    winget install Microsoft.NuGet --interactive
+}
+
+
 # Install vim, make sure to enable .bat scripts
 $packageToInstall=winget list "Vim.Vim"
 if ($packageToInstall -lt 4) {
-    winget install vim.vim --interactive
+    winget install Vim.Vim --interactive
 }
 
+$packageToInstall=winget list "burntsushi.ripgrep.msvc"
+if ($packageToInstall -lt 4) {
+    winget install burntsushi.ripgrep.msvc
+}
 
 
 # Installing vim plug
@@ -96,7 +107,7 @@ Set-PathVariable -AddPath "C:\flutter\bin" -Scope "User"
 
 ### Installing npm packages
 npm install -g firebase-tools
-
+# Set-PathVariable -AddPath "C:\flutter\bin" -Scope "User"se
 
 
 
