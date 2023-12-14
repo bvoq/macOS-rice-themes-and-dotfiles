@@ -60,8 +60,8 @@ function Verify-Elevated {
 function Edit-Profile { Invoke-Expression "$(if($env:EDITOR -ne $null)  {$env:EDITOR } else { 'notepad' }) $profile" }
 
 # Set autocomplete similar to bash with a menu showing the options.
-# If this is too much, also check out -Function Complete.
-Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+# Also check out -Function MenuComplete.
+Set-PSReadlineKeyHandler -Key Tab -Function Complete
 
 # When pushing arrow up and you've already typed something, it will only show prefixed strings.
 Set-PSReadlineKeyHandler -Key UpArrow -Function HistorySearchBackward
