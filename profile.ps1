@@ -59,10 +59,14 @@ function Verify-Elevated {
 }
 function Edit-Profile { Invoke-Expression "$(if($env:EDITOR -ne $null)  {$env:EDITOR } else { 'notepad' }) $profile" }
 
-# TODO test
+# autocomplete similar to bash with a menu showing the options.
+# If this is too much, also check out -Function Complete.
+Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+
+# TODO set your own host
 # Write-Host "`e]0;$PWD`a" -NoNewLine
 Clear-Host
 
-# Disable this is you don't use Flutter or have problems with pub.dev
-$env:FLUTTER_STORAGE_BASE_URL='https://storage.flutter-io.cn'
-$env:PUB_HOSTED_URL='https://pub.flutter-io.cn'
+# Enable this if you use Flutter in China.
+# $env:FLUTTER_STORAGE_BASE_URL='https://storage.flutter-io.cn'
+# $env:PUB_HOSTED_URL='https://pub.flutter-io.cn'
