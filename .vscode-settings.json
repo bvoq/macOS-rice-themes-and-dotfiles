@@ -1,8 +1,4 @@
 {
-    "editor.codeLensFontFamily": "SourceCodePro",
-    "editor.fontFamily": "SourceCodePro, Menlo, Monaco, 'Courier New', monospace",
-    "editor.fontLigatures": false,
-
     "[dart]": {
         "editor.formatOnSave": true,
         "editor.formatOnType": true,
@@ -13,16 +9,42 @@
         "editor.suggest.snippetsPreventQuickSuggestions": false,
         "editor.suggestSelection": "first",
         "editor.tabCompletion": "onlySnippets",
-        "editor.wordBasedSuggestions": false,
+        "editor.wordBasedSuggestions": "off",
         "editor.suggest.filterGraceful": true,
         "editor.suggest.showClasses": false,
-        "editor.inlayHints.enabled": "onUnlessPressed"
+        "editor.inlayHints.enabled": "onUnlessPressed",
+        "editor.lineHeight": 17,
     },
     "dart.debugExternalPackageLibraries": true,
     "dart.debugSdkLibraries": true,
+    "dart.previewFlutterUiGuidesCustomTracking": false,
+    "dart.previewFlutterUiGuides": false,
+    "dart.previewCommitCharacters": true,
+    "dart.enableCompletionCommitCharacters": true,
+    "dart.runPubGetOnNestedProjects": "both",
 
-    "terminal.integrated.scrollback": 1000000,
+    // Editor settings - Fonts
+    "editor.codeLensFontFamily": "SourceCodePro",
+    "editor.fontFamily": "SourceCodePro, Menlo, Monaco, 'Courier New', monospace",
+    "editor.fontLigatures": false,
+    // Editor settings - Color brackets
+    "editor.bracketPairColorization.enabled": true,
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": false,
+    "editor.guides.bracketPairs": true,
+    "editor.guides.bracketPairsHorizontal": false,
+    "editor.guides.highlightActiveBracketPair": true,
+    "editor.guides.indentation": false,
+    "editor.guides.highlightActiveIndentation": true,
+    // Editor settings - Others
+    "editor.accessibilitySupport": "off",
     "editor.inlineSuggest.enabled": true,
+    "editor.renderWhitespace": "trailing",
+    "editor.renderControlCharacters": true,
+    "editor.semanticHighlighting.enabled": true,
+    "editor.suggestSelection": "first",
+
+    "git.openRepositoryInParentFolders": "always",
+    "git.suggestSmartCommit": true,
     "github.copilot.enable": {
         "*": true,
         "yaml": false,
@@ -32,7 +54,8 @@
 
     "redhat.telemetry.enabled": false,
     "http.proxyAuthorization": null,
-    
+    "terminal.integrated.scrollback": 1000000,
+
     "dash.fileNameToDocsetMap": {
 
         "[dD]ocker*": [
@@ -55,10 +78,11 @@
             "dartdocs"
         ]
     },
-    "window.zoomLevel": -1,
-    "cmake.configureOnOpen": false,
+
+    "workbench.colorTheme": "One Quiet Dark Pro",
+    "workbench.editor.wrapTabs": true,
+    "workbench.editor.tabActionLocation": "left",
     "workbench.sideBar.location": "right",
-    "workbench.editor.tabCloseButton": "left",
     "workbench.colorCustomizations": {
        "editorInlayHint.background": "#00000000",
        "editorInlayHint.foreground": "#666666FF",
@@ -66,10 +90,17 @@
        "editorInlayHint.parameterForeground": "#666666FF",
        "editorInlayHint.typeBackground": "#00000000",
        "editorInlayHint.typeForeground": "#666666FF",
+
+       "editorBracketPairGuide.background1": "#333333",
+       "editorBracketPairGuide.background2": "#333333",
+       "editorBracketPairGuide.background3": "#333333",
+       "editorBracketPairGuide.background4": "#333333",
+       "editorBracketPairGuide.background5": "#333333",
+       "editorBracketPairGuide.background6": "#333333",
     },
     "toggle.settingTitle": "[dart]editor.inlayHints.enabled",
     "toggle.setting1Title": "off",
     "toggle.settingState1": "offUnlessPressed",
     "toggle.setting2Title": "on",
-    "toggle.settingState2": "onUnlessPressed"
+    "toggle.settingState2": "onUnlessPressed",
 }
