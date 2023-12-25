@@ -21,6 +21,7 @@
     "dart.debugExternalPackageLibraries": true,
     "dart.debugSdkLibraries": true,
 
+    "terminal.integrated.scrollback": 1000000,
     "editor.inlineSuggest.enabled": true,
     "github.copilot.enable": {
         "*": true,

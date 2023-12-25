@@ -13,4 +13,4 @@ zsh bootstrap.zsh
 ```
 
 ![Alt text](xcode/xcodetheme.png?raw=true "XCode Theme")
-![Alt text](terminal.app/terminaltheme.png?raw=true "Terminal Theme")
+![Alt text](terminal/terminaltheme.png?raw=true "Terminal Theme")

@@ -5,6 +5,11 @@ export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
+# Settings
+
+# store all cd directory pushes
+setopt AUTO_PUSHD
+
 # Enable aliases to be sudo’ed
 alias sudo='sudo '
 
@@ -211,6 +216,32 @@ pdfjoings () {
 # external hard drive not mounting https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
 alias vim=nvim
 
+# Vim DirDiff
+function vimdirdiff()
+{
+    # Shell-escape each path:
+    DIR1=$(printf '%q' "$1"); shift
+    DIR2=$(printf '%q' "$1"); shift
+    \vim $@ -c "DirDiff $DIR1 $DIR2"
+}
+
+# NVim DirDiff
+function nvimdirdiff()
+{
+    # Shell-escape each path:
+    DIR1=$(printf '%q' "$1"); shift
+    DIR2=$(printf '%q' "$1"); shift
+    nvim $@ -c "DirDiff $DIR1 $DIR2"
+}
+
+# NVim Diff 
+function nvimdiff()
+{
+    # Shell-escape each path:
+    DIR1=$(printf '%q' "$1"); shift
+    DIR2=$(printf '%q' "$1"); shift
+    nvim $@ -d $DIR1 $DIR2
+}
 # fix my keys on macOS
 # look for usage id key macos:
 # https://developer.apple.com/library/archive/technotes/tn2450/_index.html
@@ -283,5 +314,10 @@ alias rm='trash'
 
 # useful bash expansions
 # SOURCEDIR=${SOURCEDIR::-1%/*} # remove last character and then remove path
-# SOURCEDIR=${SOURCEDIR%/*}  # get base path
+# SOURCEDIR=${SOURCEDIR%/*}  # get dirname
+# SOURCEDIR=$(dirname $SOURCEDIR)  # get dirname
+# SOURCEDIR=${${${SOURCEDIR::-1}%/*}%/*} # remove last char (in case it is a / and go up two folders))
+# SOURCEDIR=${SOURCEDIR##*/} # get last part of path
+# SOURCEDIR=${SOURCEDIR#*/}  # get first part of path
+# SOURCEDIR=${${SOURCEDIR%/*}%/*} # go up two folders
 
