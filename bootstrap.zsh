@@ -115,6 +115,7 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   fi
   if [ $GENERICCASKTOOLS = 1 ]; then
     brew install appcleaner baidunetdisk caffeine dash docker keka tor-browser --cask
+    # also install regex for safari: https://apps.apple.com/ch/app/regex-for-safari/id1597580456?l=en-GB
     # brew install visual-studio-code --cask # started using insider builds instead.
     # reminder to self: you own a license to use this:
     brew install daisydisk --cask

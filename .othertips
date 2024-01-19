@@ -15,3 +15,7 @@
 # disk won't mount
 # https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
 # ps aux | grep fsck
+
+# Error regex
+# normal regex: /error|missing|unknown|except/gi
+# for vi `set ignorecase` and then use: /error\|missing\|unknown\|except

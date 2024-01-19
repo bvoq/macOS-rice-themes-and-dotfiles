@@ -208,6 +208,8 @@ command! TrimWhitespace call TrimWhitespace()
 
 """ Various vim settings
 syntax on
+set ignorecase
+set smartcase
 set nobackup " swap files are enough
 set hidden " hide buffers instead of closing them.
 set switchbuf=usetab,newtab,useopen

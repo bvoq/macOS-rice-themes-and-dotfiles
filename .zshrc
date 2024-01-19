@@ -181,6 +181,14 @@ precmd() {
 fi
 # export PROMPT_COMMAND='echo -ne "\033]0;$PWD\007"'
 
+
+# ripgrep files
+alias rgf='rg --files | rg'
+rgall() {
+    rg --files | rg "$1" ; rg "$1"
+}
+export -f rgall > /dev/null
+
 # ========
 # Homebrew 
 # ========
@@ -212,6 +220,9 @@ pdfjoings () {
 # make sure that my global drive is mounted.
 # mkdir -p ~/wasabi-kdkdk
 # rclone mount -q wasabi-kdkdk:kdkdk/ ~/wasabi-kdkdk/ &
+
+# if work computer :-)
+alias sudo='osascript /Users/deke/macOS-rice-themes-and-dotfiles/ShortcutsApp/adminbyperms.scpt ; sudo '
 
 # external hard drive not mounting https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
 alias vim=nvim

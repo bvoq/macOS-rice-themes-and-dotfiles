@@ -306,6 +306,9 @@ set hidden " hide buffers instead of closing them.
 "set nu " set rnu for relative numbering.
 set list
 set ruler
+set ignorecase
+set smartcase " sets case sensitivity if there is a capital letter
+" If you still want to search without case sensitivity, do "\C" before the search.
 set showbreak=↪\
 set listchars=tab:↦-,nbsp:␣,trail:∙,extends:⟩,precedes:⟨
 set autoindent tabstop=4 softtabstop=0 shiftwidth=4 expandtab
