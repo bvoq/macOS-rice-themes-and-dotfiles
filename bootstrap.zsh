@@ -229,6 +229,9 @@ if [ $MOBILETOOLS = 1 ]; then
   code --install-extension Dart-Code.flutter
   code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
   code --install-extension mariomatheu.syntax-project-pbxproj
+  # Flutter test coverage:
+  code --install-extension ryanluker.vscode-coverage-gutters
+  code --install-extension flutterando.flutter-coverage
 fi
 
 
