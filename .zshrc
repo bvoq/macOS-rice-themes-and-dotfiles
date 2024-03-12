@@ -182,12 +182,18 @@ fi
 # export PROMPT_COMMAND='echo -ne "\033]0;$PWD\007"'
 
 
-# ripgrep files
+# Search for files:
 alias rgf='rg --files | rg'
 rgall() {
-    rg --files | rg "$1" ; rg "$1"
+  rg --files | rg "$1" ; rg --hidden -uu "$1"
 }
 export -f rgall > /dev/null
+
+# Fast exact text search using Spotlight
+rgspotlight() {
+  echo "'""kMDItemTextContent = "'"'"$1"'"'"'"
+  mdfind "kMDItemTextContent = "'"'"$1"'"'
+}
 
 # ========
 # Homebrew 

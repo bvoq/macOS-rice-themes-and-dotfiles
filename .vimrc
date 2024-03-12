@@ -169,7 +169,6 @@ let g:ycm_goto_buffer_command = 'vertical-split'
 nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>
 nnoremap <leader>gd :YcmCompleter GoToDeclaration<CR>
 
-
 """ Neomake
 " Note: Better python error checking for neomake:
 " pip3 install flake8
@@ -194,9 +193,6 @@ hi NeomakeVirtualtextError ctermfg=203 guifg=#bfbfbf
 "autocmd FileType cpp map <buffer> <S-r> :w<CR>:exec 'w !g++ -std=c++17 -Wall -Wextra -g3 -ggdb3 -fsanitize=address ' shellescape(@%, 1) ';./a.out' <CR>
 
 
-" Fzf plugin
-set rtp+=/usr/local/opt/fzf
-
 " Trim Whitespace at the end of the line.
 fun! TrimWhitespace()
     let l:save = winsaveview()
@@ -204,11 +200,18 @@ fun! TrimWhitespace()
     call winrestview(l:save)
 endfun
 command! TrimWhitespace call TrimWhitespace()
+" Fzf plugin
+set rtp+=/usr/local/opt/fzf
+
+
+""" Custom commands
+command! ErrorRegex execute "/\\v\([a-zA-Z_-]\)\@<!\(error\|missing\|unknown\|except\|not found\|fail\|unavailable\|issue\|problem\|fault\|code 1\|crash\)"
 
 
 """ Various vim settings
 syntax on
 set ignorecase
+set hlsearch
 set smartcase
 set nobackup " swap files are enough
 set hidden " hide buffers instead of closing them.

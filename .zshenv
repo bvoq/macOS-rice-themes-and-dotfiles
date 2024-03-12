@@ -15,6 +15,8 @@ fi
 # Android
 export ANDROID_HOME=/Users/$USER/Library/Android/sdk
 export PATH=${PATH}:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+# Mobile Testing Maestro
+export PATH="$PATH":"$HOME/.maestro/bin"
 # VSCode Insiders (picked first if installed)
 export PATH="$PATH:/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin"
 # VSCode

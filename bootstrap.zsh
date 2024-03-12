@@ -57,6 +57,9 @@ if [[ $OSTYPE == 'darwin'* ]]; then
       # else:
       git clone -b main https://github.com/flutter/flutter.git ~/Developer/flutter
     fi 
+
+    # maestro for testing
+    curl -Ls "https://get.maestro.mobile.dev" | bash
   fi
 
   if [ $CPPTOOLS = 1 ]; then
@@ -145,6 +148,7 @@ fi
 git submodule init
 git submodule update
 
+# Copy dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)
 # create a backup, better safe than sorry.
 mv ~/.emacs     ~/.emacs.old
 mv ~/.inputrc   ~/.inputrc.old
