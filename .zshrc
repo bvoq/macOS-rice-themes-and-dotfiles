@@ -101,7 +101,6 @@ if type brew &>/dev/null; then
   compinit
 fi
 if type fzf &>/dev/null; then
-  echo "fzf exists"
   eval "$(fzf --zsh)"
 fi
 # Search for files:
