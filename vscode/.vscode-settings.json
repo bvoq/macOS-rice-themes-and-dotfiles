@@ -12,7 +12,7 @@
         "editor.wordBasedSuggestions": "off",
         "editor.suggest.filterGraceful": true,
         "editor.suggest.showClasses": false,
-        "editor.inlayHints.enabled": "onUnlessPressed",
+        "editor.inlayHints.enabled": "offUnlessPressed",
         "editor.lineHeight": 17,
     },
     "dart.debugExternalPackageLibraries": true,
@@ -37,9 +37,14 @@
     "editor.guides.highlightActiveIndentation": true,
     // Editor settings - Others
     "editor.accessibilitySupport": "off",
+    "editor.cursorSurroundingLines": 8,
     "editor.inlineSuggest.enabled": true,
-    "editor.renderWhitespace": "trailing",
+    "editor.lineNumbers": "on",
+    "editor.padding.bottom": 48, // see also editor.scrollBeyondLastLine
+    "editor.renderWhitespace": "boundary"
     "editor.renderControlCharacters": true,
+    "editor.render": true,
+    "editor.scrollBeyondLastLine": false, // see also editor.padding.bottom
     "editor.semanticHighlighting.enabled": true,
     "editor.suggestSelection": "first",
 
@@ -47,9 +52,9 @@
     "git.suggestSmartCommit": true,
     "github.copilot.enable": {
         "*": true,
-        "yaml": false,
         "plaintext": true,
-        "markdown": false
+        "markdown": "false",
+        "yaml": false
     },
 
     "redhat.telemetry.enabled": false,
@@ -78,31 +83,43 @@
             "dartdocs"
         ]
     },
-
     "workbench.colorTheme": "One Quiet Dark Pro",
     "workbench.editor.wrapTabs": true,
+
     "workbench.editor.tabActionLocation": "left",
     "workbench.sideBar.location": "right",
     "workbench.colorCustomizations": {
-       "editorInlayHint.background": "#00000000",
-       "editorInlayHint.foreground": "#666666FF",
-       "editorInlayHint.parameterBackground": "#00000000",
-       "editorInlayHint.parameterForeground": "#666666FF",
-       "editorInlayHint.typeBackground": "#00000000",
-       "editorInlayHint.typeForeground": "#666666FF",
+      "editorInlayHint.background": "#00000000",
+      "editorInlayHint.foreground": "#666666FF",
+      "editorInlayHint.parameterBackground": "#00000000",
+      "editorInlayHint.parameterForeground": "#666666FF",
+      "editorInlayHint.typeBackground": "#00000000",
+      "editorInlayHint.typeForeground": "#666666FF",
 
-       "editorBracketPairGuide.background1": "#333333",
-       "editorBracketPairGuide.background2": "#333333",
-       "editorBracketPairGuide.background3": "#333333",
-       "editorBracketPairGuide.background4": "#333333",
-       "editorBracketPairGuide.background5": "#333333",
-       "editorBracketPairGuide.background6": "#333333",
-
-       "editorWhitespace.foreground": "#ffffff",
+      "editorBracketPairGuide.background1": "#333333",
+      "editorBracketPairGuide.background2": "#333333",
+      "editorBracketPairGuide.background3": "#333333",
+      "editorBracketPairGuide.background4": "#333333",
+      "editorBracketPairGuide.background5": "#333333",
+      "editorBracketPairGuide.background6": "#333333",
+      "editorWhitespace.foreground": "#333333",
+      "[*Light*]": {
+        "editorBracketPairGuide.background1": "#cccccc",
+        "editorBracketPairGuide.background2": "#cccccc",
+        "editorBracketPairGuide.background3": "#cccccc",
+        "editorBracketPairGuide.background4": "#cccccc",
+        "editorBracketPairGuide.background5": "#cccccc",
+        "editorBracketPairGuide.background6": "#cccccc",
+        "editorWhitespace.foreground": "#cccccc",
+      },
     },
     "toggle.settingTitle": "[dart]editor.inlayHints.enabled",
     "toggle.setting1Title": "off",
     "toggle.settingState1": "offUnlessPressed",
     "toggle.setting2Title": "on",
     "toggle.settingState2": "onUnlessPressed",
+    "[yaml]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
 }
+

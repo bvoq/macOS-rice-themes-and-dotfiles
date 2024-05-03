@@ -88,7 +88,32 @@ decompressdir() {
 }
 export -f decompressdir > /dev/null
 
+# ===========
+# Vim DirDiff
+# ===========
+function vimdirdiff()
+{
+    # Shell-escape each path:
+    DIR1=$(printf '%q' "$1"); shift
+    DIR2=$(printf '%q' "$1"); shift
+    \vim $@ -c "DirDiff $DIR1 $DIR2"
+}
 
+function nvimdirdiff()
+{
+    # Shell-escape each path:
+    DIR1=$(printf '%q' "$1"); shift
+    DIR2=$(printf '%q' "$1"); shift
+    nvim $@ -c "DirDiff $DIR1 $DIR2"
+}
+
+function nvimdiff()
+{
+    # Shell-escape each path:
+    DIR1=$(printf '%q' "$1"); shift
+    DIR2=$(printf '%q' "$1"); shift
+    nvim $@ -d $DIR1 $DIR2
+}
 
 # ==============
 # macOS specific 
@@ -241,38 +266,15 @@ pdfjoings () {
 # mkdir -p ~/wasabi-kdkdk
 # rclone mount -q wasabi-kdkdk:kdkdk/ ~/wasabi-kdkdk/ &
 
+alias dca='dart run dart_code_linter:metrics analyze lib --fatal-style --fatal-performance --fatal-warnings;dart run dart_code_linter:metrics check-unused-files lib --fatal-unused'
+
 # if work computer :-)
 alias sudo='osascript /Users/deke/macOS-rice-themes-and-dotfiles/ShortcutsApp/adminbyperms.scpt ; sudo '
 
 # external hard drive not mounting https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
 alias vim=nvim
 
-# Vim DirDiff
-function vimdirdiff()
-{
-    # Shell-escape each path:
-    DIR1=$(printf '%q' "$1"); shift
-    DIR2=$(printf '%q' "$1"); shift
-    \vim $@ -c "DirDiff $DIR1 $DIR2"
-}
 
-# NVim DirDiff
-function nvimdirdiff()
-{
-    # Shell-escape each path:
-    DIR1=$(printf '%q' "$1"); shift
-    DIR2=$(printf '%q' "$1"); shift
-    nvim $@ -c "DirDiff $DIR1 $DIR2"
-}
-
-# NVim Diff 
-function nvimdiff()
-{
-    # Shell-escape each path:
-    DIR1=$(printf '%q' "$1"); shift
-    DIR2=$(printf '%q' "$1"); shift
-    nvim $@ -d $DIR1 $DIR2
-}
 # fix my keys on macOS
 # look for usage id key macos:
 # https://developer.apple.com/library/archive/technotes/tn2450/_index.html
