@@ -18,7 +18,7 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   brew cleanup
 
   if [ $GENERICTOOLS = 1 ]; then
-    brew install bat git gs jq nvim tmux trash tree yq yt-dlp watch zsh-completions
+    brew install bat fzf git gs jq nvim tmux trash tree yq yt-dlp watch zsh-completions
 
     # apple development, switch between xcode versions.
     brew install robotsandpencils/made/xcodes
@@ -164,8 +164,12 @@ mv ~/.zshenv     ~/.zshenv.old
 
 if [[ $OSTYPE == 'darwin'* ]]; then
   mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.old
-  cp .vscode-settings.json ~/Library/Application\ Support/Code/User/settings.json # VSCode
-  cp .vscode-settings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/settings.json # VSCode Insiders
+  cp vscode/.vscode-settings.json ~/Library/Application\ Support/Code/User/settings.json # VSCode
+  cp vscode/.vscode-settings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/settings.json # VSCode Insiders
+  cp vscode/keybindings.json ~/Library/Application\ Support/Code/User/keybindings # VSCode
+  cp vscode/keybindings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/keybindings.json # VSCode Insiders
+  defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false # VSCode
+  defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false # VSCode Insiders
 fi
 
 cp .emacs ~/.emacs
@@ -218,7 +222,6 @@ code --install-extension Ho-Wan.setting-toggle
 code --install-extension ctf0.close-tabs-to-the-left
 # generic linters
 code --install-extension DavidAnson.vscode-markdownlint
-code --install-extension redhat.vscode-yaml
 
 if [ $UNITYTOOLS = 1 ]; then
   code --install-extension visualstudiotoolsforunity.vstuc

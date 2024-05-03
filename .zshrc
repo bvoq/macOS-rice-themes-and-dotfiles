@@ -96,10 +96,38 @@ export -f decompressdir > /dev/null
 
 # enable zsh-completions
 if type brew &>/dev/null; then
- FPATH=$(brew --prefix)/share/zsh/site-functions:$(brew --prefix)/share/zsh-completions:$FPATH
- autoload -Uz compinit
- compinit
+  FPATH=$(brew --prefix)/share/zsh/site-functions:$(brew --prefix)/share/zsh-completions:$FPATH
+  autoload -Uz compinit
+  compinit
 fi
+if type fzf &>/dev/null; then
+  echo "fzf exists"
+  eval "$(fzf --zsh)"
+fi
+# Search for files:
+alias rgd='rg --hidden --files --sort-files . 2> /dev/null | xargs -0 dirname | uniq | rg'
+alias rgf='rg --hidden --files --sort-files . 2> /dev/null | rg'
+rgall() {
+  rg --files | rg "$1" ; rg --hidden -uu "$1"
+}
+export -f rgall > /dev/null
+
+# Use as follows: rgfzf '*_bloc.dart' to recursively find all files ending with _bloc.dart and then use fzf to find a string.
+rgfzf() {
+  rg --no-heading --hidden --sort-files --line-number --color=always --glob "$1" "" | fzf --ansi --nth=3..
+}
+export -f rgfzf > /dev/null
+
+
+# Fast exact text search using Spotlight
+rgspotlight() {
+  echo "'""kMDItemTextContent = "'"'"$1"'"'"'"
+  mdfind "kMDItemTextContent = "'"'"$1"'"'
+}
+export -f rgspotlight > /dev/null
+
+
+
 
 # old: bash completion support
 # [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
@@ -181,19 +209,6 @@ precmd() {
 fi
 # export PROMPT_COMMAND='echo -ne "\033]0;$PWD\007"'
 
-
-# Search for files:
-alias rgf='rg --files | rg'
-rgall() {
-  rg --files | rg "$1" ; rg --hidden -uu "$1"
-}
-export -f rgall > /dev/null
-
-# Fast exact text search using Spotlight
-rgspotlight() {
-  echo "'""kMDItemTextContent = "'"'"$1"'"'"'"
-  mdfind "kMDItemTextContent = "'"'"$1"'"'
-}
 
 # ========
 # Homebrew 
@@ -298,7 +313,7 @@ simulatordata() { cd ~/Library/Developer/CoreSimulator/Devices/"${1}"/data/Conta
 # DevOps
 # ==============
 # make sure to enable zsh-completions first
-source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
+#source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
 alias k=kubectl
 alias kns='kubectl config set-context --current --namespace '
 alias kall='kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found' # add -n <namespace>
@@ -319,7 +334,7 @@ drmi() { docker rm $(dsi $1  | tr '\n' ' '); }
 alias rm='trash'
 
 # enable fuzzy finder
-# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # some useful flags
 # set -x # activate debugging
