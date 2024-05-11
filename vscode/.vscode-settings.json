@@ -41,7 +41,7 @@
     "editor.inlineSuggest.enabled": true,
     "editor.lineNumbers": "on",
     "editor.padding.bottom": 48, // see also editor.scrollBeyondLastLine
-    "editor.renderWhitespace": "boundary"
+    "editor.renderWhitespace": "boundary",
     "editor.renderControlCharacters": true,
     "editor.render": true,
     "editor.scrollBeyondLastLine": false, // see also editor.padding.bottom
