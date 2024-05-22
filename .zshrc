@@ -268,9 +268,6 @@ pdfjoings () {
 
 alias dca='dart run dart_code_linter:metrics analyze lib --fatal-style --fatal-performance --fatal-warnings;dart run dart_code_linter:metrics check-unused-files lib --fatal-unused'
 
-# if work computer :-)
-alias sudo='osascript /Users/deke/macOS-rice-themes-and-dotfiles/ShortcutsApp/adminbyperms.scpt ; sudo '
-
 # external hard drive not mounting https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
 alias vim=nvim
 
