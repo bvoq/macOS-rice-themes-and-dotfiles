@@ -39,6 +39,7 @@ function sudo() {
         start-process $args[0] -ArgumentList $args[1..$args.Length] -verb "runAs"
     }
 }
+function hopen() { start powershell } # start powershell in same directory, with the same user and elevation
 
 function System-Update() {
     Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
