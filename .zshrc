@@ -136,6 +136,16 @@ rgall() {
 }
 export -f rgall > /dev/null
 
+rgempty() {
+    # empty directories
+    find . -type d -empty -print
+    # grep is slightly faster with whitespaces.
+    find . -type f ! -exec grep -q '[^[:space:]]' {} \; -print
+    # alternatively: find . -type f ! -exec rg -q '[^[:space:]]' {} \; -print
+}
+export -f rgempty > /dev/null
+
+
 # Use as follows: rgfzf '*_bloc.dart' to recursively find all files ending with _bloc.dart and then use fzf to find a string.
 rgfzf() {
   rg --no-heading --hidden --sort-files --line-number --color=always --glob "$1" "" | fzf --ansi --nth=3..
