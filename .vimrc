@@ -205,7 +205,7 @@ set rtp+=/usr/local/opt/fzf
 
 
 """ Custom commands
-command! ErrorRegex execute "/\\v\([a-zA-Z_-]\)\@<!\(error\|missing\|unknown\|except\|not found\|fail\|unavailable\|issue\|problem\|fault\|code 1\|crash\)"
+command! ErrorRegex execute "/\\v\([a-zA-Z_-]\)\@<!\(error\|missing\|unknown\|except\|not found\|fail\|unavailable\|issue\|problem\|fault\|code 1\|crash(\\%(!lytics))\)"
 
 
 """ Various vim settings
