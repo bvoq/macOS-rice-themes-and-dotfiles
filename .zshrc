@@ -115,6 +115,65 @@ function nvimdiff()
     nvim $@ -d $DIR1 $DIR2
 }
 
+# This is an error handler which can be used using set_error_handler
+bash_error_handler() {
+    # Iterate over the stack trace to find the original error location
+    echo "Encountered an error. Stacktrace:"
+    for (( i=${#BASH_SOURCE[@]}-1; i >= 0; i-- )); do
+        if [[ $i == 0 ]]; then
+            args=("$@")
+            file="${args[0]}"
+            lineno="E" # the executed command
+            content_on_line="${args[*]:2}"
+        else
+            file="${BASH_SOURCE[$i]}"
+            lineno="${BASH_LINENO[$((i-1))]}"
+            content_on_line=$(awk "NR == $lineno" "$file")
+        fi
+        trimmed_line=$(echo "$content_on_line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        if [[ ${#trimmed_line} -gt 50 ]]; then
+            limited_line="${trimmed_line:0:47}..."
+        else
+            limited_line="$trimmed_line"
+        fi
+        padded_line=$(printf "%-50s" "$limited_line")
+        echo -e "\t$padded_line  on line $lineno\t in file $file"
+    done
+}
+
+# This is an error handler which can be used using set_error_handler
+zsh_error_handler() {
+    # Iterate over the stack trace to find the original error location
+    echo "Encountered an error. Stacktrace:"
+    for (( i=${#funcfiletrace[@]}; i >= 1; i-- )); do
+        fileandlineno=${funcfiletrace[i]}
+        file=${fileandlineno%%:*}  # Get the first part before the first ':'
+        lineno=${fileandlineno##*:}  # Get the last part after the last ':'
+        content_on_line="$(awk "NR == $lineno" "$file")"
+        trimmed_line=$(echo "$content_on_line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        if [[ ${#trimmed_line} -gt 50 ]]; then
+            limited_line="${trimmed_line:0:47}..."
+        else
+            limited_line="$trimmed_line"
+        fi
+        padded_line=$(printf "%-50s" "$limited_line")
+        echo "\t$padded_line  on line $lineno\t in file $file."
+    done
+}
+
+set_error_handler() {
+    echo "shell is: $SHELL"
+    if [[ $SHELL == "/bin/bash" ]]; then
+        set -eE -o functrace
+        trap 'bash_error_handler ${BASH_SOURCE} ${BASH_COMMAND} ${BASH_ARGV[@]}' ERR
+    elif [[ $SHELL == "/bin/zsh" ]]; then
+        set -e
+        trap 'zsh_error_handler' ERR
+    else
+        echo "No error handler for shell $SHELL"
+    fi
+}
+
 # ==============
 # macOS specific 
 # ==============
