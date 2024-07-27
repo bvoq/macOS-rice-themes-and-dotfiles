@@ -70,7 +70,7 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
     fi 
 
     # maestro for testing
-    curl -Ls "https://get.maestro.mobile.dev" | bash
+    [ ! -d ~/.maestro/bin ] && curl -Ls "https://get.maestro.mobile.dev" | bash
   fi
 
   if [ $CPPTOOLS = 1 ]; then
@@ -123,16 +123,16 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
     # agda-mode setup
   fi
 
-  ### Diaphora
-  if [ $SECURITYTOOLS = 1 ]; then
-    # https://github.com/joxeankoret/diaphora
-  fi
+  #if [ $SECURITYTOOLS = 1 ]; then
+  #  # https://github.com/joxeankoret/diaphora
+  #  # frida
+  #fi
   if [ $GENERICCASKTOOLS = 1 ]; then
     brew install appcleaner baidunetdisk caffeine dash docker keka tor-browser --cask
     # also install regex for safari: https://apps.apple.com/ch/app/regex-for-safari/id1597580456?l=en-GB
     # brew install visual-studio-code --cask # started using insider builds instead.
     # reminder to self: you own a license to use this:
-    brew install daisydisk --cask
+    #brew install daisydisk --cask
   fi
 
   if [ $TEXLIGHT = 1 ]; then
@@ -254,10 +254,6 @@ if [ $MOBILETOOLS = 1 ]; then
 fi
 
 
-echo "Next: Installing chatgpt cli"
-curl -sS https://raw.githubusercontent.com/0xacx/chatGPT-shell-cli/main/install.sh | sudo -E bash
-
-
 # Language servers for vim and vscode (also edit in init.vim)
 echo "Next: Installing language servers."
 waitconfirm
@@ -265,11 +261,17 @@ waitconfirm
 if ! isadmin; then
     # store npm packages on the user-level not admin level.
     # http://michaelb.org/archive/article/30.html
+    echo "not admin"
     npm config set prefix ~/.local
 fi
 npm install -g pyright
 npm install -g bash-language-server
 
+
+if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
+  echo "Next: Installing chatgpt cli"
+  curl -sS https://raw.githubusercontent.com/0xacx/chatGPT-shell-cli/main/install.sh | sudo -E zsh
+fi
 
 if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   #echo "Next: Installing rclone and others that need root permission"
