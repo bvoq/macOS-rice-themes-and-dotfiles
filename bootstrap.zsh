@@ -263,7 +263,6 @@ waitconfirm
 if ! isadmin; then
     # store npm packages on the user-level not admin level.
     # http://michaelb.org/archive/article/30.html
-    echo "not admin"
     npm config set prefix ~/.local
 fi
 npm install -g pyright
