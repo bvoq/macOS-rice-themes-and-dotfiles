@@ -264,8 +264,6 @@ pdfjoings () {
 
 alias dca='dart run dart_code_linter:metrics analyze lib --fatal-style --fatal-performance --fatal-warnings;dart run dart_code_linter:metrics check-unused-files lib --fatal-unused'
 
-alias vim=nvim
-
 # fix my keys on macOS
 # look for usage id key macos:
 # https://developer.apple.com/library/archive/technotes/tn2450/_index.html
