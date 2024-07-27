@@ -268,10 +268,10 @@ npm install -g pyright
 npm install -g bash-language-server
 
 
-echo "Next: Installing rclone and others that need root permission"
-waitconfirm
-sudo -v ; curl https://rclone.org/install.sh | sudo bash
-if [[ $OSTYPE == 'darwin'* ]]; then
+if [[ $OSTYPE == 'darwin'* && is_admin ]]; then
+  #echo "Next: Installing rclone and others that need root permission"
+  #waitconfirm
+  #sudo -v ; curl https://rclone.org/install.sh | sudo bash
   # brew install macfuse --cask # reinstall after changing security properties
 fi
 #later setup wasabi-kdkdk:
@@ -280,12 +280,10 @@ fi
 # restart and make sure macfuse works, then:
 #rclone mount wasabi-kdkdk:kdkdk/ wasabi-kdkdk/ &
 # rclone copy source:path destination:path
-echo "Next: Installing system changes for macOS."
-waitconfirm
 
 # System changes for macOS
 if [[ $OSTYPE == 'darwin'* && is_admin ]]; then
-  echo "Next: Tuning macOS settings. Some updates will only take effect after restarting the system."
+  echo "Next: Installing system changes for macOS."
   waitconfirm
 
   bash .macos
