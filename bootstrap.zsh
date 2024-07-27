@@ -161,8 +161,8 @@ git submodule update
 [ -f ~/.emacs ] && mv ~/.emacs     ~/.emacs.old
 [ -f ~/.inputrc ] && mv ~/.inputrc   ~/.inputrc.old
 [ -f ~/.gitconfig ] && mv ~/.gitconfig ~/.gitconfig.old
-[ -f ~/.tmux ] && mv ~/.tmux.conf ~/.tmux.conf.old
-rm -r ~/.tmux.old && mv ~/.tmux ~/.tmux.old
+[ -f ~/.tmux.conf ] && mv ~/.tmux.conf ~/.tmux.conf.old
+rm -r ~/.tmux.old && [ -d ~/.tmux ] mv ~/.tmux ~/.tmux.old
 [ -f ~/.vimrc ] && mv ~/.vimrc     ~/.vimrc.old
 [ -f ~/.config ] && mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
 [ -f ~/.zshrc ] && mv ~/.zshrc     ~/.zshrc.old
@@ -173,7 +173,7 @@ cp .emacs ~/.emacs
 cp .inputrc   ~/.inputrc
 cp .gitconfig ~/.gitconfig
 cp .tmux.conf ~/.tmux.conf
-cp -r .tmux   ~/.tmux
+cp -rf .tmux   ~/.tmux
 cp .zshrc     ~/.zshrc
 cp .zshenv    ~/.zshenv
 cp .zshfunctions ~/.zshfunctions
