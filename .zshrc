@@ -1,14 +1,27 @@
 #!/bin/zsh
 
+####################
+# General zsh uses #
+####################
+source .zshfunctions
+
 # make sure utf-8 is used
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
-# Settings
-
 # store all cd directory pushes
 setopt AUTO_PUSHD
+
+# make sure that enter key works: https://askubuntu.com/questions/441744/pressing-enter-produces-m-instead-of-a-newline
+stty sane
+
+# enable fuzzy finder if it exists
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+###########
+# Aliases #
+###########
 
 # Enable aliases to be sudo’ed
 alias sudo='sudo '
@@ -43,13 +56,11 @@ alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[
 # Show active network interfaces
 alias ifactive="ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active'"
 
-
-# Always enable colored `grep` output
+# Always enable colored `grep` output by default
 # Note: `GREP_OPTIONS="--color=auto"` is deprecated, hence the alias usage.
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
-
 
 # Intuitive map function
 # For example, to list all directories that contain a certain file:
@@ -73,106 +84,27 @@ alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(obj
 # rm -Rf .git/refs/original
 # git gc --aggressive --prune=now
 
-# First argument = dir, Second argument = location and name (.tar.xz)
-compressdir() {
-    if [ $# -eq 1 ]; then tar --xz -cf "$1.tar.xz" "$1"; fi
-    if [ $# -eq 2 ]; then tar --xz -cf "$2.tar.xz" "$1"; fi
-}
-export -f compressdir > /dev/null
 
-decompressdir() {
-    bname=$(basename $1)
-    fname=${bname%.tar.xz}
-    tar --xz -xvf "$1"
-    if [ $# -eq 2 ]; then mv "$fname" "$2";  fi
-}
-export -f decompressdir > /dev/null
+# ==============
+# DevOps
+# ==============
+# make sure to enable zsh-completions first
+#source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
+alias k=kubectl
+alias kns='kubectl config set-context --current --namespace '
+alias kall='kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found' # add -n <namespace>
+export EDITOR=vim # enable `k edit` on macOS
+# export KUBE_EDITOR=vim # alternatively
+compdef _kubectl k
+# useful devops commands
+# shell into container:
+# kubectl exec -it <pod> [-c <container>] -- sh
+# kubectl debug -it debugcontainer --image=busybox:1.28 --target=<pod>
+# kubectl debug myapp -it --image=debugcontainerimage --share-processes --copy-to=myapp-debug
 
-# ===========
-# Vim DirDiff
-# ===========
-function vimdirdiff()
-{
-    # Shell-escape each path:
-    DIR1=$(printf '%q' "$1"); shift
-    DIR2=$(printf '%q' "$1"); shift
-    \vim $@ -c "DirDiff $DIR1 $DIR2"
-}
-
-function nvimdirdiff()
-{
-    # Shell-escape each path:
-    DIR1=$(printf '%q' "$1"); shift
-    DIR2=$(printf '%q' "$1"); shift
-    nvim $@ -c "DirDiff $DIR1 $DIR2"
-}
-
-function nvimdiff()
-{
-    # Shell-escape each path:
-    DIR1=$(printf '%q' "$1"); shift
-    DIR2=$(printf '%q' "$1"); shift
-    nvim $@ -d $DIR1 $DIR2
-}
-
-# This is an error handler which can be used using set_error_handler
-bash_error_handler() {
-    # Iterate over the stack trace to find the original error location
-    echo "Encountered an error. Stacktrace:"
-    for (( i=${#BASH_SOURCE[@]}-1; i >= 0; i-- )); do
-        if [[ $i == 0 ]]; then
-            args=("$@")
-            file="${args[0]}"
-            lineno="E" # the executed command
-            content_on_line="${args[*]:2}"
-        else
-            file="${BASH_SOURCE[$i]}"
-            lineno="${BASH_LINENO[$((i-1))]}"
-            content_on_line=$(awk "NR == $lineno" "$file")
-        fi
-        trimmed_line=$(echo "$content_on_line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-        if [[ ${#trimmed_line} -gt 50 ]]; then
-            limited_line="${trimmed_line:0:47}..."
-        else
-            limited_line="$trimmed_line"
-        fi
-        padded_line=$(printf "%-50s" "$limited_line")
-        echo -e "\t$padded_line  on line $lineno\t in file $file"
-    done
-}
-
-# This is an error handler which can be used using set_error_handler
-zsh_error_handler() {
-    # Iterate over the stack trace to find the original error location
-    echo "Encountered an error. Stacktrace:"
-    for (( i=${#funcfiletrace[@]}; i >= 1; i-- )); do
-        fileandlineno=${funcfiletrace[i]}
-        file=${fileandlineno%%:*}  # Get the first part before the first ':'
-        lineno=${fileandlineno##*:}  # Get the last part after the last ':'
-        content_on_line="$(awk "NR == $lineno" "$file")"
-        trimmed_line=$(echo "$content_on_line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-        if [[ ${#trimmed_line} -gt 50 ]]; then
-            limited_line="${trimmed_line:0:47}..."
-        else
-            limited_line="$trimmed_line"
-        fi
-        padded_line=$(printf "%-50s" "$limited_line")
-        echo "\t$padded_line  on line $lineno\t in file $file."
-    done
-}
-
-set_error_handler() {
-    echo "shell is: $SHELL"
-    if [[ $SHELL == "/bin/bash" ]]; then
-        set -eE -o functrace
-        trap 'bash_error_handler ${BASH_SOURCE} ${BASH_COMMAND} ${BASH_ARGV[@]}' ERR
-    elif [[ $SHELL == "/bin/zsh" ]]; then
-        set -e
-        trap 'zsh_error_handler' ERR
-    else
-        echo "No error handler for shell $SHELL"
-    fi
-}
+# stop and delete docker containers by their image id
+dsi() { docker stop $(docker ps -a | awk -v i="^$1.*" '{if($2~i){print$1}}'); }
+drmi() { docker rm $(dsi $1  | tr '\n' ' '); }
 
 # ==============
 # macOS specific 
@@ -187,6 +119,7 @@ fi
 if type fzf &>/dev/null; then
   eval "$(fzf --zsh)"
 fi
+
 # Search for files:
 alias rgd='rg --hidden --files --sort-files . 2> /dev/null | xargs -0 dirname | uniq | rg'
 alias rgf='rg --hidden --files --sort-files . 2> /dev/null | rg'
@@ -219,10 +152,7 @@ rgspotlight() {
 }
 export -f rgspotlight > /dev/null
 
-
-
-
-# old: bash completion support
+# for those old people who still use bash? bash completion support
 # [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
 
 # open new window in same location as current terminal.
@@ -237,7 +167,6 @@ alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder"
 
 # Clean up LaunchServices to remove duplicates in the “Open With” menu
 alias lscleanup="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user && killall Finder"
-
 
 # Canonical hex dump; some systems have this symlinked
 command -v hd > /dev/null || alias hd="hexdump -C"
@@ -264,6 +193,9 @@ alias showdesktop="defaults write com.apple.finder CreateDesktop -bool true && k
 # Recursively delete `.DS_Store` files
 alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
 
+# make sure rm just trashes
+alias rm='trash'
+
 # Empty the Trash on all mounted volumes and the main HDD.
 # Also, clear Apple’s System Logs to improve shell startup speed.
 # Finally, clear download history from quarantine. https://mths.be/bum
@@ -275,7 +207,7 @@ alias ios="open /Applications/Xcode.app/Contents/Developer/Applications/Simulato
 alias x='matches=("xcworkspace" "xcodeproj" "playground"); for i in "${matches[@]}"; do if [ -d *.${i} ]; then open -a Xcode *.${i}; break; fi; done'
 
 
-# One of @janmoesen’s ProTip™s
+# Defines: GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS:
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
     alias "${method}"="lwp-request -m '${method}'"
 done
@@ -286,13 +218,9 @@ for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
 done
 
 
-
 # Kill all the tabs in Chrome to free up memory
 # [C] explained: http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
 alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
-
-# make sure that enter key works: https://askubuntu.com/questions/441744/pressing-enter-produces-m-instead-of-a-newline
-stty sane
 
 # iTerm2 or other terminals, make sure that the last two folders of PWD is shown in the tab bar.
 if [ $ITERM_SESSION_ID ]; then
@@ -300,7 +228,6 @@ precmd() {
   echo -ne "\033]0;${PWD#*${PWD%*/*/*}}\007"
 }
 fi
-# export PROMPT_COMMAND='echo -ne "\033]0;$PWD\007"'
 
 
 # ========
@@ -337,9 +264,7 @@ pdfjoings () {
 
 alias dca='dart run dart_code_linter:metrics analyze lib --fatal-style --fatal-performance --fatal-warnings;dart run dart_code_linter:metrics check-unused-files lib --fatal-unused'
 
-# external hard drive not mounting https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
 alias vim=nvim
-
 
 # fix my keys on macOS
 # look for usage id key macos:
@@ -362,11 +287,14 @@ bbauth() { pbcopy < ~/private/keys/bbauth.txt }
 azauth() { pbcopy < ~/private/keys/azureauth.txt }
 
 totp() { oathtool --totp -b $(<~/".totp_${1:-zuhlke}") | pbcopy; }
-# add more (umask 0077;pbpaste > ~/.totp_github)
-# call others usig totp github for e.g.
+# add more (umask 0077;pbpaste > ~/.totp_)
+# call otherprovider using totp otherprovider for e.g.
 
 simulatordata() { cd ~/Library/Developer/CoreSimulator/Devices/"${1}"/data/Containers/Data/Application ; ls -lt ; pwd}
 
+# external hard drive not mounting https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
+# ps aux | grep fsck
+# sudo pkill -f fsck
 
 ### How to disable the SD card drive on macOS:
 # mdutil -i off /Volumes/yourUSBstick
@@ -376,33 +304,7 @@ simulatordata() { cd ~/Library/Developer/CoreSimulator/Devices/"${1}"/data/Conta
 # touch .fseventsd/no_log .metadata_never_index .Trashes
 # cd -
 
-# ==============
-# DevOps
-# ==============
-# make sure to enable zsh-completions first
-#source <(kubectl completion zsh)  # setup autocomplete in zsh into the current shell
-alias k=kubectl
-alias kns='kubectl config set-context --current --namespace '
-alias kall='kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found' # add -n <namespace>
-export EDITOR=vim # enable `k edit` on macOS
-# export KUBE_EDITOR=vim # alternatively
-compdef _kubectl k
-# useful devops commands
-# shell into container:
-# kubectl exec -it <pod> [-c <container>] -- sh
-# kubectl debug -it debugcontainer --image=busybox:1.28 --target=<pod>
-# kubectl debug myapp -it --image=debugcontainerimage --share-processes --copy-to=myapp-debug
-
-# stop and delete docker containers by their image id
-dsi() { docker stop $(docker ps -a | awk -v i="^$1.*" '{if($2~i){print$1}}'); }
-drmi() { docker rm $(dsi $1  | tr '\n' ' '); }
-
-# make sure rm just trashes
-alias rm='trash'
-
-# enable fuzzy finder
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
+# References:
 # some useful flags
 # set -x # activate debugging
 # set +x # disable debugging

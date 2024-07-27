@@ -1,0 +1,127 @@
+#!/bin/zsh
+isadmin() { id -G $1 | grep -q -w 80 ; }
+semver() { printf "%03d%03d%03d%03d" $(echo "$1" | tr '.' ' '); }
+waitconfirm() {
+  if read -q "choice?Continue [press y/n]? "; then
+    echo "Continuing..."
+  else
+    exit 0
+  fi
+}
+
+bash_error_handler() {
+    # Iterate over the stack trace to find the original error location
+    echo "Encountered an error. Stacktrace:"
+    for (( i=${#BASH_SOURCE[@]}-1; i >= 0; i-- )); do
+        if [[ $i == 0 ]]; then
+            args=("$@")
+            file="${args[0]}"
+            lineno="E" # the executed command
+            content_on_line="${args[*]:2}"
+        else
+            file="${BASH_SOURCE[$i]}"
+            lineno="${BASH_LINENO[$((i-1))]}"
+            content_on_line=$(awk "NR == $lineno" "$file")
+        fi
+        trimmed_line=$(echo "$content_on_line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        if [[ ${#trimmed_line} -gt 50 ]]; then
+            limited_line="${trimmed_line:0:47}..."
+        else
+            limited_line="$trimmed_line"
+        fi
+        padded_line=$(printf "%-50s" "$limited_line")
+        echo -e "\t$padded_line  on line $lineno\t in file $file"
+    done
+}
+
+zsh_error_handler() {
+    # Iterate over the stack trace to find the original error location
+    echo "Encountered an error. Stacktrace:"
+    for (( i=${#funcfiletrace[@]}; i >= 1; i-- )); do
+        fileandlineno=${funcfiletrace[i]}
+        file=${fileandlineno%%:*}  # Get the first part before the first ':'
+        lineno=${fileandlineno##*:}  # Get the last part after the last ':'
+        content_on_line="$(awk "NR == $lineno" "$file")"
+        trimmed_line=$(echo "$content_on_line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        if [[ ${#trimmed_line} -gt 50 ]]; then
+            limited_line="${trimmed_line:0:47}..."
+        else
+            limited_line="$trimmed_line"
+        fi
+        padded_line=$(printf "%-50s" "$limited_line")
+        echo "\t$padded_line  on line $lineno\t in file $file."
+    done
+}
+
+set_error_handler() {
+    if [[ $SHELL == "/bin/bash" ]]; then
+        set -eE -o functrace
+        trap 'bash_error_handler ${BASH_SOURCE} ${BASH_COMMAND} ${BASH_ARGV[@]}' ERR
+    elif [[ $SHELL == "/bin/zsh" ]]; then
+        set -e
+        trap 'zsh_error_handler' ERR
+    else
+        echo "No error handler for shell $SHELL"
+    fi
+}
+
+# First argument = dir, Second argument = location and name (.tar.xz)
+compressdir() {
+    if [ $# -eq 1 ]; then tar --xz -cf "$1.tar.xz" "$1"; fi
+    if [ $# -eq 2 ]; then tar --xz -cf "$2.tar.xz" "$1"; fi
+}
+
+decompressdir() {
+    bname=$(basename $1)
+    fname=${bname%.tar.xz}
+    tar --xz -xvf "$1"
+    if [ $# -eq 2 ]; then mv "$fname" "$2";  fi
+}
+
+# ===========
+# Vim DirDiff
+# ===========
+vimdirdiff()
+{
+    # Shell-escape each path:
+    DIR1=$(printf '%q' "$1"); shift
+    DIR2=$(printf '%q' "$1"); shift
+    \vim $@ -c "DirDiff $DIR1 $DIR2"
+}
+
+nvimdirdiff()
+{
+    # Shell-escape each path:
+    DIR1=$(printf '%q' "$1"); shift
+    DIR2=$(printf '%q' "$1"); shift
+    nvim $@ -c "DirDiff $DIR1 $DIR2"
+}
+
+nvimdiff()
+{
+    # Shell-escape each path:
+    DIR1=$(printf '%q' "$1"); shift
+    DIR2=$(printf '%q' "$1"); shift
+    nvim $@ -d $DIR1 $DIR2
+}
+
+
+# Darwin specific
+assure_userlevel_zsh() {
+    if [[ "$(dscl . -read ~/ UserShell)" == */bin/bash ]]; then
+        echo "Your current user shell is /bin/bash. Let's change this to zsh."
+        echo "This script will execute: chsh -s /bin/zsh"
+        waitconfirm
+        chsh -s /bin/zsh
+    fi
+}
+
+check_not_rosetta() {
+    if [[ "$(sysctl -n sysctl.proc_translated)" != 0 ]]; then
+        echo "It seems you are running this script with Rosetta enabled."
+        echo "Make sure that this terminal or session has Rosetta turned off."
+        echo "For example: Right-Click Terminal > Get Info > Uncheck Open using Rosetta"
+        exit 1
+    fi
+}
+

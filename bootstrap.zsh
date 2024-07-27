@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-# enable what you want to install
+# enable what you want to install here
 FORMALMETHODS=1
 GENERICTOOLS=1
 GENERICCASKTOOLS=1
@@ -11,14 +11,22 @@ CPPTOOLS=1
 TEXLIGHT=0
 TEXFULL=0
 
-# set -x
+source .zshfunctions
+set_error_handler
+
 if [[ $OSTYPE == 'darwin'* ]]; then
+    # sanity checks
+    assure_userlevel_zsh
+    check_not_rosetta
+fi
+
+if [[ $OSTYPE == 'darwin'* && is_admin ]]; then
   # clean up brew
   brew autoremove
   brew cleanup
 
   if [ $GENERICTOOLS = 1 ]; then
-    brew install bat fzf git gs jq nvim tmux trash tree yq yt-dlp watch zsh-completions
+    brew install bat fzf git gs jq npm nvim tmux trash tree yq yt-dlp watch zsh-completions
 
     # apple development, switch between xcode versions.
     brew install robotsandpencils/made/xcodes
@@ -52,10 +60,13 @@ if [[ $OSTYPE == 'darwin'* ]]; then
       # if in china:
       export PUB_HOSTED_URL=https://mirror.sjtu.edu.cn
       export FLUTTER_STORAGE_BASE_URL=https://mirror.sjtu.edu.cn/dart-pub
-      git clone -b main https://git.sjtu.edu.cn/sjtug/flutter-sdk.git
+      if [ ! -d ~/Developer/flutter ]; then
+        git clone -b main https://git.sjtu.edu.cn/sjtug/flutter-sdk.git ~/Developer/flutter
+      fi
     else
-      # else:
-      git clone -b main https://github.com/flutter/flutter.git ~/Developer/flutter
+      if [ ! -d ~/Developer/flutter ]; then
+        git clone -b main https://github.com/flutter/flutter.git ~/Developer/flutter
+      fi
     fi 
 
     # maestro for testing
@@ -142,9 +153,6 @@ if [[ $OSTYPE == 'darwin'* ]]; then
 
 fi
 
-# zgen for zsh plugin management
-# git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
-
 git submodule init
 git submodule update
 
@@ -158,6 +166,7 @@ rm -r ~/.tmux.old && mv ~/.tmux ~/.tmux.old
 mv ~/.vimrc     ~/.vimrc.old
 mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
 mv ~/.zshrc     ~/.zshrc.old
+mv ~/.zshfunctions
 mv ~/.zshenv     ~/.zshenv.old
 #mkdir -p /usr/local/etc/periodic/weekly
 #mv /usr/local/etc/periodic/weekly/weekly_macos_script.local /usr/local/etc/periodic/weekly/weekly_macos_script.local.old
@@ -179,7 +188,6 @@ cp .tmux.conf ~/.tmux.conf
 cp -r .tmux   ~/.tmux
 cp .zshrc     ~/.zshrc
 cp .zshenv    ~/.zshenv
-#cp weekly_macos_script.local /usr/local/etc/periodic/weekly/weekly_macos_script.local
 
 echo "Installing Vim and Neovim configurations and plugins"
 
@@ -201,13 +209,6 @@ nvim +'PlugClean --sync' +qa
 
 echo "To enable trace, run: 'csrutil enable --without dtrace --without debug' in reboot mode."
 
-waitconfirm() {
-  if read -q "choice?Continue [press y/n]? "; then
-    echo "Continuing..."
-  else
-    exit 0
-  fi
-}
 echo "Installing VSCode extensions"
 waitconfirm
 # general
@@ -258,6 +259,11 @@ curl -sS https://raw.githubusercontent.com/0xacx/chatGPT-shell-cli/main/install.
 echo "Next: Installing language servers."
 waitconfirm
 
+if ! is_admin; then
+    # store npm packages on the user-level not admin level.
+    # http://michaelb.org/archive/article/30.html
+    npm config set prefix ~/.local
+fi
 npm install -g pyright
 npm install -g bash-language-server
 
@@ -278,9 +284,10 @@ echo "Next: Installing system changes for macOS."
 waitconfirm
 
 # System changes for macOS
-if [[ $OSTYPE == 'darwin'* ]]; then
+if [[ $OSTYPE == 'darwin'* && is_admin ]]; then
   echo "Next: Tuning macOS settings. Some updates will only take effect after restarting the system."
   waitconfirm
+
   bash .macos
   echo "Almost done. Next we will install some Terminal and Xcode themes. You can also install them manually alternatively."
   waitconfirm
