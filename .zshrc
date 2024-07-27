@@ -95,7 +95,9 @@ alias kns='kubectl config set-context --current --namespace '
 alias kall='kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl get --show-kind --ignore-not-found' # add -n <namespace>
 export EDITOR=vim # enable `k edit` on macOS
 # export KUBE_EDITOR=vim # alternatively
-compdef _kubectl k
+if command -v compdef > /dev/null; then
+  compdef _kubectl k
+fi
 # useful devops commands
 # shell into container:
 # kubectl exec -it <pod> [-c <container>] -- sh
