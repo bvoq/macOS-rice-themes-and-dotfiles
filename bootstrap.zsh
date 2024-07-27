@@ -162,7 +162,7 @@ git submodule update
 [ -f ~/.inputrc ] && mv ~/.inputrc   ~/.inputrc.old
 [ -f ~/.gitconfig ] && mv ~/.gitconfig ~/.gitconfig.old
 [ -f ~/.tmux.conf ] && mv ~/.tmux.conf ~/.tmux.conf.old
-[ -d ~/.tmux.old] && rm -r ~/.tmux.old
+[ -d ~/.tmux.old ] && rm -r ~/.tmux.old
 [ -d ~/.tmux ] && mv ~/.tmux ~/.tmux.old
 [ -f ~/.vimrc ] && mv ~/.vimrc     ~/.vimrc.old
 [ -f ~/.config ] && mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
@@ -180,7 +180,7 @@ cp .zshenv    ~/.zshenv
 cp .zshfunctions ~/.zshfunctions
 
 if [[ $OSTYPE == 'darwin'* ]]; then
-  mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.old
+  [ -f ~/Library/Application\ Support/Code/User/settings.json ] && mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.old
   cp vscode/.vscode-settings.json ~/Library/Application\ Support/Code/User/settings.json # VSCode
   cp vscode/.vscode-settings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/settings.json # VSCode Insiders
   cp vscode/keybindings.json ~/Library/Application\ Support/Code/User/keybindings # VSCode
