@@ -162,7 +162,8 @@ git submodule update
 [ -f ~/.inputrc ] && mv ~/.inputrc   ~/.inputrc.old
 [ -f ~/.gitconfig ] && mv ~/.gitconfig ~/.gitconfig.old
 [ -f ~/.tmux.conf ] && mv ~/.tmux.conf ~/.tmux.conf.old
-rm -r ~/.tmux.old && [ -d ~/.tmux ] mv ~/.tmux ~/.tmux.old
+[ -d ~/.tmux.old] && rm -r ~/.tmux.old
+[ -d ~/.tmux ] && mv ~/.tmux ~/.tmux.old
 [ -f ~/.vimrc ] && mv ~/.vimrc     ~/.vimrc.old
 [ -f ~/.config ] && mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
 [ -f ~/.zshrc ] && mv ~/.zshrc     ~/.zshrc.old
