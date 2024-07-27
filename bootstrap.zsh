@@ -20,7 +20,7 @@ if [[ $OSTYPE == 'darwin'* ]]; then
     check_not_rosetta
 fi
 
-if [[ $OSTYPE == 'darwin'* && isadmin ]]; then
+if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   # clean up brew
   brew autoremove
   brew cleanup
@@ -268,7 +268,7 @@ npm install -g pyright
 npm install -g bash-language-server
 
 
-if [[ $OSTYPE == 'darwin'* && isadmin ]]; then
+if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   #echo "Next: Installing rclone and others that need root permission"
   #waitconfirm
   #sudo -v ; curl https://rclone.org/install.sh | sudo bash
@@ -282,7 +282,7 @@ fi
 # rclone copy source:path destination:path
 
 # System changes for macOS
-if [[ $OSTYPE == 'darwin'* && isadmin ]]; then
+if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   echo "Next: Installing system changes for macOS."
   waitconfirm
 
