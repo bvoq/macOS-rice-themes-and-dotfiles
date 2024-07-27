@@ -185,8 +185,8 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   mkdir -p ~/Library/Application\ Support/Code\ -\ Insiders/User
   cp vscode/.vscode-settings.json ~/Library/Application\ Support/Code/User/settings.json # VSCode
   cp vscode/.vscode-settings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/settings.json # VSCode Insiders
-  cp vscode/keybindings.json ~/Library/Application\ Support/Code/User/keybindings # VSCode
-  cp vscode/keybindings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/keybindings.json # VSCode Insiders
+  #cp vscode/keybindings.json ~/Library/Application\ Support/Code/User/keybindings # VSCode
+  #cp vscode/keybindings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/keybindings.json # VSCode Insiders
   defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false # VSCode
   defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false # VSCode Insiders
 fi
