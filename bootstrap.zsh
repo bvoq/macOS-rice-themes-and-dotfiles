@@ -181,6 +181,8 @@ cp .zshfunctions ~/.zshfunctions
 
 if [[ $OSTYPE == 'darwin'* ]]; then
   [ -f ~/Library/Application\ Support/Code/User/settings.json ] && mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.old
+  mkdir -p ~/Library/Application\ Support/Code/User
+  mkdir -p ~/Library/Application\ Support/Code\ -\ Insiders/User
   cp vscode/.vscode-settings.json ~/Library/Application\ Support/Code/User/settings.json # VSCode
   cp vscode/.vscode-settings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/settings.json # VSCode Insiders
   cp vscode/keybindings.json ~/Library/Application\ Support/Code/User/keybindings # VSCode
