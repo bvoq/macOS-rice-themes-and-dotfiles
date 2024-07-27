@@ -205,8 +205,10 @@ sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.
 # copy the vim config files
 mkdir -p ~/.config/nvim && cp .config/nvim/init.vim ~/.config/nvim/init.vim
 cp .vimrc ~/.vimrc
-nvim +'PlugInstall --sync' +qa
-nvim +'PlugClean --sync' +qa
+if command -v nvim > /dev/null; then
+  nvim +'PlugInstall --sync' +qa
+  nvim +'PlugClean --sync' +qa
+fi
 \vim +'PlugInstall --sync' +qa
 \vim +'PlugClean --sync' +qa
 
