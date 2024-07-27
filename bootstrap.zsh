@@ -173,7 +173,7 @@ cp .emacs ~/.emacs
 cp .inputrc   ~/.inputrc
 cp .gitconfig ~/.gitconfig
 cp .tmux.conf ~/.tmux.conf
-cp -rf .tmux   ~/.tmux
+cp -a .tmux   ~/.tmux
 cp .zshrc     ~/.zshrc
 cp .zshenv    ~/.zshenv
 cp .zshfunctions ~/.zshfunctions
