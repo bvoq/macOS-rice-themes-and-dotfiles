@@ -158,16 +158,16 @@ git submodule update
 
 # Copy dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)
 # create a backup, better safe than sorry.
-mv ~/.emacs     ~/.emacs.old
-mv ~/.inputrc   ~/.inputrc.old
-mv ~/.gitconfig ~/.gitconfig.old
-mv ~/.tmux.conf ~/.tmux.conf.old
+[-f ~/.emacs] && mv ~/.emacs     ~/.emacs.old
+[-f ~/.inputrc] && mv ~/.inputrc   ~/.inputrc.old
+[-f ~/.gitconfig] && mv ~/.gitconfig ~/.gitconfig.old
+[-f ~/.tmux] && mv ~/.tmux.conf ~/.tmux.conf.old
 rm -r ~/.tmux.old && mv ~/.tmux ~/.tmux.old
-mv ~/.vimrc     ~/.vimrc.old
-mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
-mv ~/.zshrc     ~/.zshrc.old
-mv ~/.zshfunctions ~/.zshfunctions.old
-mv ~/.zshenv     ~/.zshenv.old
+[-f ~/.vimrc] && mv ~/.vimrc     ~/.vimrc.old
+[-f ~/.config] && mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
+[-f ~/.zshrc] && mv ~/.zshrc     ~/.zshrc.old
+[-f ~/.zshfunctions] && mv ~/.zshfunctions ~/.zshfunctions.old
+[-f ~/.zshenv] && mv ~/.zshenv     ~/.zshenv.old
 
 cp .emacs ~/.emacs
 cp .inputrc   ~/.inputrc
