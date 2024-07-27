@@ -248,7 +248,7 @@ if [ $MOBILETOOLS = 1 ]; then
 fi
 
 
-if [ $MOBILETOOLS = 1 ]; then
+if [ $MOBILETOOLS = 1 ] && isadmin; then
   echo "Next: Installing firebase, requires root permission."
   waitconfirm
   curl -sL https://firebase.tools | bash
