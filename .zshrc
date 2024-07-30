@@ -3,7 +3,7 @@
 ####################
 # General zsh uses #
 ####################
-source .zshfunctions
+source ~/.zshfunctions
 
 # make sure utf-8 is used
 export LANG=en_US.UTF-8
