@@ -236,7 +236,6 @@ fi
 
 if [ $FORMALMETHODS = 1 ]; then
   code --install-extension banacorn.agda-mode
-  code --install-extension znck.grammarly
   code --install-extension gpoore.codebraid-preview
 fi
 
