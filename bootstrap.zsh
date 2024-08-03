@@ -79,10 +79,6 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
     brew install bdw-gc
   fi
 
-  if [ $UNITYTOOLS = 1 ]; then
-    brew install dotnet
-  fi
-
   if [ $DEVOPSTOOLS = 1 ]; then
     brew install kubectl fluxcd/tap/flux kubetail
     brew tap johanhaleby/kubetail && brew install kubetail
@@ -130,7 +126,8 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   if [ $GENERICCASKTOOLS = 1 ]; then
     brew install appcleaner baidunetdisk caffeine dash docker keka tor-browser --cask
     # also install regex for safari: https://apps.apple.com/ch/app/regex-for-safari/id1597580456?l=en-GB
-    # brew install visual-studio-code --cask # started using insider builds instead.
+    brew install visual-studio-code --cask  # or use visual-studio-code@insiders instead
+
     # reminder to self: you own a license to use this:
     #brew install daisydisk --cask
   fi
@@ -227,10 +224,10 @@ code --install-extension PKief.material-icon-theme
 code --install-extension Ho-Wan.setting-toggle
 code --install-extension ctf0.close-tabs-to-the-left
 code --install-extension ms-vsliveshare.vsliveshare
-code --install-extension redhat.vscode-yaml
 # theme
 code --install-extension ifahrentholz.one-quiet-dark-pro
 # generic linters
+code --install-extension redhat.vscode-yaml
 code --install-extension DavidAnson.vscode-markdownlint
 
 if [ $UNITYTOOLS = 1 ]; then
@@ -240,7 +237,6 @@ fi
 if [ $FORMALMETHODS = 1 ]; then
   code --install-extension banacorn.agda-mode
   code --install-extension znck.grammarly
-  code --install-extension DavidAnson.vscode-markdownlint
   code --install-extension gpoore.codebraid-preview
 fi
 
