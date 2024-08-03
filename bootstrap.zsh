@@ -226,6 +226,10 @@ code --install-extension eamodio.gitlens
 code --install-extension PKief.material-icon-theme
 code --install-extension Ho-Wan.setting-toggle
 code --install-extension ctf0.close-tabs-to-the-left
+code --install-extension ms-vsliveshare.vsliveshare
+code --install-extension redhat.vscode-yaml
+# theme
+code --install-extension ifahrentholz.one-quiet-dark-pro
 # generic linters
 code --install-extension DavidAnson.vscode-markdownlint
 
@@ -235,13 +239,19 @@ fi
 
 if [ $FORMALMETHODS = 1 ]; then
   code --install-extension banacorn.agda-mode
+  code --install-extension znck.grammarly
+  code --install-extension DavidAnson.vscode-markdownlint
+  code --install-extension gpoore.codebraid-preview
 fi
 
 if [ $MOBILETOOLS = 1 ]; then
+  # General:
+  code --install-extension mariomatheu.syntax-project-pbxproj
+  # Dart/Flutter related:
   code --install-extension Dart-Code.dart-code
   code --install-extension Dart-Code.flutter
   code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
-  code --install-extension mariomatheu.syntax-project-pbxproj
+  code --install-extension qlevar.pub-manager
   # Flutter test coverage:
   code --install-extension ryanluker.vscode-coverage-gutters
   code --install-extension flutterando.flutter-coverage
