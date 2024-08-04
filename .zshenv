@@ -35,3 +35,7 @@ export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 
 # Devops
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+
+# Unity/Dotnet
+export DOTNET_ROOT="${HOME}/.dotnet"
+export PATH="${PATH}:$DOTNET_ROOT"
