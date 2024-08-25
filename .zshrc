@@ -270,10 +270,10 @@ alias dca='dart run dart_code_linter:metrics analyze lib --fatal-style --fatal-p
 # look for usage id key macos:
 # https://developer.apple.com/library/archive/technotes/tn2450/_index.html
 fixkeys() {
-    hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000033,"HIDKeyboardModifierMappingDst":0x700000011},{"HIDKeyboardModifierMappingSrc":0x700000034,"HIDKeyboardModifierMappingDst":0x700000005}]}'
+    sudo hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000033,"HIDKeyboardModifierMappingDst":0x700000011},{"HIDKeyboardModifierMappingSrc":0x700000034,"HIDKeyboardModifierMappingDst":0x700000005}]}'
 }
 nofixkeys() {
-    hidutil property --set '{"UserKeyMapping":[]}'
+    sudo hidutil property --set '{"UserKeyMapping":[]}'
 }
 export -f fixkeys > /dev/null
 export -f nofixkeys > /dev/null
