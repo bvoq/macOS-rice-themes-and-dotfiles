@@ -84,6 +84,7 @@
         ]
     },
     "workbench.editor.wrapTabs": true,
+    "workbench.editor.pinnedTabsOnSeparateRow": true,
 
     "workbench.editor.tabActionLocation": "left",
     "workbench.sideBar.location": "right",
