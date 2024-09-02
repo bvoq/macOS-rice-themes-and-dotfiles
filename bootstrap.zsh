@@ -230,7 +230,6 @@ echo "Installing VSCode extensions"
 waitconfirm
 # general
 code --install-extension aaron-bond.better-comments
-code --install-extension GitHub.copilot
 code --install-extension deerawan.vscode-dash
 code --install-extension johnpapa.vscode-peacock
 code --install-extension usernamehw.errorlens
@@ -244,6 +243,8 @@ code --install-extension ifahrentholz.one-quiet-dark-pro
 # generic linters
 code --install-extension redhat.vscode-yaml
 code --install-extension DavidAnson.vscode-markdownlint
+# Supermaven
+code --install-extension Supermaven.supermaven
 
 if [ $UNITYTOOLS = 1 ]; then
   # Note this also installs its own dotnet runtime, but not dotnet sdk!

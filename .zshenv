@@ -18,7 +18,7 @@ export PATH="/Users/deke/.flashlight/bin:$PATH"
 
 # Android
 export ANDROID_HOME=/Users/$USER/Library/Android/sdk
-export PATH=${PATH}:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools
 # VSCode Insiders (picked first if installed)
 export PATH="$PATH:/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin"
 # VSCode
