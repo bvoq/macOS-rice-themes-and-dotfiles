@@ -104,6 +104,7 @@ code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
 # make sure git is configured first
 git clone -b stable git@github.com:flutter/flutter.git C:\flutter
 Set-PathVariable -AddPath "C:\flutter\bin" -Scope "User"
+Set-PathVariable -AddPath "$env:USERPROFILE\AppData\Local\Pub\Cache\bin" -Scope "User"
 
 ### Installing npm packages
 npm install -g firebase-tools
