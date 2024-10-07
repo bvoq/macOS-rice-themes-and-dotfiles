@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-# enable what you want to install
+# enable what you want to install here
 FORMALMETHODS=1
 GENERICTOOLS=1
 GENERICCASKTOOLS=1
@@ -11,14 +11,22 @@ CPPTOOLS=1
 TEXLIGHT=0
 TEXFULL=0
 
-# set -x
+source .zshfunctions
+set_error_handler
+
 if [[ $OSTYPE == 'darwin'* ]]; then
+    # sanity checks
+    assure_userlevel_zsh
+    check_not_rosetta
+fi
+
+if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   # clean up brew
   brew autoremove
   brew cleanup
 
   if [ $GENERICTOOLS = 1 ]; then
-    brew install bat fzf git gs jq nvim tmux trash tree yq yt-dlp watch zsh-completions
+    brew install bat fzf git gs jq npm nvim tmux trash tree yq yt-dlp watch zsh-completions
 
     # apple development, switch between xcode versions.
     brew install robotsandpencils/made/xcodes
@@ -52,14 +60,17 @@ if [[ $OSTYPE == 'darwin'* ]]; then
       # if in china:
       export PUB_HOSTED_URL=https://mirror.sjtu.edu.cn
       export FLUTTER_STORAGE_BASE_URL=https://mirror.sjtu.edu.cn/dart-pub
-      git clone -b main https://git.sjtu.edu.cn/sjtug/flutter-sdk.git
+      if [ ! -d ~/Developer/flutter ]; then
+        git clone -b main https://git.sjtu.edu.cn/sjtug/flutter-sdk.git ~/Developer/flutter
+      fi
     else
-      # else:
-      git clone -b main https://github.com/flutter/flutter.git ~/Developer/flutter
+      if [ ! -d ~/Developer/flutter ]; then
+        git clone -b main https://github.com/flutter/flutter.git ~/Developer/flutter
+      fi
     fi 
 
     # maestro for testing
-    curl -Ls "https://get.maestro.mobile.dev" | bash
+    [ ! -d ~/.maestro/bin ] && curl -Ls "https://get.maestro.mobile.dev" | bash
   fi
 
   if [ $CPPTOOLS = 1 ]; then
@@ -69,7 +80,18 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   fi
 
   if [ $UNITYTOOLS = 1 ]; then
-    brew install dotnet
+    # for some reason, brew install dotnet doesn't provide the right arm binaries....
+    if [[ ! -d "$HOME/.dotnet" ]]; then
+        mkdir -p "$HOME/.dotnet"
+        ARCH=$(uname -m)
+        if [[ "$ARCH" == "arm64" ]]; then
+            curl "https://download.visualstudio.microsoft.com/download/pr/d81d84cf-4bb8-4371-a4d2-88699a38a83b/9bddfe1952bedc37e4130ff12abc698d/dotnet-sdk-8.0.303-osx-arm64.tar.gz" > "$HOME/dotnet.tar.gz"
+        else
+            curl "https://download.visualstudio.microsoft.com/download/pr/295f5e51-4d26-4706-90c1-25b745cd2abf/ef976bfc166782e519036ee7670eac36/dotnet-sdk-8.0.303-osx-x64.tar.gz" > "$HOME/dotnet.tar.gz"
+        fi
+        tar -xzvf "$HOME/dotnet.tar.gz" -C "$HOME/.dotnet"
+        rm "$HOME/dotnet.tar.gz"
+    fi
   fi
 
   if [ $DEVOPSTOOLS = 1 ]; then
@@ -112,16 +134,17 @@ if [[ $OSTYPE == 'darwin'* ]]; then
     # agda-mode setup
   fi
 
-  ### Diaphora
-  if [ $SECURITYTOOLS = 1 ]; then
-    # https://github.com/joxeankoret/diaphora
-  fi
+  #if [ $SECURITYTOOLS = 1 ]; then
+  #  # https://github.com/joxeankoret/diaphora
+  #  # frida
+  #fi
   if [ $GENERICCASKTOOLS = 1 ]; then
     brew install appcleaner baidunetdisk caffeine dash docker keka tor-browser --cask
     # also install regex for safari: https://apps.apple.com/ch/app/regex-for-safari/id1597580456?l=en-GB
-    # brew install visual-studio-code --cask # started using insider builds instead.
+    brew install visual-studio-code --cask  # or use visual-studio-code@insiders instead
+
     # reminder to self: you own a license to use this:
-    brew install daisydisk --cask
+    #brew install daisydisk --cask
   fi
 
   if [ $TEXLIGHT = 1 ]; then
@@ -142,44 +165,44 @@ if [[ $OSTYPE == 'darwin'* ]]; then
 
 fi
 
-# zgen for zsh plugin management
-# git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
-
 git submodule init
 git submodule update
 
 # Copy dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)
 # create a backup, better safe than sorry.
-mv ~/.emacs     ~/.emacs.old
-mv ~/.inputrc   ~/.inputrc.old
-mv ~/.gitconfig ~/.gitconfig.old
-mv ~/.tmux.conf ~/.tmux.conf.old
-rm -r ~/.tmux.old && mv ~/.tmux ~/.tmux.old
-mv ~/.vimrc     ~/.vimrc.old
-mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
-mv ~/.zshrc     ~/.zshrc.old
-mv ~/.zshenv     ~/.zshenv.old
-#mkdir -p /usr/local/etc/periodic/weekly
-#mv /usr/local/etc/periodic/weekly/weekly_macos_script.local /usr/local/etc/periodic/weekly/weekly_macos_script.local.old
-
-if [[ $OSTYPE == 'darwin'* ]]; then
-  mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.old
-  cp vscode/.vscode-settings.json ~/Library/Application\ Support/Code/User/settings.json # VSCode
-  cp vscode/.vscode-settings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/settings.json # VSCode Insiders
-  cp vscode/keybindings.json ~/Library/Application\ Support/Code/User/keybindings # VSCode
-  cp vscode/keybindings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/keybindings.json # VSCode Insiders
-  defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false # VSCode
-  defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false # VSCode Insiders
-fi
+[ -f ~/.emacs ] && mv ~/.emacs     ~/.emacs.old
+[ -f ~/.inputrc ] && mv ~/.inputrc   ~/.inputrc.old
+[ -f ~/.gitconfig ] && mv ~/.gitconfig ~/.gitconfig.old
+[ -f ~/.tmux.conf ] && mv ~/.tmux.conf ~/.tmux.conf.old
+[ -d ~/.tmux.old ] && rm -r ~/.tmux.old
+[ -d ~/.tmux ] && mv ~/.tmux ~/.tmux.old
+[ -f ~/.vimrc ] && mv ~/.vimrc     ~/.vimrc.old
+[ -f ~/.config ] && mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
+[ -f ~/.zshrc ] && mv ~/.zshrc     ~/.zshrc.old
+[ -f ~/.zshfunctions ] && mv ~/.zshfunctions ~/.zshfunctions.old
+[ -f ~/.zshenv ] && mv ~/.zshenv     ~/.zshenv.old
 
 cp .emacs ~/.emacs
 cp .inputrc   ~/.inputrc
 cp .gitconfig ~/.gitconfig
 cp .tmux.conf ~/.tmux.conf
-cp -r .tmux   ~/.tmux
+cp -a .tmux   ~/.tmux
 cp .zshrc     ~/.zshrc
 cp .zshenv    ~/.zshenv
-#cp weekly_macos_script.local /usr/local/etc/periodic/weekly/weekly_macos_script.local
+cp .zshfunctions ~/.zshfunctions
+
+if [[ $OSTYPE == 'darwin'* ]]; then
+  [ -f ~/Library/Application\ Support/Code/User/settings.json ] && mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.old
+  mkdir -p ~/Library/Application\ Support/Code/User
+  mkdir -p ~/Library/Application\ Support/Code\ -\ Insiders/User
+  cp vscode/.vscode-settings.json ~/Library/Application\ Support/Code/User/settings.json # VSCode
+  cp vscode/.vscode-settings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/settings.json # VSCode Insiders
+  #cp vscode/keybindings.json ~/Library/Application\ Support/Code/User/keybindings # VSCode
+  #cp vscode/keybindings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/keybindings.json # VSCode Insiders
+  defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false # VSCode
+  defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false # VSCode Insiders
+fi
+
 
 echo "Installing Vim and Neovim configurations and plugins"
 
@@ -194,25 +217,19 @@ sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.
 # copy the vim config files
 mkdir -p ~/.config/nvim && cp .config/nvim/init.vim ~/.config/nvim/init.vim
 cp .vimrc ~/.vimrc
-nvim +'PlugInstall --sync' +qa
-nvim +'PlugClean --sync' +qa
+if command -v nvim > /dev/null; then
+  nvim +'PlugInstall --sync' +qa
+  nvim +'PlugClean --sync' +qa
+fi
 \vim +'PlugInstall --sync' +qa
 \vim +'PlugClean --sync' +qa
 
 echo "To enable trace, run: 'csrutil enable --without dtrace --without debug' in reboot mode."
 
-waitconfirm() {
-  if read -q "choice?Continue [press y/n]? "; then
-    echo "Continuing..."
-  else
-    exit 0
-  fi
-}
 echo "Installing VSCode extensions"
 waitconfirm
 # general
 code --install-extension aaron-bond.better-comments
-code --install-extension GitHub.copilot
 code --install-extension deerawan.vscode-dash
 code --install-extension johnpapa.vscode-peacock
 code --install-extension usernamehw.errorlens
@@ -220,29 +237,40 @@ code --install-extension eamodio.gitlens
 code --install-extension PKief.material-icon-theme
 code --install-extension Ho-Wan.setting-toggle
 code --install-extension ctf0.close-tabs-to-the-left
+code --install-extension ms-vsliveshare.vsliveshare
+# theme
+code --install-extension ifahrentholz.one-quiet-dark-pro
 # generic linters
+code --install-extension redhat.vscode-yaml
 code --install-extension DavidAnson.vscode-markdownlint
+# Supermaven
+code --install-extension Supermaven.supermaven
 
 if [ $UNITYTOOLS = 1 ]; then
+  # Note this also installs its own dotnet runtime, but not dotnet sdk!
   code --install-extension visualstudiotoolsforunity.vstuc
 fi
 
 if [ $FORMALMETHODS = 1 ]; then
   code --install-extension banacorn.agda-mode
+  code --install-extension gpoore.codebraid-preview
 fi
 
 if [ $MOBILETOOLS = 1 ]; then
+  # General:
+  code --install-extension mariomatheu.syntax-project-pbxproj
+  # Dart/Flutter related:
   code --install-extension Dart-Code.dart-code
   code --install-extension Dart-Code.flutter
   code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
-  code --install-extension mariomatheu.syntax-project-pbxproj
+  code --install-extension qlevar.pub-manager
   # Flutter test coverage:
   code --install-extension ryanluker.vscode-coverage-gutters
   code --install-extension flutterando.flutter-coverage
 fi
 
 
-if [ $MOBILETOOLS = 1 ]; then
+if [ $MOBILETOOLS = 1 ] && isadmin; then
   echo "Next: Installing firebase, requires root permission."
   waitconfirm
   curl -sL https://firebase.tools | bash
@@ -250,22 +278,28 @@ if [ $MOBILETOOLS = 1 ]; then
 fi
 
 
-echo "Next: Installing chatgpt cli"
-curl -sS https://raw.githubusercontent.com/0xacx/chatGPT-shell-cli/main/install.sh | sudo -E bash
-
-
 # Language servers for vim and vscode (also edit in init.vim)
 echo "Next: Installing language servers."
 waitconfirm
 
+if ! isadmin; then
+    # store npm packages on the user-level not admin level.
+    # http://michaelb.org/archive/article/30.html
+    npm config set prefix ~/.local
+fi
 npm install -g pyright
 npm install -g bash-language-server
 
 
-echo "Next: Installing rclone and others that need root permission"
-waitconfirm
-sudo -v ; curl https://rclone.org/install.sh | sudo bash
-if [[ $OSTYPE == 'darwin'* ]]; then
+if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
+  echo "Next: Installing chatgpt cli"
+  curl -sS https://raw.githubusercontent.com/0xacx/chatGPT-shell-cli/main/install.sh | sudo -E zsh
+fi
+
+if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
+  #echo "Next: Installing rclone and others that need root permission"
+  #waitconfirm
+  #sudo -v ; curl https://rclone.org/install.sh | sudo bash
   # brew install macfuse --cask # reinstall after changing security properties
 fi
 #later setup wasabi-kdkdk:
@@ -274,13 +308,12 @@ fi
 # restart and make sure macfuse works, then:
 #rclone mount wasabi-kdkdk:kdkdk/ wasabi-kdkdk/ &
 # rclone copy source:path destination:path
-echo "Next: Installing system changes for macOS."
-waitconfirm
 
 # System changes for macOS
-if [[ $OSTYPE == 'darwin'* ]]; then
-  echo "Next: Tuning macOS settings. Some updates will only take effect after restarting the system."
+if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
+  echo "Next: Installing system changes for macOS."
   waitconfirm
+
   bash .macos
   echo "Almost done. Next we will install some Terminal and Xcode themes. You can also install them manually alternatively."
   waitconfirm

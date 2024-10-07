@@ -83,8 +83,8 @@
             "dartdocs"
         ]
     },
-    "workbench.colorTheme": "One Quiet Dark Pro",
     "workbench.editor.wrapTabs": true,
+    "workbench.editor.pinnedTabsOnSeparateRow": true,
 
     "workbench.editor.tabActionLocation": "left",
     "workbench.sideBar.location": "right",
@@ -121,5 +121,7 @@
     "[yaml]": {
         "editor.defaultFormatter": "redhat.vscode-yaml"
     },
+    "workbench.preferredLightColorTheme": "Quiet Light",
+    "workbench.preferredDarkColorTheme": "One Quiet Dark Pro",
 }
 
