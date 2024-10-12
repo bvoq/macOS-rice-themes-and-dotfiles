@@ -117,7 +117,7 @@ assure_userlevel_zsh() {
 }
 
 check_not_rosetta() {
-    if [[ "$(sysctl -n sysctl.proc_translated)" != 0 ]]; then
+    if [[ "$(uname -m)" == "arm64" && "$(sysctl -n sysctl.proc_translated)" != 0 ]]; then
         echo "It seems you are running this script with Rosetta enabled."
         echo "Make sure that this terminal or session has Rosetta turned off."
         echo "For example: Right-Click Terminal > Get Info > Uncheck Open using Rosetta"

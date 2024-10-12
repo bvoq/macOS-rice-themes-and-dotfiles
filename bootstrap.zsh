@@ -26,7 +26,7 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   brew cleanup
 
   if [ $GENERICTOOLS = 1 ]; then
-    brew install bat fzf git gs jq npm nvim oauth-toolkit tmux trash tree yq yt-dlp watch zsh-completions
+    brew install bat fzf git gs jq npm nvim oath-toolkit tmux trash tree yq yt-dlp watch zsh-completions
 
     # apple development, switch between xcode versions.
     brew install robotsandpencils/made/xcodes
