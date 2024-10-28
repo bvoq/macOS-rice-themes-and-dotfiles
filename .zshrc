@@ -114,7 +114,7 @@ drmi() { docker rm $(dsi $1  | tr '\n' ' '); }
 
 # enable zsh-completions
 if type brew &>/dev/null; then
-  FPATH=$(brew --prefix)/share/zsh/site-functions:$(brew --prefix)/share/zsh-completions:$FPATH
+  FPATH=$(brew --prefix)/share/zsh/site-functions:$(brew --prefix)/share/zsh-completions:$HOME/.oh-my-zsh/completions:$FPATH
   autoload -Uz compinit
   compinit
 fi
@@ -157,12 +157,6 @@ export -f rgspotlight > /dev/null
 # for those old people who still use bash? bash completion support
 # [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
 
-# open new window in same location as current terminal.
-if [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
-    alias hopen='open . -a Terminal.app'
-elif [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
-    alias hopen='open . -a iTerm'
-fi
 
 # Flush Directory Service cache
 alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder"
@@ -206,7 +200,18 @@ alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo 
 # Open ios simulator
 alias ios="open /Applications/Xcode.app/Contents/Developer/Applications/Simulator.app"
 # Open first .xcworkspace file in folder `x folder`, else xcodeproj, else playground.
-alias x='matches=("xcworkspace" "xcodeproj" "playground"); for i in "${matches[@]}"; do if [ -d *.${i} ]; then open -a Xcode *.${i}; break; fi; done'
+function x() {
+  dir="${1:-.}"  # Use $1 if provided; otherwise, use the current directory (.)
+  matches=("xcworkspace" "xcodeproj" "playground")
+  for i in "${matches[@]}"; do
+    if [ -d "$dir"/*.${i} ]; then
+      open -a Xcode "$dir"/*.${i}
+      break
+    fi
+  done
+}
+export -f x > /dev/null
+#alias x='matches=("xcworkspace" "xcodeproj" "playground"); for i in "${matches[@]}"; do if [ -d *.${i} ]; then open -a Xcode *.${i}; break; fi; done'
 
 
 # Defines: GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS:
@@ -224,6 +229,14 @@ done
 # [C] explained: http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
 alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
 
+# open new window in same location as current terminal.
+if [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
+    alias hopen='open . -a Terminal.app'
+elif [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
+    alias hopen='open . -a iTerm'
+    source ~/.iterm2_shell_integration.zsh
+fi
+
 # iTerm2 or other terminals, make sure that the last two folders of PWD is shown in the tab bar.
 if [ $ITERM_SESSION_ID ]; then
 precmd() {
@@ -231,9 +244,13 @@ precmd() {
 }
 fi
 
+# play playlist by added by date:
+alias mplaylist='mdfind -onlyin . "kMDItemContentTypeTree == \"public.audio\"" | while read -r file; do echo "$(mdls -name kMDItemDateAdded -raw "$file") $file"; done | sort | cut -d" " -f4- | xargs -I {} mpg123 "{}"'
+
+
 
 # ========
-# Homebrew 
+# Homebrew
 # ========
 
 alias brewleaves='brew deps --installed | grep -E "$(paste -sd "|" <(brew leaves))"'
