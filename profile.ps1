@@ -28,21 +28,22 @@ Function Set-PathVariable {
     [System.Environment]::SetEnvironmentVariable('PATH', $value, $Scope)
 }
 
-function vimDirDiff {
+function vimdirdiff {
     param (
         [string]$Dir1,
-        [string]$Dir2,
-        [Parameter(ValueFromRemainingArguments=$true)]
-        [string[]]$VimArgs
+        [string]$Dir2
     )
-    $EscapedDir1 = "`"$Dir1`""
-    $EscapedDir2 = "`"$Dir2`""
-    $command = "vim $($VimArgs -join ' ') -c `"DirDiff $EscapedDir1 $EscapedDir2`""
+    $command = "vim -c `"DirDiff $Dir1 $Dir2`""
     Invoke-Expression $command
 }
 
 function open($name) { start $name  }
-function which($name) { Get-Command $name -ErrorAction SilentlyContinue | Select-Object Definition }
+function which($name) {
+    $command = Get-Command $name -ErrorAction SilentlyContinue
+    if ($command -is [Management.Automation.FunctionInfo]) { $command.ScriptBlock.ToString() }
+    elseif ($command -is [Management.Automation.CmdletInfo] -or $command -is [Management.Automation.ApplicationInfo]) { $command.Definition }
+    else { "${name}: command not found" }
+}
 function sudo() {
     if ($args.Length -eq 1) {
         start-process $args[0] -verb "runAs"
