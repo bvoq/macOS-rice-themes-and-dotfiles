@@ -28,6 +28,18 @@ Function Set-PathVariable {
     [System.Environment]::SetEnvironmentVariable('PATH', $value, $Scope)
 }
 
+function vimDirDiff {
+    param (
+        [string]$Dir1,
+        [string]$Dir2,
+        [Parameter(ValueFromRemainingArguments=$true)]
+        [string[]]$VimArgs
+    )
+    $EscapedDir1 = "`"$Dir1`""
+    $EscapedDir2 = "`"$Dir2`""
+    $command = "vim $($VimArgs -join ' ') -c `"DirDiff $EscapedDir1 $EscapedDir2`""
+    Invoke-Expression $command
+}
 
 function open($name) { start $name  }
 function which($name) { Get-Command $name -ErrorAction SilentlyContinue | Select-Object Definition }

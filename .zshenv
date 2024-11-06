@@ -23,6 +23,8 @@ export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/plat
 export PATH="$PATH:/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin"
 # VSCode
 export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
+# Rust
+export PATH="$PATH:/${HOME}/.cargo/bin"
 # Go
 export GOPATH=${HOME}/go
 mkdir -p $GOPATH
