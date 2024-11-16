@@ -35,9 +35,12 @@ export PATH=${PATH}:${HOME}/.local/bin
 export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
 #export JAVA_HOME=$(/usr/libexec/java_home)
 
+# Crypto
+export PATH="$PATH:$HOME/monero/build/release/bin"
 # Devops
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 # Unity/Dotnet
 export DOTNET_ROOT="${HOME}/.dotnet"
 export PATH="${PATH}:$DOTNET_ROOT"
+
