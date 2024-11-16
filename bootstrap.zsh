@@ -173,20 +173,6 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
 fi
 
 
-if [ $CRYPTO = 1 ]; then
-  git clone --recursive https://github.com/monero-project/monero ~/monero
-  {
-    cd ~/monero
-    git fetch --all
-    BRANCH=$(git ls-remote --heads origin | grep 'release-' | awk -F'/' '{print $3}' | sort -V | tail -n 1)
-    echo "Using monero branch: ${BRANCH}"
-    git checkout --recurse-submodules ${BRANCH}
-    git submodule init
-    git submodule update
-    brew update && brew bundle --file=contrib/brew/Brewfile
-    make
-  }
-fi
 
 # Copy dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)
 # create a backup, better safe than sorry.
@@ -290,6 +276,26 @@ if [ $MOBILETOOLS = 1 ]; then
 fi
 
 
+if [ $CRYPTO = 1 ]; then
+  echo "Next: Installing monero."
+  waitconfirm
+   git clone --recursive https://github.com/monero-project/monero ~/monero
+  {
+    cd ~/monero
+    git fetch --all
+    BRANCH=$(git ls-remote --heads origin | grep 'release-' | awk -F'/' '{print $3}' | sort -V | tail -n 1)
+    echo "Using monero branch: ${BRANCH}"
+    git checkout --recurse-submodules ${BRANCH}
+    git submodule init
+    git submodule update
+    brew update && brew bundle --file=contrib/brew/Brewfile
+    make USE_SINGLE_BUILDDIR=0 # makes sure that only a single build dir is used.
+    # a few notes
+    # ledger is stored in $HOME/.bitmonero. Copy for faster sync.
+    # keys are stored next to monero-wallet-cli.
+    # to recover use: monero-wallet-cli --restore-deterministic-wallet
+  }
+fi
 if [ $MOBILETOOLS = 1 ] && isadmin; then
   echo "Next: Installing firebase, requires root permission."
   waitconfirm
