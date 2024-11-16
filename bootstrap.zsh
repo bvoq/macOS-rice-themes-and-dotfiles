@@ -1,6 +1,7 @@
 #!/bin/zsh
 
 # enable what you want to install here
+CRYPTO=1
 FORMALMETHODS=1
 GENERICTOOLS=1
 GENERICCASKTOOLS=1
@@ -13,6 +14,9 @@ TEXFULL=0
 
 source .zshfunctions
 set_error_handler
+
+git submodule init
+git submodule update
 
 if [[ $OSTYPE == 'darwin'* ]]; then
     # sanity checks
@@ -168,8 +172,21 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
 
 fi
 
-git submodule init
-git submodule update
+
+if [ $CRYPTO = 1 ]; then
+  git clone --recursive https://github.com/monero-project/monero ~/monero
+  {
+    cd ~/monero
+    git fetch --all
+    BRANCH=$(git ls-remote --heads origin | grep 'release-' | awk -F'/' '{print $3}' | sort -V | tail -n 1)
+    echo "Using monero branch: ${BRANCH}"
+    git checkout --recurse-submodules ${BRANCH}
+    git submodule init
+    git submodule update
+    brew update && brew bundle --file=contrib/brew/Brewfile
+    make
+  }
+fi
 
 # Copy dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)
 # create a backup, better safe than sorry.
