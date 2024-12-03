@@ -78,7 +78,7 @@ alias grabsite='wget -r -np --wait=1 -k --execute="robots = off" --mirror --rand
 # make sure to use " around url when using ymp3, works for playlists and single videos.
 alias ymp3='yt-dlp -x --audio-format mp3 --add-metadata --embed-thumbnail'
 
-alias sqloptimize='sqlite3 "$1" "VACUUM;" && sqlite3 "$1" "REINDEX;"
+alias sqloptimize='sqlite3 "$1" "VACUUM;" && sqlite3 "$1" "REINDEX;"'
 
 # find large git files in repo history.
 alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | awk '/^blob/ {print substr($""0,6)}' | sort --numeric-sort --key=2 | gnumfmt --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest"

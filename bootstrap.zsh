@@ -251,6 +251,10 @@ code --install-extension redhat.vscode-yaml
 code --install-extension DavidAnson.vscode-markdownlint
 # Supermaven
 code --install-extension Supermaven.supermaven
+# ChatGPT
+curl "https://persistent.oaistatic.com/pair-with-ai/openai-chatgpt-latest.vsix" > openai-chatgpt-latest.vsix
+code --install-extension openai-chatgpt-latest.vsix
+rm openai-chatgpt-latest.vsix
 
 if [ $UNITYTOOLS = 1 ]; then
   # Note this also installs its own dotnet runtime, but not dotnet sdk!
