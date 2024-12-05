@@ -132,6 +132,61 @@ nvimdiff()
 }
 
 
+filtererrors() {
+  local regex='\b(?:abort(?:ed|ing|s)?|anomal(?:y|ies)|block(?:ed|ing|s)?|breach(?:ed|ing|es)?|break(?:s|ing|age)?|brok(?:e|en)|bugs?|cannot|code 1|compromis(?:e|ed|ing|es)?|conflict(?:ed|ing|s)?|corrupt(?:ed|ing|s|ion|ions)?|crash(?:ed|ing|es)?|critical|defect(?:ed|ing|s|ive)?|den(?:y|ied|ies|ial|ials)?|deprecat(?:e|ed|ing|es|ion|ions)?|detect(?:ed|ing|s)?|discrepanc(?:y|ies)|err(?:or|ors)?|exceed(?:ed|ing|s)?|except(?:ion|ions)?|expir(?:e|ed|es|ing)|fail(?:ed|ing|s|ure|ures)?|fatal|fault(?:ed|ing|s|y)?|forbidden|hang(?:ed|ing|s)?|illegal|incorrect|inconsistent|invalid|issue(?:s)?|kill(?:ed|ing|s)?|leak(?:ed|ing|s)?|limit(?:ed|ing|s)?|loss(?:es)?|mismatch(?:ed|ing|es)?|miss(?:ed|ing|es)?|mistake(?:n|s)?|no\s+route|not\s+found|not\s+known|not\s+permitted|overflow(?:ed|ing|s)?|overheat(?:ed|ing|s)?|panic(?:s|ked|king)?|problem(?:s|atic)?|race\s+condition|refus(?:e|ed|ing|es|al)?|reject(?:ed|ing|s|ion|ions)?|segfault(?:ed|ing|s)?|shutdown(?:s)?|terminat(?:e|ed|ing|es|ion|ions)?|threat(?:en|ened|ening|s)?|timedout(?:s)?|timed out|unavailable|unauthori[sz]ed|undefined|unexpected|unhandled|unknown|unreachable|unrecoverable|unresponsive|violat(?:e|ed|ing|es|ion|ions)?|(?:server|system|connection|service|network|database|application|link|interface|cluster)\s+down|(?:disk|memory|buffer|queue|log|cache|storage|heap|stack|table)\s+full|(?:connection|read|write|request|operation|session|login|execution|gateway|handshake)\s+timeout)\b'
+
+  # Case: Input is an argument.
+  if [ -t 0 ]; then
+    # One argument: filename
+    if [ "$#" -eq 1 ]; then
+      local surroundno=1
+    elif [ "$#" -eq 2 ]; then
+      # Two arguments: filename and context lines
+      local surroundno="$2"
+    else
+      echo "Usage: filtererrors file [context_lines]" >&2
+      echo "Alternative Usage: cat file | filtererrors [context_lines]" >&2
+      return 1
+    fi
+    if command -v rg > /dev/null 2>&1; then
+      rg -n --colors 'column:fg:blue' \
+      --colors 'column:bg:yellow' \
+      --colors 'column:style:bold' \
+      --colors 'match:none' \
+      --colors 'match:bg:0x33,0x66,0xFF' \
+      --colors 'match:fg:white' \
+      --colors 'match:style:bold' \
+      --column \
+      -C "$surroundno" "$regex" "$1"
+    else
+      grep -Ei -C "$surroundno" -n "$regex" "$1"
+    fi
+  # Case: Input is piped in.
+  else
+    if [ "$#" -eq 0 ]; then
+      local surroundno=1
+    elif [ "$#" -eq 1 ]; then
+      local surroundno="$1"
+    else
+      echo "Usage: cat file | filtererrors [context_lines]" >&2
+      return 1
+    fi
+    if command -v rg > /dev/null 2>&1; then
+      rg -n --colors 'column:fg:blue' \
+      --colors 'column:bg:yellow' \
+      --colors 'column:style:bold' \
+      --colors 'match:none' \
+      --colors 'match:bg:0x33,0x66,0xFF' \
+      --colors 'match:fg:white' \
+      --colors 'match:style:bold' \
+      --column \
+      -C "$surroundno" "$regex"
+    else
+      grep -n -Ei -C "$surroundno" "$regex"
+    fi
+  fi
+}
+
 # Darwin specific
 assure_userlevel_zsh() {
     if [[ "$(dscl . -read ~/ UserShell)" == */bin/bash ]]; then
