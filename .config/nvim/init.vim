@@ -330,6 +330,7 @@ if has('nvim')
     set inccommand=nosplit
 endif
 set mouse=a " for mouse to work in tmux and vim
+set paste
 
 
 

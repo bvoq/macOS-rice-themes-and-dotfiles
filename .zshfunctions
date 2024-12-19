@@ -206,3 +206,45 @@ check_not_rosetta() {
     fi
 }
 
+compressvideo() {
+    if [ $# -lt 2 ]; then
+        echo "Usage: compress_video <input_file> <size_in_MB> [output_file]"
+        return 1
+    fi
+    INPUT="$1"
+    SIZE_MB="$2"
+    OUTPUT="${3:-output_compressed.mp4}"
+    MAX_ATTEMPTS=5
+    REDUCTION_FACTOR=0.9
+    DURATION=$(ffprobe -v error -select_streams v:0 -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$INPUT")
+    TARGET_SIZE_BYTES=$((SIZE_MB * 1024 * 1024))
+    AUDIO_BITRATE=128
+    TOTAL_BITRATE=$(echo "$TARGET_SIZE_BYTES * 8 / $DURATION / 1000" | bc)
+
+    attempt=1
+    while [ $attempt -le $MAX_ATTEMPTS ]; do
+        VIDEO_BITRATE=$((TOTAL_BITRATE - AUDIO_BITRATE))
+        if [ "$VIDEO_BITRATE" -le 0 ]; then
+            AUDIO_BITRATE=64
+            VIDEO_BITRATE=$((TOTAL_BITRATE - AUDIO_BITRATE))
+            if [ "$VIDEO_BITRATE" -le 0 ]; then
+                return 1
+            fi
+        fi
+        rm -f ffmpeg2pass-0.log* 
+        ffmpeg -y -i "$INPUT" -c:v libx264 -preset medium -b:v "${VIDEO_BITRATE}k" -pass 1 -c:a aac -b:a "${AUDIO_BITRATE}k" -f mp4 /dev/null
+        ffmpeg -i "$INPUT" -c:v libx264 -preset medium -b:v "${VIDEO_BITRATE}k" -pass 2 -c:a aac -b:a "${AUDIO_BITRATE}k" "$OUTPUT"
+        SIZE=$(stat -c%s "$OUTPUT" 2>/dev/null || stat -f%z "$OUTPUT")
+        if [ "$SIZE" -le "$TARGET_SIZE_BYTES" ]; then
+            return 0
+        else
+            rm -f "$OUTPUT"
+            TOTAL_BITRATE=$(echo "$TOTAL_BITRATE * $REDUCTION_FACTOR" | bc | awk '{printf "%d\n",$0}')
+            if [ "$TOTAL_BITRATE" -le 0 ]; then
+                return 1
+            fi
+        fi
+        attempt=$((attempt + 1))
+    done
+    return 1
+}

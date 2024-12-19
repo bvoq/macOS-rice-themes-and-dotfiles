@@ -217,7 +217,6 @@ set nobackup " swap files are enough
 set hidden " hide buffers instead of closing them.
 set switchbuf=usetab,newtab,useopen
 "set nu " set rnu for relative numbering.
-set paste " only set if needed
 set list
 set showbreak=↪\
 set listchars=tab:↦-,nbsp:␣,trail:∙,extends:⟩,precedes:⟨
@@ -230,6 +229,7 @@ set splitbelow "move preview window to below, so it doesn't move the code
 if g:os == "Windows"
   set mouse-=a
 endif
+set paste
 
 " Vim Rabbit Hole Hierarchy:
 " ---
