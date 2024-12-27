@@ -1,3 +1,28 @@
+#!/bin/sh
+apk add curl git gnupg openssh vim
+
+cp .gitconfig ~/.gitconfig
+
+echo "Installing Vim and Neovim configurations and plugins"
+
+# Install vim and neovim
+# install vundle for vim
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+# install vundle for nvim
+sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
+       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+
+# copy the vim config files
+mkdir -p ~/.config/nvim && cp .config/nvim/init.vim ~/.config/nvim/init.vim
+cp .vimrc ~/.vimrc
+if command -v nvim > /dev/null; then
+  nvim +'PlugInstall --sync' +qa
+  nvim +'PlugClean --sync' +qa
+fi
+\vim +'PlugInstall --sync' +qa
+\vim +'PlugClean --sync' +qa
+
 ## manual way: install cydownload for installing cydia tools
 # https://github.com/borishonman/cydownload/releases
 # Download spotify decrypted IPA files:
