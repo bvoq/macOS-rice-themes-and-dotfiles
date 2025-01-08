@@ -30,12 +30,18 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   brew cleanup
 
   if [ $GENERICTOOLS = 1 ]; then
-    brew install bat fzf git gs jq npm nvim oath-toolkit tldr tmux trash tree yq yt-dlp watch zsh-completions
+    brew install bat fzf git gs jq nvim oath-toolkit tldr tmux trash tree yq yt-dlp watch zsh-completions
 
     # apple development, switch between xcode versions.
     brew install robotsandpencils/made/xcodes
     # xcode cleaner app
     brew install --cask devcleaner
+
+    # oh-my-zsh
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+    # zsh-nvm
+    git clone https://github.com/lukechilds/zsh-nvm ~/.oh-my-zsh/custom/plugins/zsh-nvm
 
     # zsh-completions setup script
     if type brew &>/dev/null; then

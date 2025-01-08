@@ -4,11 +4,23 @@
 # General zsh uses #
 ####################
 source ~/.zshfunctions
+# custom user zsh
+[ -f ~/.custom.zsh ] && source ~/.custom.zsh
 
 # make sure utf-8 is used
 export LANG=en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
+
+export MANPATH="/usr/local/man:$MANPATH"
+export ARCHFLAGS="-arch $(uname -m)"
+
+# Preferred editor for local and remote sessions
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR='vim'
+else
+  export EDITOR='nvim'
+fi
 
 # store all cd directory pushes
 setopt AUTO_PUSHD
@@ -18,6 +30,21 @@ stty sane
 
 # enable fuzzy finder if it exists
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+#############
+# Oh-my-zsh #
+#############
+
+export ZSH="$HOME/.oh-my-zsh"
+#ZSH_THEME="agnoster"
+DISABLE_AUTO_TITLE="true"
+#ENABLE_CORRECTION="true"
+#Uncomment below to stop marking untracked files as dirty for speedup.
+#DISABLE_UNTRACKED_FILES_DIRTY="true"
+zstyle ':omz:update' mode reminder
+plugins=(brew git zsh-nvm)
+zstyle ':omz:update' mode reminder
+source $ZSH/oh-my-zsh.sh
 
 ###########
 # Aliases #
@@ -202,16 +229,19 @@ alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo 
 
 # Open ios simulator
 alias ios="open /Applications/Xcode.app/Contents/Developer/Applications/Simulator.app"
-# Open first .xcworkspace file in folder `x folder`, else xcodeproj, else playground.
+# Open xcode project properly using just x.
 function x() {
-  dir="${1:-.}"  # Use $1 if provided; otherwise, use the current directory (.)
+  dir="${1:-.}"
   matches=("xcworkspace" "xcodeproj" "playground")
-  for i in "${matches[@]}"; do
-    if [ -d "$dir"/*.${i} ]; then
-      open -a Xcode "$dir"/*.${i}
-      break
-    fi
+  for ext in "${matches[@]}"; do
+    for file in "$dir"/*."$ext"(N); do
+      if [[ -e "$file" ]]; then
+        open -a Xcode "$file"
+        return
+      fi
+    done
   done
+  echo "No .xcworkspace, .xcodeproj, or .playground found in '$dir'."
 }
 export -f x > /dev/null
 #alias x='matches=("xcworkspace" "xcodeproj" "playground"); for i in "${matches[@]}"; do if [ -d *.${i} ]; then open -a Xcode *.${i}; break; fi; done'
