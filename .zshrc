@@ -104,6 +104,7 @@ alias grabsite='wget -r -np --wait=1 -k --execute="robots = off" --mirror --rand
 
 # make sure to use " around url when using ymp3, works for playlists and single videos.
 alias ymp3='yt-dlp -x --audio-format mp3 --add-metadata --embed-thumbnail'
+alias ymp4='yt-dlp --write-sub --write-auto-sub --sub-lang "en.*"'
 
 alias sqloptimize='sqlite3 "$1" "VACUUM;" && sqlite3 "$1" "REINDEX;"'
 
@@ -279,6 +280,7 @@ fi
 
 # play playlist by added by date:
 alias mplaylist='mdfind -onlyin . "kMDItemContentTypeTree == \"public.audio\"" | while read -r file; do echo "$(mdls -name kMDItemDateAdded -raw "$file") $file"; done | sort | cut -d" " -f4- | xargs -I {} mpg123 "{}"'
+alias vplaylist='mdfind -onlyin . "kMDItemContentTypeTree == \"public.movie\"" | while read -r file; do echo "$(mdls -name kMDItemDateAdded -raw "$file") $file"; done | sort | cut -d" " -f4- > playlist.m3u && open -a VLC playlist.m3u'
 
 
 
