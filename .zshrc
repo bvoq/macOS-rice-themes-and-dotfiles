@@ -159,6 +159,10 @@ alias rgf='rg --hidden --files --sort-files . 2> /dev/null | rg'
 rgall() {
   rg --files | rg "$1" ; rg --hidden -uu "$1"
 }
+rgvim() { # use :cn and :cp to navigate afterwards, :cl to list
+  vim -c 'set grepprg=rg\ --vimgrep\ --no-heading\ --smart-case\ --fixed-strings' \
+      -c "grep ${1} ." .
+}
 export -f rgall > /dev/null
 
 rgempty() {

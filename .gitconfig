@@ -35,6 +35,8 @@
     unmerged = magenta bold
 [rebase]
     autoStash = true
+[rerere]
+    enabled = true
 [difftool "vimdirdiff"]
     cmd = vim -f '+next' '+execute \"DirDiff\" argv(0) argv(1)' $LOCAL $REMOTE
 [difftool "nvimdirdiff"]
