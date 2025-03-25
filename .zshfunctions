@@ -331,8 +331,7 @@ flatten_folder() {
     local total_size=0
     for file in "${files[@]}"; do
         # Using GNU stat; adjust if on another platform
-        local size
-        size="$(wc -c < "$file")"
+        local size=$(wc -c < "$file" | awk '{print $1}')
         total_size=$((total_size + size))
     done
 
