@@ -206,6 +206,7 @@ set rtp+=/usr/local/opt/fzf
 
 """ Custom commands
 command! ErrorRegex execute "/\\v\([a-zA-Z_-]\)\@<!\(error\|missing\|unknown\|except\|not found\|fail\|unavailable\|issue\|problem\|fault\|invalid\|code 1\|crash(\\%(!lytics))\)"
+command! SensitiveRegex execute "/\\v\([a-zA-Z_-]\)\@<!\(user(name\| ?id)\|pass(word)\|pw\|secret(s)\|key\|token\|credential(s)\|private\s\+key\|access[-_]?key\|sK-[A-Za-z0-9_-]+\|https\)"
 
 
 """ Various vim settings

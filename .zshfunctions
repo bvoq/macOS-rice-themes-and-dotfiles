@@ -187,6 +187,88 @@ errors() {
   fi
 }
 
+__removesensitive() {
+  echo "seding $1"
+  sed -E -i.bak 's/K.{13}\$/EXAMPLE/g' "$1" && rm "$1.bak"
+  sed -E -i.bak 's/K.{12}4/EXAMPLE/g' "$1" && rm "$1.bak"
+  sed -E -i.bak 's/I.{7}\$/EXAMPLE/g' "$1" && rm "$1.bak"
+  sed -E -i.bak 's/I.{6}4/EXAMPLE/g' "$1" && rm "$1.bak"
+  sed -E -i.bak 's/AKIA[0-9A-Z]{16}/EXAMPLE_AWS_ACCESS_KEY/g' "$1" && rm "$1.bak"
+
+  perl -0777 -pi -e 's/-----BEGIN.*?-----END.*?-----/-----BEGIN EXAMPLE KEY BLOCK-----\n-----END EXAMPLE KEY BLOCK-----/sg' "$1"
+}
+__removesensitiveandurls() {
+  __removesensitive "$1"
+  # remove all urls
+  perl -pi -e 's{https?://[^<('"'"')"\s]+}{https://example.com}g' "$1"
+  perl -pi -e 's{ftp?://[^<('"'"')"\s]+}{ftp://example}g' "$1"
+  perl -pi -e 's{mysql?://[^<('"'"')"\s]+}{mysql://example}g' "$1"
+  sed -E -i.bak 's/([a-zA-Z0-9._]+@[a-zA-Z0-9._]+\.[a-zA-Z0-9._]+)/example@example.com/g' "$1" && rm "$1.bak"
+}
+
+removesensitive() {
+  local files=()
+  if [ -t 0 ]; then
+    files=("$@")
+  else
+    while IFS= read -r line; do
+      files+=("$line")
+    done
+  fi
+  for file in "${files[@]}"; do
+    if [ ! -f "$file" ]; then
+      echo "File '$file' not found, skipping." >&2
+      continue
+    fi
+    __removesensitive "$file"
+  done
+}
+
+
+aichatgit() {
+  git diff > __changes.txt
+  files=($({ { git diff --name-only; git ls-files --others --exclude-standard; } | sort -u | while IFS= read -r file; do
+  if [ -f "$file" ] && [ "$(wc -l < "$file")" -le 4000 ]; then
+    echo "$file"
+  fi
+done; }))
+  echo "Reading piped input"
+  if ! [ -t 0 ]; then
+    while IFS= read -r line; do
+      files+=("$line")
+    done
+  fi
+  echo "Finished reading piped input"
+  files+=( "__changes.txt" )
+  tmp_files=()
+  args=()
+  echo "all files ${files[@]}"
+  for file in "${files[@]}"; do
+    echo "$file"
+    if [ ! -f "$file" ]; then
+      echo "File '$file' not found, skipping." >&2
+      continue
+    fi
+
+    # Copy the file into /tmp using its basename.
+    cp "$file" /tmp/ || { echo "Failed to copy $file to /tmp" >&2; continue; }
+    local tmp_file="/tmp/$(basename "$file")"
+    echo "running __removesensitive $tmp_file"
+    __removesensitive "$tmp_file"
+    tmp_files+=( "$tmp_file" )
+    args+=( -f "$tmp_file" )
+    echo "$tmp_file"
+  done
+  rm __changes.txt
+  if [ "${#args[@]}" -gt 0 ]; then
+    echo "aichat ${args[@]} $@"
+    aichat "${args[@]}" "$@"
+    rm "${args[@]}"
+  else
+    echo "No valid files to process." >&2
+  fi
+}
+
 # Darwin specific
 assure_userlevel_zsh() {
     if [[ "$(dscl . -read ~/ UserShell)" == */bin/bash ]]; then
@@ -205,6 +287,66 @@ check_not_rosetta() {
         exit 1
     fi
 }
+
+
+flatten_folder() {
+    # Default values:
+    local comment="#"
+    local dir="."
+    # Process arguments:
+    while [[ "$1" == --* ]]; do
+        case "$1" in
+            --comment)
+                shift
+                comment="$1"
+                shift
+                ;;
+            --help)
+                echo "Usage: flatten_folder [--comment <comment_marker>] [directory]"
+                return 0
+                ;;
+            *)
+                echo "Unknown option: $1" >&2
+                return 1
+                ;;
+        esac
+    done
+    if [ -n "$1" ]; then
+        if [ -d "$1" ]; then
+            dir="$1"
+        else
+            dir=$(dirname "$1")
+        fi
+    fi
+
+    # Store all file paths in an array
+    local files=()
+    while IFS= read -r -d '' file; do
+        if file "$file" | grep -qi text; then
+            files+=("$file")
+        fi
+    done < <(find "$dir" -type f -print0)
+
+    # Calculate the total size (in bytes) of text files
+    local total_size=0
+    for file in "${files[@]}"; do
+        # Using GNU stat; adjust if on another platform
+        local size
+        size="$(wc -c < "$file")"
+        total_size=$((total_size + size))
+    done
+
+    echo "$comment Total size of text files: $total_size bytes"
+
+    # Flatten the text files with a header for each file
+    for file in "${files[@]}"; do
+        if file "$file" | grep -qi text; then
+            echo "$comment File: $file"
+            cat "$file"
+        fi
+    done
+}
+
 
 compressvideo() {
     if [ $# -lt 2 ]; then
