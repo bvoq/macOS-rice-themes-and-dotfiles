@@ -316,7 +316,8 @@ pdfjoings () {
 # specific for my machine
 # =======================
 
-# make sure that my global drive is mounted.
+alias rclone="rclone -v -P"
+alias rstream="rclone serve http secret: --addr localhost:8080 --vfs-cache-mode full"
 # mkdir -p ~/wasabi-kdkdk
 # rclone mount -q wasabi-kdkdk:kdkdk/ ~/wasabi-kdkdk/ &
 

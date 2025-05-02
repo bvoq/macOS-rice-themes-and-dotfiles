@@ -197,6 +197,7 @@ fi
 cp .emacs ~/.emacs
 cp .inputrc   ~/.inputrc
 cp .gitconfig ~/.gitconfig
+cp .gitignore_global ~/.gitignore_global
 cp .tmux.conf ~/.tmux.conf
 cp -a .tmux   ~/.tmux
 cp .zshrc     ~/.zshrc
@@ -338,17 +339,12 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
 fi
 
 if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
-  #echo "Next: Installing rclone and others that need root permission"
+  echo "Next: Installing rclone and macfuse which need root permission"
+  brew install rclone
   #waitconfirm
   #sudo -v ; curl https://rclone.org/install.sh | sudo bash
   # brew install macfuse --cask # reinstall after changing security properties
 fi
-#later setup wasabi-kdkdk:
-#using: https://wasabi-support.zendesk.com/hc/en-us/articles/115001600252-How-do-I-use-Rclone-with-Wasabi-
-#s3.ap-northeast-1.wasabisys.com with PW in pass
-# restart and make sure macfuse works, then:
-#rclone mount wasabi-kdkdk:kdkdk/ wasabi-kdkdk/ &
-# rclone copy source:path destination:path
 
 # System changes for macOS
 if [[ $OSTYPE == 'darwin'* ]] && isadmin; then

@@ -346,7 +346,6 @@ flatten_folder() {
     done
 }
 
-
 compressvideo() {
     if [ $# -lt 2 ]; then
         echo "Usage: compress_video <input_file> <size_in_MB> [output_file]"
