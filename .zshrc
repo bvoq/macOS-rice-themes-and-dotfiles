@@ -4,8 +4,6 @@
 # General zsh uses #
 ####################
 source ~/.zshfunctions
-# custom user zsh
-[ -f ~/.custom.zsh ] && source ~/.custom.zsh
 
 # make sure utf-8 is used
 export LANG=en_US.UTF-8
@@ -31,9 +29,9 @@ stty sane
 # enable fuzzy finder if it exists
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-#############
-# Oh-my-zsh #
-#############
+###################
+# Oh-my-zsh / NVM #
+###################
 
 export ZSH="$HOME/.oh-my-zsh"
 #ZSH_THEME="agnoster"
@@ -45,6 +43,7 @@ zstyle ':omz:update' mode reminder
 plugins=(brew git zsh-nvm)
 zstyle ':omz:update' mode reminder
 source $ZSH/oh-my-zsh.sh
+nvm use node --silent
 
 ###########
 # Aliases #
@@ -74,6 +73,8 @@ alias l="ls -lF ${colorflag}"
 alias la="ls -lAF ${colorflag}"
 # List only directories
 alias lsd="ls -lF ${colorflag} | grep --color=never '^d'"
+
+alias which="which -a"
 
 # IP addresses
 alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
@@ -164,7 +165,15 @@ rgvim() { # use :cn and :cp to navigate afterwards, :cl to list
       -c "grep ${1} ." .
 }
 export -f rgall > /dev/null
-
+rgdot() {
+  local eg_was_on=1 gd_was_on=1
+  is_on extended_glob || eg_was_on=0
+  is_on glob_dots     || gd_was_on=0
+  setopt extended_glob glob_dots
+  rg "$1" .*~.zsh_history(.)
+  (( eg_was_on == 0 )) && unsetopt extended_glob
+  (( gd_was_on == 0 )) && unsetopt glob_dots
+}
 rgempty() {
     # empty directories
     find . -type d -empty -print
@@ -317,7 +326,7 @@ pdfjoings () {
 # =======================
 
 alias rclone="rclone -v -P"
-alias rstream="rclone serve http secret: --addr localhost:8080 --vfs-cache-mode full"
+alias rstream="rclone serve http safe: --addr localhost:8080 --vfs-cache-mode full"
 # mkdir -p ~/wasabi-kdkdk
 # rclone mount -q wasabi-kdkdk:kdkdk/ ~/wasabi-kdkdk/ &
 

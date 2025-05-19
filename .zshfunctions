@@ -1,6 +1,7 @@
 #!/bin/zsh
 isadmin() { id -G $1 | grep -q -w 80 ; }
 semver() { printf "%03d%03d%03d%03d" $(echo "$1" | tr '.' ' '); }
+is_on() { [[ -o $1 ]] && return 0 || return 1 }
 waitconfirm() {
   if read -q "choice?Continue [press y/n]? "; then
     echo "Continuing..."

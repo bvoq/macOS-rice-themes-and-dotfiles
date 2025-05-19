@@ -9,6 +9,7 @@ DEVOPSTOOLS=1
 MOBILETOOLS=1
 UNITYTOOLS=1
 CPPTOOLS=1
+DIOXUSTAILWINDSTACK=1
 TEXLIGHT=0
 TEXFULL=0
 
@@ -92,6 +93,17 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
     brew install bdw-gc
   fi
 
+  if [ $DIOXUSTAILWINDSTACK = 1 ]; then
+    nvm update
+    nvm install node
+    nvm install-latest-npm
+    npm install tailwindcss @tailwindcss/vite
+
+    brew install cargo-binstall rustup
+    rustup-init
+    cargo binstall dioxus-cli
+  fi
+
   if [ $UNITYTOOLS = 1 ]; then
     # for some reason, brew install dotnet doesn't provide the right arm binaries....
     if [[ ! -d "$HOME/.dotnet" ]]; then
@@ -152,7 +164,7 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   #  # frida
   #fi
   if [ $GENERICCASKTOOLS = 1 ]; then
-    brew install appcleaner baidunetdisk caffeine dash docker keka tor-browser --cask
+    brew install appcleaner baidunetdisk caffeine dash keka tor-browser --cask
     # also install regex for safari: https://apps.apple.com/ch/app/regex-for-safari/id1597580456?l=en-GB
     brew install visual-studio-code --cask  # or use visual-studio-code@insiders instead
 
