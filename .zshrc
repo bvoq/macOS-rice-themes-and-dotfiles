@@ -118,6 +118,7 @@ alias ymp4='yt-dlp -fmp4 --write-sub --write-auto-sub --sub-lang "en.*" --cookie
 
 alias sqloptimize='sqlite3 "$1" "VACUUM;" && sqlite3 "$1" "REINDEX;"'
 alias gitzip="git archive HEAD -o ${PWD##*/}.zip"
+gitissues() { curl -i "https://api.github.com/repos/$1/issues?state=open" -u $GIT_USER_PW } # can also use ?state=closed, ?state=all
 
 # find large git files in repo history.
 alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | awk '/^blob/ {print substr($""0,6)}' | sort --numeric-sort --key=2 | gnumfmt --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest"
