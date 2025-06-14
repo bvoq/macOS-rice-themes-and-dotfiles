@@ -324,7 +324,8 @@ flatten_folder() {
     # Store all file paths in an array
     local files=()
     while IFS= read -r -d '' file; do
-        if file "$file" | grep -qi text; then
+        # Use iconv to verify the file only contains valid UTF-8.
+        if file "$file" | grep -qi text && iconv -f utf-8 -t utf-8 "$file" > /dev/null 2>&1; then
             files+=("$file")
         fi
     done < <(find "$dir" -type f -print0)

@@ -108,6 +108,7 @@ alias ymp3='yt-dlp -x --audio-format mp3 --add-metadata --embed-thumbnail'
 alias ymp4='yt-dlp --write-sub --write-auto-sub --sub-lang "en.*"'
 
 alias sqloptimize='sqlite3 "$1" "VACUUM;" && sqlite3 "$1" "REINDEX;"'
+alias gitzip="git archive HEAD -o ${PWD##*/}.zip"
 
 # find large git files in repo history.
 alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | awk '/^blob/ {print substr($""0,6)}' | sort --numeric-sort --key=2 | gnumfmt --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest"
