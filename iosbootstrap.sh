@@ -1,9 +1,14 @@
 #!/bin/sh
 apk add curl git gnupg openssh vim
 
+# install ashrc properly
+echo "ENV=$HOME/.ashrc; export ENV" > ~/.profile
+echo ". $ENV" >> ~/.profile
+cp .ashrc ~/.ashrc
+
 cp .gitconfig ~/.gitconfig
 
-echo "Installing Vim and Neovim configurations and plugins"
+echo "Installing  Vim and Neovim configurations and plugins"
 
 # Install vim and neovim
 # install vundle for vim

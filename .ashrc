@@ -1,0 +1,3 @@
+# this is used by iSH on iOS (set up using .profile)
+alias pbcopy="cat > /dev/clipboard"
+alias pbpaste="cat /dev/clipboard"
