@@ -1,15 +1,15 @@
 #!/bin/zsh
 
 # enable what you want to install here
-CRYPTO=1
-FORMALMETHODS=1
+CRYPTO=0
+FORMALMETHODS=0
 GENERICTOOLS=1
 GENERICCASKTOOLS=1
-DEVOPSTOOLS=1
-MOBILETOOLS=1
-UNITYTOOLS=1
+DEVOPSTOOLS=0
+MOBILETOOLS=0
+UNITYTOOLS=0
 CPPTOOLS=1
-DIOXUSTAILWINDSTACK=1
+JSSTACK=1
 TEXLIGHT=0
 TEXFULL=0
 
@@ -31,27 +31,31 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   brew cleanup
 
   if [ $GENERICTOOLS = 1 ]; then
-    brew install bat fzf git gs jq ncdu nvim oath-toolkit tldr tmux trash tree yq yt-dlp watch zsh-completions
+    # essentials
+    brew install bat fzf git gs jq ncdu nvim oath-toolkit rg tldr tmux trash tree zioxide yq yt-dlp watch zsh-completions
+    # tiny and nice to have
+    brew install ipcalc
 
-    # apple development, switch between xcode versions.
+    # apple essentails
     brew install robotsandpencils/made/xcodes
-    # xcode cleaner app
     brew install --cask devcleaner
 
     # oh-my-zsh
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+      sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
-    # zsh-nvm
-    git clone https://github.com/lukechilds/zsh-nvm ~/.oh-my-zsh/custom/plugins/zsh-nvm
+      # zsh-nvm
+      git clone https://github.com/lukechilds/zsh-nvm ~/.oh-my-zsh/custom/plugins/zsh-nvm
 
-    # zsh-completions setup script
-    if type brew &>/dev/null; then
-     rm -f ~/.zcompdump
-     FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
-     autoload -Uz compinit compaudit
-     compaudit | xargs chmod g-w
-     # rm -f ~/.zcompdump # may be necessary
-     compinit
+      # zsh-completions setup script
+      if type brew &>/dev/null; then
+        rm -f ~/.zcompdump
+        FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+        autoload -Uz compinit compaudit
+        compaudit | xargs chmod g-w
+        # rm -f ~/.zcompdump # may be necessary
+        compinit
+      fi
     fi
 
     # iterm2 shell integration
@@ -92,18 +96,6 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
     # Boehm-Demers-Weiser garbage collector
     brew install bdw-gc
   fi
-
-  if [ $DIOXUSTAILWINDSTACK = 1 ]; then
-    nvm update
-    nvm install node
-    nvm install-latest-npm
-    npm install tailwindcss @tailwindcss/vite
-
-    brew install cargo-binstall rustup
-    rustup-init
-    cargo binstall dioxus-cli
-  fi
-
   if [ $UNITYTOOLS = 1 ]; then
     # for some reason, brew install dotnet doesn't provide the right arm binaries....
     if [[ ! -d "$HOME/.dotnet" ]]; then
@@ -164,7 +156,7 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   #  # frida
   #fi
   if [ $GENERICCASKTOOLS = 1 ]; then
-    brew install appcleaner baidunetdisk caffeine dash keka tor-browser --cask
+    brew install appcleaner baidunetdisk keka telegram tor-browser vlc --cask
     # also install regex for safari: https://apps.apple.com/ch/app/regex-for-safari/id1597580456?l=en-GB
     brew install visual-studio-code --cask  # or use visual-studio-code@insiders instead
 
@@ -215,6 +207,14 @@ cp -a .tmux   ~/.tmux
 cp .zshrc     ~/.zshrc
 cp .zshenv    ~/.zshenv
 cp .zshfunctions ~/.zshfunctions
+
+if [ $JSSTACK = 1 ]; then
+  nvm update
+  nvm install node
+  nvm install-latest-npm
+fi
+
+
 
 if [[ $OSTYPE == 'darwin'* ]]; then
   [ -f ~/Library/Application\ Support/Code/User/settings.json ] && mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.old

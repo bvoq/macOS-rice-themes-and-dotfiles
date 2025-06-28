@@ -11,6 +11,16 @@ waitconfirm() {
   fi
 }
 
+instruments() {
+  [[ $# -gt 0 ]] || { echo "Usage: instruments <cmd> [args…]"; return 1 }
+  local cmd_path; cmd_path=$(command -v -- "$1") || { echo "Not found: $1"; return 1 }
+  shift
+  local output="/var/tmp/instruments-$(date '+%Y%m%d-%H%M%S').trace"
+  xcrun xctrace record --no-prompt --output "$output" --launch -- "$cmd_path" "$@"
+  echo "✅ Trace saved to $output"
+  open "$output" -a Instruments.app
+}
+
 bash_error_handler() {
     # Iterate over the stack trace to find the original error location
     echo "Encountered an error. Stacktrace:"

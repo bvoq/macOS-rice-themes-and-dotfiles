@@ -38,7 +38,7 @@ export ZSH="$HOME/.oh-my-zsh"
 DISABLE_AUTO_TITLE="true"
 #ENABLE_CORRECTION="true"
 #Uncomment below to stop marking untracked files as dirty for speedup.
-#DISABLE_UNTRACKED_FILES_DIRTY="true"
+DISABLE_UNTRACKED_FILES_DIRTY="true"
 zstyle ':omz:update' mode reminder
 plugins=(brew git zsh-nvm)
 zstyle ':omz:update' mode reminder
@@ -56,6 +56,7 @@ alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
+alias cd=z
 
 # Detect which `ls` flavor is in use
 if ls --color > /dev/null 2>&1; then # GNU `ls`
@@ -117,6 +118,11 @@ alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(obj
 # rm -Rf .git/refs/original
 # git gc --aggressive --prune=now
 
+# =============
+# AI
+# =============
+alias localai="ollama run gemma3n:e4b 'You are run in a unix zsh CLI, stay concise.'"
+
 
 # ==============
 # DevOps
@@ -153,6 +159,9 @@ if type brew &>/dev/null; then
 fi
 if type fzf &>/dev/null; then
   eval "$(fzf --zsh)"
+fi
+if type zoxide &>/dev/null; then
+  eval "$(zoxide init zsh)"
 fi
 
 # Search for files:
