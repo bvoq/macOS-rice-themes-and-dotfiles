@@ -40,7 +40,7 @@ DISABLE_AUTO_TITLE="true"
 #Uncomment below to stop marking untracked files as dirty for speedup.
 DISABLE_UNTRACKED_FILES_DIRTY="true"
 zstyle ':omz:update' mode reminder
-plugins=(brew git zsh-nvm)
+plugins=(brew git pyautoenv zsh-nvm)
 zstyle ':omz:update' mode reminder
 source $ZSH/oh-my-zsh.sh
 nvm use node --silent
@@ -122,6 +122,7 @@ alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(obj
 # AI
 # =============
 alias localai="ollama run gemma3n:e4b 'You are run in a unix zsh CLI, stay concise.'"
+alias claude="~/.claude/local/claude"
 
 
 # ==============

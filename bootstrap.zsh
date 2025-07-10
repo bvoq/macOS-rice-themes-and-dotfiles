@@ -46,6 +46,7 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
 
       # zsh-nvm
       git clone https://github.com/lukechilds/zsh-nvm ~/.oh-my-zsh/custom/plugins/zsh-nvm
+      git clone https://github.com/hsaunders1904/pyautoenv.git ~/.oh-my-zsh/custom/plugins/pyautoenv
 
       # zsh-completions setup script
       if type brew &>/dev/null; then
@@ -156,8 +157,9 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   #  # frida
   #fi
   if [ $GENERICCASKTOOLS = 1 ]; then
-    brew install appcleaner baidunetdisk keka telegram tor-browser vlc --cask
-    # also install regex for safari: https://apps.apple.com/ch/app/regex-for-safari/id1597580456?l=en-GB
+    brew install appcleaner baidunetdisk keka paintbrush telegram tor-browser vlc --cask
+    # manually install regex for safari: https://apps.apple.com/ch/app/regex-for-safari/id1597580456?l=en-GB
+    # manually install shortery: https://apps.apple.com/us/app/shortery/id1594183810?mt=12
     brew install visual-studio-code --cask  # or use visual-studio-code@insiders instead
 
     # reminder to self: you own a license to use this:
@@ -208,12 +210,11 @@ cp .zshrc     ~/.zshrc
 cp .zshenv    ~/.zshenv
 cp .zshfunctions ~/.zshfunctions
 
-if [ $JSSTACK = 1 ]; then
-  nvm update
-  nvm install node
-  nvm install-latest-npm
-fi
+nvm update
+nvm install node
+nvm install-latest-npm
 
+npm install -g @anthropic-ai/claude-code
 
 
 if [[ $OSTYPE == 'darwin'* ]]; then
