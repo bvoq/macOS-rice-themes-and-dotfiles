@@ -33,7 +33,9 @@ stty sane
 # Oh-my-zsh / NVM #
 ###################
 
+CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
 export ZSH="$HOME/.oh-my-zsh"
+chmod -R go-w "$ZSH"
 #ZSH_THEME="agnoster"
 DISABLE_AUTO_TITLE="true"
 #ENABLE_CORRECTION="true"
@@ -105,8 +107,8 @@ alias mergepdf2='pdfjoin --rotateoversize false'
 alias grabsite='wget -r -np --wait=1 -k --execute="robots = off" --mirror --random-wait --user-agent="Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0"'
 
 # make sure to use " around url when using ymp3, works for playlists and single videos.
-alias ymp3='yt-dlp -x --audio-format mp3 --add-metadata --embed-thumbnail'
-alias ymp4='yt-dlp --write-sub --write-auto-sub --sub-lang "en.*"'
+alias ymp3='yt-dlp -x --audio-format mp3 --add-metadata --embed-thumbnail --cookies-from-browser chrome'
+alias ymp4='yt-dlp -fmp4 --write-sub --write-auto-sub --sub-lang "en.*" --cookies-from-browser chrome'
 
 alias sqloptimize='sqlite3 "$1" "VACUUM;" && sqlite3 "$1" "REINDEX;"'
 alias gitzip="git archive HEAD -o ${PWD##*/}.zip"
@@ -122,7 +124,8 @@ alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(obj
 # AI
 # =============
 alias localai="ollama run gemma3n:e4b 'You are run in a unix zsh CLI, stay concise.'"
-alias claude="~/.claude/local/claude"
+alias claude="~/.local/bin/claude"
+CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
 
 
 # ==============
@@ -154,9 +157,9 @@ drmi() { docker rm $(dsi $1  | tr '\n' ' '); }
 
 # enable zsh-completions
 if type brew &>/dev/null; then
-  FPATH=$(brew --prefix)/share/zsh/site-functions:$(brew --prefix)/share/zsh-completions:$HOME/.oh-my-zsh/completions:$FPATH
+  FPATH=$(brew --prefix)/share/zsh/site-functions:$(brew --prefix)/share/zsh-completions:$ZSH/completions:$FPATH
   autoload -Uz compinit
-  compinit
+  compinit -u 2>/dev/null || compinit -C
 fi
 if type fzf &>/dev/null; then
   eval "$(fzf --zsh)"
@@ -296,11 +299,11 @@ elif [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
 fi
 
 # iTerm2 or other terminals, make sure that the last two folders of PWD is shown in the tab bar.
-if [ $ITERM_SESSION_ID ]; then
-precmd() {
-  echo -ne "\033]0;${PWD#*${PWD%*/*/*}}\007"
-}
-fi
+# if [ $ITERM_SESSION_ID ]; then
+# precmd() {
+#   echo -ne "\033]0;${PWD#*${PWD%*/*/*}}\007"
+# }
+# fi
 
 # play playlist by added by date:
 alias mplaylist='mdfind -onlyin . "kMDItemContentTypeTree == \"public.audio\"" | while read -r file; do echo "$(mdls -name kMDItemDateAdded -raw "$file") $file"; done | sort | cut -d" " -f4- | xargs -I {} mpg123 "{}"'
@@ -398,4 +401,3 @@ simulatordata() { cd ~/Library/Developer/CoreSimulator/Devices/"${1}"/data/Conta
 # SOURCEDIR=${SOURCEDIR##*/} # get last part of path
 # SOURCEDIR=${SOURCEDIR#*/}  # get first part of path
 # SOURCEDIR=${${SOURCEDIR%/*}%/*} # go up two folders
-

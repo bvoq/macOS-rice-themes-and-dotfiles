@@ -6,12 +6,6 @@
 # Flutter
 export PATH="$PATH:$HOME/Developer/flutter/bin" 
 export PATH="$PATH":"$HOME/.pub-cache/bin"
-# If in China:
-country=$(curl -s ipinfo.io/country --connect-timeout 5)
-if [[ "$country" == "CN" ]]; then
-  export PUB_HOSTED_URL=https://mirror.sjtu.edu.cn
-  export FLUTTER_STORAGE_BASE_URL=https://mirror.sjtu.edu.cn/dart-pub
-fi 
 # Mobile testing, maestro & flashlight
 export PATH=$PATH:$HOME/.maestro/bin
 export PATH="/Users/deke/.flashlight/bin:$PATH"

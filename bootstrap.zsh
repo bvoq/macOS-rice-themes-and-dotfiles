@@ -32,11 +32,12 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
 
   if [ $GENERICTOOLS = 1 ]; then
     # essentials
-    brew install bat fzf git gs jq ncdu nvim oath-toolkit rg tldr tmux trash tree zioxide yq yt-dlp watch zsh-completions
+    brew install bat fzf git gs jq ncdu nvim oath-toolkit rg tldr tmux trash tree zoxide yq yt-dlp watch zsh-completions
     # tiny and nice to have
     brew install ipcalc
 
     # apple essentails
+    brew install cocoapods  # note: installs brew ruby and uses that.
     brew install robotsandpencils/made/xcodes
     brew install --cask devcleaner
 
@@ -61,6 +62,11 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
 
     # iterm2 shell integration
     curl -L https://iterm2.com/shell_integration/zsh -o ~/.iterm2_shell_integration.zsh
+
+    # Claude AI
+    export CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
+    curl -fsSL claude.ai/install.sh | bash
+
   fi
 
   if [ $MOBILETOOLS = 1 ]; then
@@ -184,6 +190,12 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
 
 fi
 
+if [[ $JSSTACK == 1 ]]; then
+    curl -fsSL https://deno.land/install.sh > deno_install.sh
+    chmod +x deno_install.sh
+    ./deno_install.sh -y --no-modify-path
+    rm deno_install.sh
+fi
 
 
 # Copy dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)
@@ -210,11 +222,11 @@ cp .zshrc     ~/.zshrc
 cp .zshenv    ~/.zshenv
 cp .zshfunctions ~/.zshfunctions
 
-nvm update
+
+source ~/.zshrc || true  # Will return an error until this is merged: https://github.com/ohmyzsh/ohmyzsh/pull/13217
 nvm install node
 nvm install-latest-npm
 
-npm install -g @anthropic-ai/claude-code
 
 
 if [[ $OSTYPE == 'darwin'* ]]; then
