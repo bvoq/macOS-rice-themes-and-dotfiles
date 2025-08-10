@@ -32,7 +32,7 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
 
   if [ $GENERICTOOLS = 1 ]; then
     # essentials
-    brew install bat fzf git gs jq ncdu nvim oath-toolkit rg tldr tmux trash tree zoxide yq yt-dlp watch zsh-completions
+    brew install bat direnv fzf git gs jq ncdu nvim oath-toolkit rg tldr tmux trash tree zoxide yq yt-dlp watch zsh-completions
     # tiny and nice to have
     brew install ipcalc
 
@@ -79,21 +79,17 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
     mkdir -p $GOPATH
     export PATH=${PATH}:${HOME}/go/bin
     go install github.com/gmlewis/go-flutter-stylizer/cmd/flutter-stylizer@latest
+    brew tap CQLabs/dcm
+    brew install dcm
     mkdir -p ~/Developer # create the ~/Developer folder if it doesn't exist yet.
     country=$(curl -s ipinfo.io/country --connect-timeout 5)
-    if [[ "$country" == "CN" ]]; then
-      # if in china:
-      export PUB_HOSTED_URL=https://mirror.sjtu.edu.cn
-      export FLUTTER_STORAGE_BASE_URL=https://mirror.sjtu.edu.cn/dart-pub
-      if [ ! -d ~/Developer/flutter ]; then
-        git clone -b main https://git.sjtu.edu.cn/sjtug/flutter-sdk.git ~/Developer/flutter
-      fi
-    else
-      if [ ! -d ~/Developer/flutter ]; then
-        git clone -b main https://github.com/flutter/flutter.git ~/Developer/flutter
-      fi
-    fi 
 
+    if [ ! -d ~/Developer/flutter ]; then
+      git clone -b main https://github.com/flutter/flutter.git ~/Developer/flutter
+    fi
+
+    brew tap CQLabs/dcm
+    brew install dcm
     # maestro for testing
     [ ! -d ~/.maestro/bin ] && curl -Ls "https://get.maestro.mobile.dev" | bash
   fi
@@ -268,7 +264,6 @@ echo "Installing VSCode extensions"
 waitconfirm
 # general
 code --install-extension aaron-bond.better-comments
-code --install-extension deerawan.vscode-dash
 code --install-extension johnpapa.vscode-peacock
 code --install-extension usernamehw.errorlens
 code --install-extension eamodio.gitlens
@@ -276,13 +271,15 @@ code --install-extension PKief.material-icon-theme
 code --install-extension Ho-Wan.setting-toggle
 code --install-extension ctf0.close-tabs-to-the-left
 code --install-extension ms-vsliveshare.vsliveshare
+# Dart specific ones:
+code --install-extension dart-code.dart-code
+code --install-extension dart-code.flutter
+code --install-extension dcmdev.dcm-vscode-extension
 # theme
 code --install-extension ifahrentholz.one-quiet-dark-pro
 # generic linters
 code --install-extension redhat.vscode-yaml
 code --install-extension DavidAnson.vscode-markdownlint
-# Supermaven
-code --install-extension Supermaven.supermaven
 # ChatGPT
 curl "https://persistent.oaistatic.com/pair-with-ai/openai-chatgpt-latest.vsix" > openai-chatgpt-latest.vsix
 code --install-extension openai-chatgpt-latest.vsix

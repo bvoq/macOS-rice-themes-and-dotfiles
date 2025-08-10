@@ -26,8 +26,13 @@ setopt AUTO_PUSHD
 # make sure that enter key works: https://askubuntu.com/questions/441744/pressing-enter-produces-m-instead-of-a-newline
 stty sane
 
-# enable fuzzy finder if it exists
+################
+# Source stuff #
+################
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
+command -v rbenv >/dev/null 2>&1 && eval "$(rbenv init - zsh)"
 
 ###################
 # Oh-my-zsh / NVM #
@@ -58,7 +63,6 @@ alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
-alias cd=z
 
 # Detect which `ls` flavor is in use
 if ls --color > /dev/null 2>&1; then # GNU `ls`
@@ -264,7 +268,7 @@ function x() {
   for ext in "${matches[@]}"; do
     for file in "$dir"/*."$ext"(N); do
       if [[ -e "$file" ]]; then
-        open -a Xcode "$file"
+        xed "$file"
         return
       fi
     done

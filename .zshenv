@@ -11,8 +11,17 @@ export PATH=$PATH:$HOME/.maestro/bin
 export PATH="/Users/deke/.flashlight/bin:$PATH"
 
 # Android
-export ANDROID_HOME=/Users/$USER/Library/Android/sdk
-export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export ANDROID_SDK_ROOT="$ANDROID_HOME"
+export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+export PATH="$ANDROID_HOME/platform-tools:$PATH"
+export PATH="$ANDROID_HOME/emulator:$PATH"
+# Android Studio comes bundled with JDK 21 now by default
+# export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+# Flutter + React Native supports only JDK17 which is the version supported by sdkmanager.
+# They recommend zulu version: https://reactnative.dev/docs/set-up-your-environment?platform=android
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home
+
 # VSCode Insiders (picked first if installed)
 export PATH="$PATH:/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin"
 # VSCode
@@ -20,15 +29,10 @@ export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/b
 # Rust
 export PATH="$PATH:/${HOME}/.cargo/bin"
 # Go
-export GOPATH=${HOME}/go
-mkdir -p $GOPATH
+export GOPATH="$HOME/go"
 export PATH=${PATH}:${HOME}/go/bin
 # Agda
 export PATH=${PATH}:${HOME}/.local/bin
-# Java (Flutter supports only JDK11, which is bundled in Android Studio)
-export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
-#export JAVA_HOME=$(/usr/libexec/java_home)
-
 # Crypto
 export PATH="$PATH:$HOME/monero/build/release/bin"
 # Devops
