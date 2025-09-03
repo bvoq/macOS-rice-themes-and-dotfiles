@@ -46,6 +46,21 @@ bash_error_handler() {
     done
 }
 
+
+add_vscode_bookmark() {
+   local file_line="$1"
+   local label="$2"
+   code --goto "$file_line"
+   sleep 1
+   osascript -e 'tell application "System Events" to keystroke "p" using {command down, shift down}' \
+              -e 'delay 1' \
+              -e 'tell application "System Events" to keystroke "Bookmarks: Toggle Labeled"' \
+              -e 'tell application "System Events" to key code 36' \
+              -e 'delay 1' \
+              -e "tell application \"System Events\" to keystroke \"$label\"" \
+              -e 'tell application "System Events" to key code 36'
+}
+
 zsh_error_handler() {
     # Iterate over the stack trace to find the original error location
     echo "Encountered an error. Stacktrace:"
