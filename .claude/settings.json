@@ -66,14 +66,31 @@
       "Bash(yum:*)",
       "Bash(brew:*)",
       "Bash(pip:*)",
-      "Bash(npm:*)",
-      "Bash(yarn:*)",
       "Bash(pnpm:*)",
       "Bash(bun:*)",
       "Bash(python:*)",
       "Bash(node:*)",
       "Bash(perl:*)",
     
+      "Bash(npm install -g*)",
+      "Bash(npm add*)",
+      "Bash(npm remove*)",
+      "Bash(npm uninstall*)",
+      "Bash(npm update*)",
+    
+      "Bash(yarn add*)",
+      "Bash(yarn remove*)",
+      "Bash(yarn upgrade*)",
+      "Bash(yarn set version*)",
+    
+      "Bash(pnpm add*)",
+      "Bash(pnpm remove*)",
+      "Bash(pnpm update*)",
+    
+      "Bash(bun add*)",
+      "Bash(bun remove*)",
+      "Bash(bun update*)",
+   
       "Bash(docker:*)",
       "Bash(podman:*)",
       "Bash(kubectl:*)",

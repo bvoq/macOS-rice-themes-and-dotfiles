@@ -253,9 +253,6 @@ alias showdesktop="defaults write com.apple.finder CreateDesktop -bool true && k
 # Recursively delete `.DS_Store` files
 alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
 
-# make sure rm just trashes
-alias rm='trash'
-
 # Empty the Trash on all mounted volumes and the main HDD.
 # Also, clear Apple’s System Logs to improve shell startup speed.
 # Finally, clear download history from quarantine. https://mths.be/bum

@@ -222,9 +222,6 @@ cp .zshfunctions ~/.zshfunctions
 
 
 source ~/.zshrc || true  # Will return an error until this is merged: https://github.com/ohmyzsh/ohmyzsh/pull/13217
-nvm install node
-nvm install-latest-npm
-
 
 
 if [[ $OSTYPE == 'darwin'* ]]; then
@@ -348,13 +345,17 @@ fi
 echo "Next: Installing language servers."
 waitconfirm
 
-if ! isadmin; then
-    # store npm packages on the user-level not admin level.
-    # http://michaelb.org/archive/article/30.html
-    npm config set prefix ~/.local
-fi
-npm install -g pyright
-npm install -g bash-language-server
+# Probably better installed by the user
+#nvm install node
+#nvm install-latest-npm
+
+#if ! isadmin; then
+#    # store npm packages on the user-level not admin level.
+#    # http://michaelb.org/archive/article/30.html
+#    npm config set prefix ~/.local
+#fi
+#npm install -g pyright
+#npm install -g bash-language-server
 
 
 if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
