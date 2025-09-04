@@ -14,7 +14,6 @@
   "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
-      "Bash(*)",
       "mcp__cf-docs__search_cloudflare_documentation",
       "mcp__context7__get-library-docs",
       "mcp__context7__resolve-library-id",
@@ -33,11 +32,11 @@
       "mcp__gemini-cli__gemini_verify_solution",
       "mcp__gemini-cli__gemini_version",
       "mcp__ide__getDiagnostics",
+      "Bash",
       "WebFetch",
       "WebSearch"
     ],
     "deny": [
-      // Filesystem destructive
       "Bash(rm:*)",
       "Bash(dd:*)",
       "Bash(mkfs:*)",
@@ -49,14 +48,12 @@
       "Bash(tee:*)",
       "Bash(sed -i:*)",
     
-      // Process / privilege
       "Bash(sudo:*)",
       "Bash(kill:*)",
       "Bash(killall:*)",
       "Bash(reboot:*)",
       "Bash(shutdown:*)",
     
-      // Networking / exfil
       "Bash(curl:*)",
       "Bash(wget:*)",
       "Bash(nc:*)",
@@ -65,7 +62,6 @@
       "Bash(scp:*)",
       "Bash(rsync:*)",
     
-      // Package managers / interpreters
       "Bash(apt:*)",
       "Bash(yum:*)",
       "Bash(brew:*)",
@@ -78,7 +74,6 @@
       "Bash(node:*)",
       "Bash(perl:*)",
     
-      // DevOps / infra
       "Bash(docker:*)",
       "Bash(podman:*)",
       "Bash(kubectl:*)",
@@ -89,11 +84,10 @@
       "Bash(terraform:*)",
       "Bash(ansible:*)",
     
-      // Git dangerous
       "Bash(git push:*)",
       "Bash(git push --force:*)",
       "Bash(git rm:*)",
-      "Bash(git clean -fdx:*)",
+      "Bash(git clean:*)",
       "Bash(git reset --hard:*)",
       "Bash(git checkout:*)",
       "Bash(git switch:*)",
