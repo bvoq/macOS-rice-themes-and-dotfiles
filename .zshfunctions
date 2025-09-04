@@ -4,21 +4,21 @@ semver() { printf "%03d%03d%03d%03d" $(echo "$1" | tr '.' ' '); }
 is_on() { [[ -o $1 ]] && return 0 || return 1 }
 
 waitconfirm() {
-  if read -q "choice?Continue [press y/n]? "; then
-    echo "Continuing..."
-  else
-    exit 0
-  fi
+    if read -q "choice?Continue [press y/n]? "; then
+        echo "Continuing..."
+    else
+        exit 0
+    fi
 }
 
 instruments() {
-  [[ $# -gt 0 ]] || { echo "Usage: instruments <cmd> [args…]"; return 1 }
-  local cmd_path; cmd_path=$(command -v -- "$1") || { echo "Not found: $1"; return 1 }
-  shift
-  local output="/var/tmp/instruments-$(date '+%Y%m%d-%H%M%S').trace"
-  xcrun xctrace record --no-prompt --output "$output" --launch -- "$cmd_path" "$@"
-  echo "✅ Trace saved to $output"
-  open "$output" -a Instruments.app
+    [[ $# -gt 0 ]] || { echo "Usage: instruments <cmd> [args…]"; return 1 }
+    local cmd_path; cmd_path=$(command -v -- "$1") || { echo "Not found: $1"; return 1 }
+    shift
+    local output="/var/tmp/instruments-$(date '+%Y%m%d-%H%M%S').trace"
+    xcrun xctrace record --no-prompt --output "$output" --launch -- "$cmd_path" "$@"
+    echo "✅ Trace saved to $output"
+    open "$output" -a Instruments.app
 }
 
 bash_error_handler() {
@@ -46,19 +46,39 @@ bash_error_handler() {
     done
 }
 
+add_vscode_bookmark () {
+        local file_line="$1"
+        local label="$2"
+        code --goto "$file_line"
+        sleep 0.5
+        osascript -e 'tell application "System Events" to keystroke "p" using {command down, shift down}'
+        sleep 0.4
+        osascript -e 'tell application "System Events" to keystroke "Bookmarks: Toggle Labeled"'
+        sleep 0.1
+        osascript -e 'tell application "System Events" to key code 36'
+        sleep 0.4
+        osascript -e "tell application \"System Events\" to keystroke \"$label\""
+        sleep 0.1
+        osascript -e 'tell application "System Events" to key code 36'
+}
 
-add_vscode_bookmark() {
-   local file_line="$1"
-   local label="$2"
-   code --goto "$file_line"
-   sleep 1
-   osascript -e 'tell application "System Events" to keystroke "p" using {command down, shift down}' \
-              -e 'delay 1' \
-              -e 'tell application "System Events" to keystroke "Bookmarks: Toggle Labeled"' \
-              -e 'tell application "System Events" to key code 36' \
-              -e 'delay 1' \
-              -e "tell application \"System Events\" to keystroke \"$label\"" \
-              -e 'tell application "System Events" to key code 36'
+add_xcode_bookmark() {
+    local file_line="$1"
+    local label="$2"
+    local file="${file_line%:*}"
+    local line="${file_line##*:}"
+
+    xed --line "$line" "$file"
+    osascript -e "tell application \"Xcode\" to activate" \
+        -e "tell application \"Xcode\" to open \"$file\"" \
+        -e 'delay 1' \
+        -e 'tell application "System Events" to keystroke "^" using {control down, option down, command down}' \
+        -e 'delay 0.3' \
+        -e "tell application \"System Events\" to keystroke \"$label\"" \
+        -e 'tell application "System Events" to key code 36'
+
+    echo "Added Xcode bookmark: $label at $file:$line"
+    echo "Used keystroke '^' with Control+Option+Command"
 }
 
 zsh_error_handler() {
@@ -160,122 +180,122 @@ nvimdiff()
 
 
 errors() {
-  local regex='\b(?:abort(?:ed|ing|s)?|anomal(?:y|ies)|block(?:ed|ing|s)?|breach(?:ed|ing|es)?|break(?:s|ing|age)?|brok(?:e|en)|bugs?|cannot|code 1|compromis(?:e|ed|ing|es)?|conflict(?:ed|ing|s)?|corrupt(?:ed|ing|s|ion|ions)?|crash(?:ed|ing|es)?|critical|defect(?:ed|ing|s|ive)?|den(?:y|ied|ies|ial|ials)?|deprecat(?:e|ed|ing|es|ion|ions)?|detect(?:ed|ing|s)?|discrepanc(?:y|ies)|err(?:or|ors)?|exceed(?:ed|ing|s)?|except(?:ion|ions)?|expir(?:e|ed|es|ing)|fail(?:ed|ing|s|ure|ures)?|fatal|fault(?:ed|ing|s|y)?|forbidden|hang(?:ed|ing|s)?|illegal|incorrect|inconsistent|invalid|issue(?:s)?|kill(?:ed|ing|s)?|leak(?:ed|ing|s)?|limit(?:ed|ing|s)?|loss(?:es)?|mismatch(?:ed|ing|es)?|miss(?:ed|ing|es)?|mistake(?:n|s)?|no\s+route|not\s+found|not\s+known|not\s+permitted|overflow(?:ed|ing|s)?|overheat(?:ed|ing|s)?|panic(?:s|ked|king)?|problem(?:s|atic)?|race\s+condition|refus(?:e|ed|ing|es|al)?|reject(?:ed|ing|s|ion|ions)?|segfault(?:ed|ing|s)?|shutdown(?:s)?|terminat(?:e|ed|ing|es|ion|ions)?|threat(?:en|ened|ening|s)?|timedout(?:s)?|timed out|unavailable|unauthori[sz]ed|undefined|unexpected|unhandled|unknown|unreachable|unrecoverable|unresponsive|violat(?:e|ed|ing|es|ion|ions)?|(?:server|system|connection|service|network|database|application|link|interface|cluster)\s+down|(?:disk|memory|buffer|queue|log|cache|storage|heap|stack|table)\s+full|(?:connection|read|write|request|operation|session|login|execution|gateway|handshake)\s+timeout)\b'
+    local regex='\b(?:abort(?:ed|ing|s)?|anomal(?:y|ies)|block(?:ed|ing|s)?|breach(?:ed|ing|es)?|break(?:s|ing|age)?|brok(?:e|en)|bugs?|cannot|code 1|compromis(?:e|ed|ing|es)?|conflict(?:ed|ing|s)?|corrupt(?:ed|ing|s|ion|ions)?|crash(?:ed|ing|es)?|critical|defect(?:ed|ing|s|ive)?|den(?:y|ied|ies|ial|ials)?|deprecat(?:e|ed|ing|es|ion|ions)?|detect(?:ed|ing|s)?|discrepanc(?:y|ies)|err(?:or|ors)?|exceed(?:ed|ing|s)?|except(?:ion|ions)?|expir(?:e|ed|es|ing)|fail(?:ed|ing|s|ure|ures)?|fatal|fault(?:ed|ing|s|y)?|forbidden|hang(?:ed|ing|s)?|illegal|incorrect|inconsistent|invalid|issue(?:s)?|kill(?:ed|ing|s)?|leak(?:ed|ing|s)?|limit(?:ed|ing|s)?|loss(?:es)?|mismatch(?:ed|ing|es)?|miss(?:ed|ing|es)?|mistake(?:n|s)?|no\s+route|not\s+found|not\s+known|not\s+permitted|overflow(?:ed|ing|s)?|overheat(?:ed|ing|s)?|panic(?:s|ked|king)?|problem(?:s|atic)?|race\s+condition|refus(?:e|ed|ing|es|al)?|reject(?:ed|ing|s|ion|ions)?|segfault(?:ed|ing|s)?|shutdown(?:s)?|terminat(?:e|ed|ing|es|ion|ions)?|threat(?:en|ened|ening|s)?|timedout(?:s)?|timed out|unavailable|unauthori[sz]ed|undefined|unexpected|unhandled|unknown|unreachable|unrecoverable|unresponsive|violat(?:e|ed|ing|es|ion|ions)?|(?:server|system|connection|service|network|database|application|link|interface|cluster)\s+down|(?:disk|memory|buffer|queue|log|cache|storage|heap|stack|table)\s+full|(?:connection|read|write|request|operation|session|login|execution|gateway|handshake)\s+timeout)\b'
 
   # Case: Input is an argument.
   if [ -t 0 ]; then
-    # One argument: filename
-    if [ "$#" -eq 1 ]; then
-      local surroundno=1
-    elif [ "$#" -eq 2 ]; then
-      # Two arguments: filename and context lines
-      local surroundno="$2"
-    else
-      echo "Usage: filtererrors file [context_lines]" >&2
-      echo "Alternative Usage: cat file | filtererrors [context_lines]" >&2
-      return 1
-    fi
-    if command -v rg > /dev/null 2>&1; then
-      rg -n --colors 'column:fg:blue' \
-      --colors 'column:bg:yellow' \
-      --colors 'column:style:bold' \
-      --colors 'match:none' \
-      --colors 'match:bg:0x33,0x66,0xFF' \
-      --colors 'match:fg:white' \
-      --colors 'match:style:bold' \
-      --column \
-      -C "$surroundno" "$regex" "$1"
-    else
-      grep -Ei -C "$surroundno" -n "$regex" "$1"
-    fi
-  # Case: Input is piped in.
+      # One argument: filename
+      if [ "$#" -eq 1 ]; then
+          local surroundno=1
+      elif [ "$#" -eq 2 ]; then
+          # Two arguments: filename and context lines
+          local surroundno="$2"
+      else
+          echo "Usage: filtererrors file [context_lines]" >&2
+          echo "Alternative Usage: cat file | filtererrors [context_lines]" >&2
+          return 1
+      fi
+      if command -v rg > /dev/null 2>&1; then
+          rg -n --colors 'column:fg:blue' \
+              --colors 'column:bg:yellow' \
+              --colors 'column:style:bold' \
+              --colors 'match:none' \
+              --colors 'match:bg:0x33,0x66,0xFF' \
+              --colors 'match:fg:white' \
+              --colors 'match:style:bold' \
+              --column \
+              -C "$surroundno" "$regex" "$1"
+                    else
+                        grep -Ei -C "$surroundno" -n "$regex" "$1"
+      fi
+      # Case: Input is piped in.
   else
-    if [ "$#" -eq 0 ]; then
-      local surroundno=1
-    elif [ "$#" -eq 1 ]; then
-      local surroundno="$1"
-    else
-      echo "Usage: cat file | filtererrors [context_lines]" >&2
-      return 1
-    fi
-    if command -v rg > /dev/null 2>&1; then
-      rg -n --colors 'column:fg:blue' \
-      --colors 'column:bg:yellow' \
-      --colors 'column:style:bold' \
-      --colors 'match:none' \
-      --colors 'match:bg:0x33,0x66,0xFF' \
-      --colors 'match:fg:white' \
-      --colors 'match:style:bold' \
-      --column \
-      -C "$surroundno" "$regex"
-    else
-      grep -n -Ei -C "$surroundno" "$regex"
-    fi
+      if [ "$#" -eq 0 ]; then
+          local surroundno=1
+      elif [ "$#" -eq 1 ]; then
+          local surroundno="$1"
+      else
+          echo "Usage: cat file | filtererrors [context_lines]" >&2
+          return 1
+      fi
+      if command -v rg > /dev/null 2>&1; then
+          rg -n --colors 'column:fg:blue' \
+              --colors 'column:bg:yellow' \
+              --colors 'column:style:bold' \
+              --colors 'match:none' \
+              --colors 'match:bg:0x33,0x66,0xFF' \
+              --colors 'match:fg:white' \
+              --colors 'match:style:bold' \
+              --column \
+              -C "$surroundno" "$regex"
+                    else
+                        grep -n -Ei -C "$surroundno" "$regex"
+      fi
   fi
 }
 
 __removesensitive() {
-  echo "seding $1"
-  sed -E -i.bak 's/K.{13}\$/EXAMPLE/g' "$1" && rm "$1.bak"
-  sed -E -i.bak 's/K.{12}4/EXAMPLE/g' "$1" && rm "$1.bak"
-  sed -E -i.bak 's/I.{7}\$/EXAMPLE/g' "$1" && rm "$1.bak"
-  sed -E -i.bak 's/I.{6}4/EXAMPLE/g' "$1" && rm "$1.bak"
-  sed -E -i.bak 's/AKIA[0-9A-Z]{16}/EXAMPLE_AWS_ACCESS_KEY/g' "$1" && rm "$1.bak"
+    echo "seding $1"
+    sed -E -i.bak 's/K.{13}\$/EXAMPLE/g' "$1" && rm "$1.bak"
+    sed -E -i.bak 's/K.{12}4/EXAMPLE/g' "$1" && rm "$1.bak"
+    sed -E -i.bak 's/I.{7}\$/EXAMPLE/g' "$1" && rm "$1.bak"
+    sed -E -i.bak 's/I.{6}4/EXAMPLE/g' "$1" && rm "$1.bak"
+    sed -E -i.bak 's/AKIA[0-9A-Z]{16}/EXAMPLE_AWS_ACCESS_KEY/g' "$1" && rm "$1.bak"
 
-  perl -0777 -pi -e 's/-----BEGIN.*?-----END.*?-----/-----BEGIN EXAMPLE KEY BLOCK-----\n-----END EXAMPLE KEY BLOCK-----/sg' "$1"
+    perl -0777 -pi -e 's/-----BEGIN.*?-----END.*?-----/-----BEGIN EXAMPLE KEY BLOCK-----\n-----END EXAMPLE KEY BLOCK-----/sg' "$1"
 }
 __removesensitiveandurls() {
-  __removesensitive "$1"
-  # remove all urls
-  perl -pi -e 's{https?://[^<('"'"')"\s]+}{https://example.com}g' "$1"
-  perl -pi -e 's{ftp?://[^<('"'"')"\s]+}{ftp://example}g' "$1"
-  perl -pi -e 's{mysql?://[^<('"'"')"\s]+}{mysql://example}g' "$1"
-  sed -E -i.bak 's/([a-zA-Z0-9._]+@[a-zA-Z0-9._]+\.[a-zA-Z0-9._]+)/example@example.com/g' "$1" && rm "$1.bak"
+    __removesensitive "$1"
+    # remove all urls
+    perl -pi -e 's{https?://[^<('"'"')"\s]+}{https://example.com}g' "$1"
+    perl -pi -e 's{ftp?://[^<('"'"')"\s]+}{ftp://example}g' "$1"
+    perl -pi -e 's{mysql?://[^<('"'"')"\s]+}{mysql://example}g' "$1"
+    sed -E -i.bak 's/([a-zA-Z0-9._]+@[a-zA-Z0-9._]+\.[a-zA-Z0-9._]+)/example@example.com/g' "$1" && rm "$1.bak"
 }
 
 removesensitive() {
-  local files=()
-  if [ -t 0 ]; then
-    files=("$@")
-  else
-    while IFS= read -r line; do
-      files+=("$line")
-    done
-  fi
-  for file in "${files[@]}"; do
-    if [ ! -f "$file" ]; then
-      echo "File '$file' not found, skipping." >&2
-      continue
+    local files=()
+    if [ -t 0 ]; then
+        files=("$@")
+    else
+        while IFS= read -r line; do
+            files+=("$line")
+        done
     fi
-    __removesensitive "$file"
-  done
+    for file in "${files[@]}"; do
+        if [ ! -f "$file" ]; then
+            echo "File '$file' not found, skipping." >&2
+            continue
+        fi
+        __removesensitive "$file"
+    done
 }
 
 
 aichatgit() {
-  git diff > __changes.txt
-  files=($({ { git diff --name-only; git ls-files --others --exclude-standard; } | sort -u | while IFS= read -r file; do
-  if [ -f "$file" ] && [ "$(wc -l < "$file")" -le 4000 ]; then
-    echo "$file"
-  fi
-done; }))
-  echo "Reading piped input"
-  if ! [ -t 0 ]; then
-    while IFS= read -r line; do
-      files+=("$line")
-    done
-  fi
-  echo "Finished reading piped input"
-  files+=( "__changes.txt" )
-  tmp_files=()
-  args=()
-  echo "all files ${files[@]}"
-  for file in "${files[@]}"; do
-    echo "$file"
-    if [ ! -f "$file" ]; then
-      echo "File '$file' not found, skipping." >&2
-      continue
+    git diff > __changes.txt
+    files=($({ { git diff --name-only; git ls-files --others --exclude-standard; } | sort -u | while IFS= read -r file; do
+        if [ -f "$file" ] && [ "$(wc -l < "$file")" -le 4000 ]; then
+            echo "$file"
+        fi
+    done; }))
+    echo "Reading piped input"
+    if ! [ -t 0 ]; then
+        while IFS= read -r line; do
+            files+=("$line")
+        done
     fi
+    echo "Finished reading piped input"
+    files+=( "__changes.txt" )
+    tmp_files=()
+    args=()
+    echo "all files ${files[@]}"
+    for file in "${files[@]}"; do
+        echo "$file"
+        if [ ! -f "$file" ]; then
+            echo "File '$file' not found, skipping." >&2
+            continue
+        fi
 
     # Copy the file into /tmp using its basename.
     cp "$file" /tmp/ || { echo "Failed to copy $file to /tmp" >&2; continue; }
@@ -285,15 +305,15 @@ done; }))
     tmp_files+=( "$tmp_file" )
     args+=( -f "$tmp_file" )
     echo "$tmp_file"
-  done
-  rm __changes.txt
-  if [ "${#args[@]}" -gt 0 ]; then
+done
+rm __changes.txt
+if [ "${#args[@]}" -gt 0 ]; then
     echo "aichat ${args[@]} $@"
     aichat "${args[@]}" "$@"
     rm "${args[@]}"
-  else
+else
     echo "No valid files to process." >&2
-  fi
+fi
 }
 
 # Darwin specific
@@ -401,7 +421,7 @@ compressvideo() {
                 return 1
             fi
         fi
-        rm -f ffmpeg2pass-0.log* 
+        rm -f ffmpeg2pass-0.log*
         ffmpeg -y -i "$INPUT" -c:v libx264 -preset medium -b:v "${VIDEO_BITRATE}k" -pass 1 -c:a aac -b:a "${AUDIO_BITRATE}k" -f mp4 /dev/null
         ffmpeg -i "$INPUT" -c:v libx264 -preset medium -b:v "${VIDEO_BITRATE}k" -pass 2 -c:a aac -b:a "${AUDIO_BITRATE}k" "$OUTPUT"
         SIZE=$(stat -c%s "$OUTPUT" 2>/dev/null || stat -f%z "$OUTPUT")

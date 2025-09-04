@@ -8,9 +8,10 @@
   "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
+      "Bash(add_xcode_bookmark:*)",
+      "Bash(add_vscode_bookmark:*)",
       "Bash(.venv/bin/pip:*)",
       "Bash(.venv/bin/python:*)",
-      "Bash(add_vscode_bookmark:*)",
       "Bash(awk:*)",
       "Bash(cat:*)",
       "Bash(ccusage daily)",
