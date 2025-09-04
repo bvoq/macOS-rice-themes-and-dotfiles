@@ -209,7 +209,7 @@ fi
 [ -f ~/.zshenv ] && mv ~/.zshenv     ~/.zshenv.old
 
 cp .claude/CLAUDE.md ~/.claude/CLAUDE.md
-cp .claude/settings.local.json ~/.claude/settings.local.json
+cp .claude/settings.json ~/.claude/settings.json
 cp .emacs ~/.emacs
 cp .inputrc   ~/.inputrc
 cp .gitconfig ~/.gitconfig

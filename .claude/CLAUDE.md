@@ -1,14 +1,57 @@
-1. When adding code don't add comments unless the comment has information that is not encoded in the code. This is very important! Instead create separate named methods if necessary.  However, keep existing comments.
+<claude_spec version="1.0">
+  <meta>
+    <title>CLAUDE Code & Bookmark Policy</title>
+    <audience>Contributors</audience>
+  </meta>
 
-2. You may use `add_vscode_bookmark '/path/file:line' 'Label'` after doing a complexer code
- research to mark mentioned locations. For marking source files in the iOS folder you can use `add_xcode_bookmark '/path/file:line' 'Label'`. But for .plist and .entitlements you can't use it and need to fallback on `add_vscode_bookmark`.
+  <policies>
+    <policy id="comments">
+      <summary>Do not add code comments unless they contain information not encoded in code. Keep existing comments.</summary>
+      <rules>
+        <rule>When adding code, omit comments that only restate what the code expresses.</rule>
+        <rule>If necessary, create small, named methods to encode intent instead of comments.</rule>
+        <rule>Preserve all existing comments in touched files.</rule>
+      </rules>
+    </policy>
 
-**Label format:** `Number. from-to: Description (file)`
-- Number for organization
-- Brief description of purpose
+    <policy id="bookmarks">
+      <summary>Use editor bookmark helpers to mark findings after deeper code research.</summary>
+      <tools>
+        <tool name="vscode">add_vscode_bookmark '/abs/path/file:line' 'Label'</tool>
+        <tool name="xcode">add_xcode_bookmark '/abs/path/file:line' 'Label'</tool>
+      </tools>
+      <constraints>
+        <constraint>For files under iOS, prefer <toolref name="xcode"/>.</constraint>
+        <constraint>For .plist and .entitlements, <toolref name="xcode"/> is unsupported; use <toolref name="vscode"/>.</constraint>
+      </constraints>
+      <label_format>
+        <pattern>{Number}. {from}-{to}: {Description} ({file})</pattern>
+        <guidelines>
+          <guideline>Use a sequential Number for organization.</guideline>
+          <guideline>Keep Description brief and purpose-focused.</guideline>
+        </guidelines>
+      </label_format>
+    </policy>
+  </policies>
 
-**Example:**
-```bash
-add_xcode_bookmark '/path/Info.plist:32' '1. 32-34: Network permissions settings (Info.plist)'
-add_vscode_bookmark '/path/AuthService.ts:145' '2. 145-159: JWT token validation logic (AuthService.json)'
-```
+  <examples>
+    <example id="bookmark-ios">
+      <context>Bookmarking Info.plist settings</context>
+      <commands>
+        <cmd>add_vscode_bookmark '/path/Info.plist:32' '1. 32-34: Network permissions settings (Info.plist)'</cmd>
+      </commands>
+    </example>
+
+    <example id="bookmark-ts">
+      <context>Bookmarking token validation logic</context>
+      <commands>
+        <cmd>add_vscode_bookmark '/path/AuthService.ts:145' '2. 145-159: JWT token validation logic (AuthService.ts)'</cmd>
+      </commands>
+    </example>
+  </examples>
+
+  <formatting_notes>
+    <note>Use absolute paths where possible.</note>
+    <note>Use 1-based line numbers as displayed in the editor.</note>
+  </formatting_notes>
+</claude_spec>

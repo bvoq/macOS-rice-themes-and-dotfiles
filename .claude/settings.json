@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "model": "opus",
+  "feedbackSurveyState": {
+    "lastShownTime": 2147483647
+  },
+  "env": {
+    "MAX_MCP_OUTPUT_TOKENS": "60000",
+    "BASH_DEFAULT_TIMEOUT_MS": "300000",
+    "BASH_MAX_TIMEOUT_MS": "600000",
+    "MAX_THINKING_TOKENS": "8192"
+  },
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "mcp__cf-docs__search_cloudflare_documentation",
+      "mcp__context7__get-library-docs",
+      "mcp__context7__resolve-library-id",
+      "mcp__gemini-cli__gemini_ai_collaboration",
+      "mcp__gemini-cli__gemini_cli",
+      "mcp__gemini-cli__gemini_help",
+      "mcp__gemini-cli__gemini_metrics",
+      "mcp__gemini-cli__gemini_models",
+      "mcp__gemini-cli__gemini_openrouter_models",
+      "mcp__gemini-cli__gemini_openrouter_opinion",
+      "mcp__gemini-cli__gemini_openrouter_usage_stats",
+      "mcp__gemini-cli__gemini_prompt",
+      "mcp__gemini-cli__gemini_review_code",
+      "mcp__gemini-cli__gemini_summarize",
+      "mcp__gemini-cli__gemini_summarize_files",
+      "mcp__gemini-cli__gemini_verify_solution",
+      "mcp__gemini-cli__gemini_version",
+      "mcp__ide__getDiagnostics",
+      "WebFetch",
+      "WebSearch"
+    ],
+    "deny": [
+      // Filesystem destructive
+      "Bash(rm:*)",
+      "Bash(dd:*)",
+      "Bash(mkfs:*)",
+      "Bash(mount:*)",
+      "Bash(umount:*)",
+      "Bash(chmod:*)",
+      "Bash(chown:*)",
+      "Bash(truncate:*)",
+      "Bash(tee:*)",
+      "Bash(sed -i:*)",
+    
+      // Process / privilege
+      "Bash(sudo:*)",
+      "Bash(kill:*)",
+      "Bash(killall:*)",
+      "Bash(reboot:*)",
+      "Bash(shutdown:*)",
+    
+      // Networking / exfil
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(nc:*)",
+      "Bash(netcat:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(rsync:*)",
+    
+      // Package managers / interpreters
+      "Bash(apt:*)",
+      "Bash(yum:*)",
+      "Bash(brew:*)",
+      "Bash(pip:*)",
+      "Bash(npm:*)",
+      "Bash(yarn:*)",
+      "Bash(pnpm:*)",
+      "Bash(bun:*)",
+      "Bash(python:*)",
+      "Bash(node:*)",
+      "Bash(perl:*)",
+    
+      // DevOps / infra
+      "Bash(docker:*)",
+      "Bash(podman:*)",
+      "Bash(kubectl:*)",
+      "Bash(helm:*)",
+      "Bash(aws:*)",
+      "Bash(gcloud:*)",
+      "Bash(az:*)",
+      "Bash(terraform:*)",
+      "Bash(ansible:*)",
+    
+      // Git dangerous
+      "Bash(git push:*)",
+      "Bash(git push --force:*)",
+      "Bash(git rm:*)",
+      "Bash(git clean -fdx:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git checkout:*)",
+      "Bash(git switch:*)",
+      "Bash(git rebase:*)",
+      "Bash(git merge:*)",
+      "Bash(git cherry-pick:*)",
+      "Bash(git revert:*)",
+      "Bash(git branch -D:*)",
+      "Bash(git tag -f:*)",
+      "Bash(git filter-repo:*)",
+      "Bash(git gc:*)",
+      "Bash(git prune:*)",
+      "Bash(git worktree:*)",
+      "Bash(git submodule update --remote:*)",
+      "Bash(git config --global:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(git stash drop:*)",
+      "Bash(git stash pop:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "playwright",
+    "convex",
+    "linear",
+    "notion",
+    "kapa"
+  ]
+}
