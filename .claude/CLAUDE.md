@@ -21,8 +21,8 @@
         <tool name="xcode">add_xcode_bookmark '/abs/path/file:line' 'Label'</tool>
       </tools>
       <constraints>
-        <constraint>For files under iOS, prefer <toolref name="xcode"/>.</constraint>
-        <constraint>For .plist and .entitlements, <toolref name="xcode"/> is unsupported; use <toolref name="vscode"/>.</constraint>
+        <constraint>Put all bookmarks into vscode <toolref name="vscode"/>.</constraint>
+        <constraint>For source files (.swift, .mm but not .plist and .entitlements) in the iOS folder, also use <toolref name="xcode"/>.</constraint>
       </constraints>
       <label_format>
         <pattern>{Number}. {from}-{to}: {Description} ({file})</pattern>
@@ -44,17 +44,25 @@
   </policies>
 
   <examples>
-    <example id="bookmark-ios">
+    <example id="bookmark">
       <context>Bookmarking Info.plist settings</context>
       <commands>
         <cmd>add_vscode_bookmark '/path/Info.plist:32' '1. 32-34: Network permissions settings (Info.plist)'</cmd>
       </commands>
     </example>
 
-    <example id="bookmark-ts">
-      <context>Bookmarking token validation logic</context>
+    <example id="bookmark">
+      <context>Bookmarking generic source file</context>
       <commands>
         <cmd>add_vscode_bookmark '/path/AuthService.ts:145' '2. 145-159: JWT token validation logic (AuthService.ts)'</cmd>
+      </commands>
+    </example>
+
+    <example id="bookmark">
+      <context>Bookmarking ios source file in both locations</context>
+      <commands>
+        <cmd>add_vscode_bookmark '/path/EXKernelLinkingManager.m:70' '3. 70-150: iOS Native Deeplink Handler: Resolving slugs and handling universal links (EXKernelLinkingManager.m)'</cmd>
+        <cmd>add_xcode_bookmark '/path/EXKernelLinkingManager.m:70' '3. 70-150: iOS Native Deeplink Handler: Resolving slugs and handling universal links (EXKernelLinkingManager.m)'</cmd>
       </commands>
     </example>
 
