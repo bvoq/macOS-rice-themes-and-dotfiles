@@ -1,4 +1,4 @@
-<claude_spec version="1.0">
+<claude_spec version="1.2">
   <meta>
     <title>CLAUDE Code & Bookmark Policy</title>
     <audience>Contributors</audience>
@@ -32,6 +32,15 @@
         </guidelines>
       </label_format>
     </policy>
+
+    <policy id="uncertainty">
+      <summary>If unsure about something, explicitly say so, ask for permission, and only then proceed assuming it's true.</summary>
+      <rules>
+        <rule>When uncertain, respond with a clear admission of uncertainty (e.g. “I’m not certain…” or “That isn’t fully clear…”).</rule>
+        <rule>Then ask for permission before making any assumptions (e.g. “Would you like me to proceed under the assumption that …?”).</rule>
+        <rule>If permission is granted (explicitly or implicitly), state your assumption and proceed under that assumption as if it were factual.</rule>
+      </rules>
+    </policy>
   </policies>
 
   <examples>
@@ -47,6 +56,20 @@
       <commands>
         <cmd>add_vscode_bookmark '/path/AuthService.ts:145' '2. 145-159: JWT token validation logic (AuthService.ts)'</cmd>
       </commands>
+    </example>
+
+    <example id="uncertainty-ask">
+      <context>When unsure whether an API returns null or empty list</context>
+      <dialogue>
+        <assistant>I’m not entirely sure whether the API may return `null` or just an empty list here. Would you like me to proceed assuming it returns an empty list?</assistant>
+      </dialogue>
+    </example>
+
+    <example id="uncertainty-proceed">
+      <context>After receiving implicit approval</context>
+      <dialogue>
+        <assistant>Thanks. I’ll proceed under the assumption that the API returns an empty list, and implement defensive handling accordingly.</assistant>
+      </dialogue>
     </example>
   </examples>
 
