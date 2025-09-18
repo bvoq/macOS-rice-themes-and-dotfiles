@@ -16,8 +16,7 @@ TEXFULL=0
 source .zshfunctions
 set_error_handler
 
-git submodule init
-git submodule update
+git submodule update --init --recursive
 
 if [[ $OSTYPE == 'darwin'* ]]; then
     # sanity checks
@@ -37,7 +36,12 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
     brew install ipcalc
 
     # apple essentails
-    brew install cocoapods  # note: installs brew ruby and uses that.
+    brew install rbenv # 
+    eval "$(rbenv init - zsh)"
+    rbenv install 3.3.0
+    rbenv global 3.3.0
+    gem install cocoapods
+    rbenv rehash
     brew install xcodes
     brew install --cask devcleaner
 
@@ -70,6 +74,7 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   fi
 
   if [ $MOBILETOOLS = 1 ]; then
+    brew install ccache
     # Android
     brew install android-platform-tools
     brew install --cask android-file-transfer

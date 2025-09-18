@@ -33,6 +33,7 @@ stty sane
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 command -v rbenv >/dev/null 2>&1 && eval "$(rbenv init - zsh)"
+export PATH="$(gem env gemdir)/bin:$PATH"
 
 ###################
 # Oh-my-zsh / NVM #
