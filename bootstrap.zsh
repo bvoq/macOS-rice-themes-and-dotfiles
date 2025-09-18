@@ -38,7 +38,7 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
 
     # apple essentails
     brew install cocoapods  # note: installs brew ruby and uses that.
-    brew install robotsandpencils/made/xcodes
+    brew install xcodes
     brew install --cask devcleaner
 
     # oh-my-zsh
@@ -186,12 +186,12 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
 
 fi
 
-if [[ $JSSTACK == 1 ]]; then
-    curl -fsSL https://deno.land/install.sh > deno_install.sh
-    chmod +x deno_install.sh
-    ./deno_install.sh -y --no-modify-path
-    rm deno_install.sh
-fi
+#if [[ $JSSTACK == 1 ]]; then
+#    curl -fsSL https://deno.land/install.sh > deno_install.sh
+#    chmod +x deno_install.sh
+#    ./deno_install.sh -y --no-modify-path
+#    rm deno_install.sh
+#fi
 
 
 # Copy dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)
