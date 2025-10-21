@@ -62,7 +62,8 @@ if ($packageToInstall -lt 4) {
 }
 
 
-# Install vim, make sure to enable .bat scripts
+# Install vim
+# make sure to enable .bat scripts.
 $packageToInstall=winget list "Vim.Vim"
 if ($packageToInstall -lt 4) {
     winget install Vim.Vim --interactive
@@ -71,6 +72,11 @@ if ($packageToInstall -lt 4) {
 $packageToInstall=winget list "burntsushi.ripgrep.msvc"
 if ($packageToInstall -lt 4) {
     winget install burntsushi.ripgrep.msvc
+}
+
+$packageToInstall=winget list "GnuWin32.Tree"
+if ($packageToInstall -lt 4) {
+    winget install GnuWin32.Tree
 }
 
 

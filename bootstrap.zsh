@@ -8,7 +8,7 @@ GENERICCASKTOOLS=1
 DEVOPSTOOLS=0
 MOBILETOOLS=0
 UNITYTOOLS=0
-CPPTOOLS=1
+CPPTOOLS=0
 JSSTACK=1
 TEXLIGHT=0
 TEXFULL=0
@@ -38,8 +38,10 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
     # apple essentails
     brew install rbenv # 
     eval "$(rbenv init - zsh)"
-    rbenv install 3.3.0
-    rbenv global 3.3.0
+    if [ ! -d "$HOME/.rbenv/versions/3.3.0" ]; then
+      rbenv install 3.3.0
+      rbenv global 3.3.0
+    fi
     gem install cocoapods
     rbenv rehash
     brew install xcodes
@@ -205,7 +207,6 @@ fi
 [ -f ~/.inputrc ] && mv ~/.inputrc   ~/.inputrc.old
 [ -f ~/.gitconfig ] && mv ~/.gitconfig ~/.gitconfig.old
 [ -f ~/.tmux.conf ] && mv ~/.tmux.conf ~/.tmux.conf.old
-[ -d ~/.tmux.old ] && rm -r ~/.tmux.old
 [ -d ~/.tmux ] && mv ~/.tmux ~/.tmux.old
 [ -f ~/.vimrc ] && mv ~/.vimrc     ~/.vimrc.old
 [ -f ~/.config ] && mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
@@ -220,7 +221,6 @@ cp .inputrc   ~/.inputrc
 cp .gitconfig ~/.gitconfig
 cp .gitignore_global ~/.gitignore_global
 cp .tmux.conf ~/.tmux.conf
-cp -a .tmux   ~/.tmux
 cp .zshrc     ~/.zshrc
 cp .zshenv    ~/.zshenv
 cp .zshfunctions ~/.zshfunctions

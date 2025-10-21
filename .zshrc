@@ -197,8 +197,8 @@ if type zoxide &>/dev/null; then
 fi
 
 # Search for files:
-alias rgd='rg --hidden --files --sort-files . 2> /dev/null | xargs -0 dirname | uniq | rg'
-alias rgf='rg --hidden --files --sort-files . 2> /dev/null | rg'
+alias rgd='rg --hidden --files --no-ignore --sort-files . 2> /dev/null | xargs -0 dirname | uniq | rg'
+alias rgf='rg --hidden --files --no-ignore --sort-files . 2> /dev/null | rg'
 rgall() {
   rg --files | rg "$1" ; rg --hidden -uu "$1"
 }
