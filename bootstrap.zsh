@@ -224,7 +224,7 @@ cp .tmux.conf ~/.tmux.conf
 cp .zshrc     ~/.zshrc
 cp .zshenv    ~/.zshenv
 cp .zshfunctions ~/.zshfunctions
-
+cp .oh-my-zsh/custom/themes/bvoqs-omz.zsh-theme ~/.oh-my-zsh/custom/themes/bvoqs-omz.zsh-theme
 
 source ~/.zshrc || true  # Will return an error until this is merged: https://github.com/ohmyzsh/ohmyzsh/pull/13217
 

@@ -1,20 +1,25 @@
-autoload -Uz vcs_info
 autoload -U colors && colors
 
-zstyle ':vcs_info:*' stagedstr '%F{green}●'
-zstyle ':vcs_info:*' unstagedstr '%F{yellow}●'
-zstyle ':vcs_info:*' check-for-changes true
-zstyle ':vcs_info:git:*' formats ' [%b%c%u%B%F{green}]'
-zstyle ':vcs_info:*' enable git
-
-function theme_precmd_vcs () {
-  if [[ -z $(git ls-files --other --exclude-standard 2> /dev/null) ]]; then
-    zstyle ':vcs_info:git:*' formats ' [%b%c%u%B%F{green}]'
-  else
-    zstyle ':vcs_info:git:*' formats ' [%b%c%u%B%F{red}●%F{green}]'
-  fi
-  vcs_info
-}
+ZSH_THEME_GIT_PROMPT_PREFIX=""
+ZSH_THEME_GIT_PROMPT_SUFFIX=""
+ZSH_THEME_GIT_PROMPT_DIRTY=""
+ZSH_THEME_GIT_PROMPT_CLEAN=""
+ZSH_THEME_GIT_PROMPT_MODIFIED="%{$fg[red]%}*"
+ZSH_THEME_GIT_PROMPT_ADDED="%{$fg[green]%}+"
+ZSH_THEME_GIT_PROMPT_UNTRACKED="%{$fg[cyan]%}%%"
+ZSH_THEME_GIT_PROMPT_RENAMED="%{$fg[yellow]%}R"
+ZSH_THEME_GIT_PROMPT_DELETED="%{$fg[red]%}D"
+ZSH_THEME_GIT_PROMPT_UNMERGED="%{$fg[red]%}U"
+ZSH_THEME_GIT_PROMPT_STASHED="%{$fg[blue]%}$"
+ZSH_THEME_GIT_PROMPT_AHEAD=""
+ZSH_THEME_GIT_PROMPT_BEHIND=""
+ZSH_THEME_GIT_PROMPT_DIVERGED=""
+ZSH_THEME_GIT_PROMPT_EQUAL_REMOTE="%{$fg[green]%}="
+ZSH_THEME_GIT_PROMPT_AHEAD_REMOTE="%{$fg[yellow]%}>"
+ZSH_THEME_GIT_PROMPT_BEHIND_REMOTE="%{$fg[red]%}<"
+ZSH_THEME_GIT_PROMPT_DIVERGED_REMOTE="%{$fg[red]%}X"
+ZSH_THEME_GIT_PROMPT_SHA_BEFORE=" %{$fg[white]%}[%{$fg[yellow]%}"
+ZSH_THEME_GIT_PROMPT_SHA_AFTER="%{$fg[white]%}]"
 
 base_prompt="%{$fg[cyan]%}[%30<...<%~%<<]%(?.%{$fg[green]%}.%{$fg[red]%})%B$%b "
 custom_prompt=""
@@ -88,13 +93,8 @@ function precmd() {
     fi
 
     [ -z "$info" ] && custom_prompt="$base_prompt" || custom_prompt="$info$base_prompt"
-
-    theme_precmd_vcs
 }
 
 setopt PROMPT_SUBST
 PROMPT='$custom_prompt'
-RPROMPT='%B%F{gray}${vcs_info_msg_0_}%{$reset_color%}'
-
-autoload -U add-zsh-hook
-add-zsh-hook precmd theme_precmd_vcs
+RPROMPT='%{$fg_bold[green]%}$(git_remote_status)$(git_current_branch)$(git_prompt_short_sha)$(_omz_git_prompt_status)%{$reset_color%}'

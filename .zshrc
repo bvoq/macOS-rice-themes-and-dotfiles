@@ -42,7 +42,7 @@ export PATH="$(gem env gemdir)/bin:$PATH"
 CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
 export ZSH="$HOME/.oh-my-zsh"
 chmod -R go-w "$ZSH"
-#ZSH_THEME="agnoster"
+ZSH_THEME="bvoqs-omz"
 DISABLE_AUTO_TITLE="true"
 #ENABLE_CORRECTION="true"
 #Uncomment below to stop marking untracked files as dirty for speedup.
