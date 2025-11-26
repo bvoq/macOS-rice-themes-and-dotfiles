@@ -21,6 +21,17 @@ ZSH_THEME_GIT_PROMPT_DIVERGED_REMOTE="%{$fg[red]%}X"
 ZSH_THEME_GIT_PROMPT_SHA_BEFORE=" %{$fg[white]%}[%{$fg[yellow]%}"
 ZSH_THEME_GIT_PROMPT_SHA_AFTER="%{$fg[white]%}]"
 
+function _supportsOSC8() {
+  [[ -n "$ITERM_SESSION_ID" ]] || \
+  [[ "$TERM_PROGRAM" == "WezTerm" ]] || \
+  [[ "$TERM_PROGRAM" == "vscode" ]] || \
+  [[ "$TERM_PROGRAM" == "ghostty" ]] || \
+  [[ "$TERM" == "xterm-kitty" ]] || \
+  [[ "$TERM" == "foot" ]] || \
+  [[ "$TERM" == *"alacritty"* ]] || \
+  [[ -n "$VTE_VERSION" && "$VTE_VERSION" -ge 5000 ]]
+}
+
 function _makeClickablePath() {
   local current_dir="${PWD}"
   local display_path="${current_dir/#$HOME/~}"
@@ -31,7 +42,7 @@ function _makeClickablePath() {
 
   local file_url="file://${current_dir}"
 
-  if [[ -n "$ITERM_SESSION_ID" ]]; then
+  if _supportsOSC8; then
     printf '%%{\x1b]8;;%s\x1b\\%%}%s%%{\x1b]8;;\x1b\\%%}' "$file_url" "$display_path"
   else
     printf '%s' "$display_path"
