@@ -21,9 +21,29 @@ ZSH_THEME_GIT_PROMPT_DIVERGED_REMOTE="%{$fg[red]%}X"
 ZSH_THEME_GIT_PROMPT_SHA_BEFORE=" %{$fg[white]%}[%{$fg[yellow]%}"
 ZSH_THEME_GIT_PROMPT_SHA_AFTER="%{$fg[white]%}]"
 
-base_prompt="%{$fg[cyan]%}[%30<...<%~%<<]%(?.%{$fg[green]%}.%{$fg[red]%})%B$%b "
+function _makeClickablePath() {
+  local current_dir="${PWD}"
+  local display_path="${current_dir/#$HOME/~}"
+
+  if [[ ${#display_path} -gt 30 ]]; then
+    display_path="...${display_path: -27}"
+  fi
+
+  local file_url="file://${current_dir}"
+
+  if [[ -n "$ITERM_SESSION_ID" ]]; then
+    printf '\e]8;;%s\e\\%s\e]8;;\e\\' "$file_url" "$display_path"
+  else
+    printf '%s' "$display_path"
+  fi
+}
+
 custom_prompt=""
 last_run_time=""
+
+function _buildBasePrompt() {
+  printf "%s[%s]%s%%B%%%%%%b " "%{$fg[cyan]%}" "$(_makeClickablePath)" "%(?.%{$fg[green]%}.%{$fg[red]%})"
+}
 
 function pipestatus_parse {
   PIPESTATUS="$pipestatus"
@@ -92,6 +112,7 @@ function precmd() {
         info="$RETVAL"
     fi
 
+    local base_prompt="$(_buildBasePrompt)"
     [ -z "$info" ] && custom_prompt="$base_prompt" || custom_prompt="$info$base_prompt"
 }
 
