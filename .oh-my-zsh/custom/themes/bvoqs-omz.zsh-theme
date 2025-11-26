@@ -42,7 +42,7 @@ custom_prompt=""
 last_run_time=""
 
 function _buildBasePrompt() {
-  printf "%s[%s]%s%%B%%%%%%b " "%{$fg[cyan]%}" "$(_makeClickablePath)" "%(?.%{$fg[green]%}.%{$fg[red]%})"
+  printf "%s[%s]%s%%B%%#%%b " "%{$fg[cyan]%}" "$(_makeClickablePath)" "%(?.%{$fg[green]%}.%{$fg[red]%})"
 }
 
 function pipestatus_parse {
