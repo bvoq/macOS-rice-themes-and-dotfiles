@@ -32,7 +32,7 @@ function _makeClickablePath() {
   local file_url="file://${current_dir}"
 
   if [[ -n "$ITERM_SESSION_ID" ]]; then
-    printf '\e]8;;%s\e\\%s\e]8;;\e\\' "$file_url" "$display_path"
+    printf '%%{\x1b]8;;%s\x1b\\%%}%s%%{\x1b]8;;\x1b\\%%}' "$file_url" "$display_path"
   else
     printf '%s' "$display_path"
   fi
