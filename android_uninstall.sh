@@ -35,12 +35,12 @@ rm -Rfv ~/Library/Android*
 rm -Rfv ~/.emulator_console_auth_token
 set +x
 
-echo "Install Android Studio using brew"
-brew install android-studio --cask
-echo "Install sdk versions based on:"
+echo "To reinstall Android Studio run:"
+echo "brew install android-studio --cask"
+echo "Install jdk/sdk versions based on:"
 echo "gradle version: android/gradle/wrapper/gradle-wrapper.properties"
 echo "check compileSdk as a minimum sdk version."
-echo "After installing the corr"
+echo "find a compatible jdk version too."
 echo "Next install sdkmanager:"
 echo "Preferences → Appearance & Behavior → System Settings → Android SDK → SDK Tools → [Tick]: Android SDK Command-line Tools (latest) + [Tick] Apply"
 echo "Then resolve android licenses. Easy way: flutter doctor --android-licenses"
