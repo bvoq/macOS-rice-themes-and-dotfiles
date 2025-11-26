@@ -271,11 +271,14 @@ waitconfirm
 code --install-extension aaron-bond.better-comments
 code --install-extension johnpapa.vscode-peacock
 code --install-extension usernamehw.errorlens
-code --install-extension eamodio.gitlens
 code --install-extension PKief.material-icon-theme
 code --install-extension Ho-Wan.setting-toggle
 code --install-extension ctf0.close-tabs-to-the-left
 code --install-extension ms-vsliveshare.vsliveshare
+# Git related
+code --install-extension eamodio.gitlens
+code --install-extesion github.vscode-github-actions
+code --install-extension GitHub.vscode-pull-request-github
 # Dart specific ones:
 code --install-extension dart-code.dart-code
 code --install-extension dart-code.flutter

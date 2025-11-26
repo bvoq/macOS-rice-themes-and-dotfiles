@@ -5,9 +5,10 @@
 # ----------------------------------------------------------------------
 # Usage:
 # `./tor.sh` in Terminal, kill with ctrl + c
-# ----------------------------------------------------------------------
-# Source:
-# https://kremalicious.com/simple-tor-setup-on-mac-os-x/
+# Modify exit nodes by:
+# /opt/homebrew/etc/tor/torrc
+# Add for eg.: ExitNodes {us}
+# And for TorBrowser.app use: ~/Library/Application Support/TorBrowser-Data/Tor/torrc
 # ######################################################################
 
 # 'Wi-Fi' or 'Ethernet' or 'Display Ethernet'
