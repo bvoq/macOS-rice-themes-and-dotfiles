@@ -97,15 +97,22 @@ function precmd() {
     if [ ! -z "$last_run_time" ]; then
         local elapsed=$(duration $last_run_time)
         last_run_time=$(print $last_run_time | tr -d ".")
-        if [ $(( $(perl -MTime::HiRes=time -e 'printf "%.9f\n", time' | tr -d ".") - $last_run_time )) -gt $(( 120 * 1000 * 1000 * 1000 )) ]; then
+        local elapsed_ns=$(( $(perl -MTime::HiRes=time -e 'printf "%.9f\n", time' | tr -d ".") - $last_run_time ))
+
+        if [ $elapsed_ns -gt $(( 120 * 1000 * 1000 * 1000 )) ]; then
             local elapsed_color="%{$fg[magenta]%}"
-        elif [ $(( $(perl -MTime::HiRes=time -e 'printf "%.9f\n", time' | tr -d ".") - $last_run_time )) -gt $(( 60 * 1000 * 1000 * 1000 )) ]; then
+        elif [ $elapsed_ns -gt $(( 60 * 1000 * 1000 * 1000 )) ]; then
             local elapsed_color="%{$fg[red]%}"
-        elif [ $(( $(perl -MTime::HiRes=time -e 'printf "%.9f\n", time' | tr -d ".") - $last_run_time )) -gt $(( 10 * 1000 * 1000 * 1000 )) ]; then
+        elif [ $elapsed_ns -gt $(( 10 * 1000 * 1000 * 1000 )) ]; then
             local elapsed_color="%{$fg[yellow]%}"
         else
             local elapsed_color="%{$fg[green]%}"
         fi
+
+        if [ $elapsed_ns -gt $(( 10 * 1000 * 1000 * 1000 )) ]; then
+            printf '\a'
+        fi
+
         info=$(printf "%s%s%s%s%s" "%{$fg[cyan]%}[" "$elapsed_color" "$elapsed" "%{$fg[cyan]%}]" "$RETVAL")
         unset last_run_time
     else
