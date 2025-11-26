@@ -42,7 +42,14 @@ custom_prompt=""
 last_run_time=""
 
 function _buildBasePrompt() {
-  printf "%s[%s]%s%%B%%#%%b " "%{$fg[cyan]%}" "$(_makeClickablePath)" "%(?.%{$fg[green]%}.%{$fg[red]%})"
+  local ssh_info=""
+  if [[ -n "$SSH_CONNECTION" ]]; then
+    ssh_info="%{$fg[cyan]%}[%n@%m]"
+  fi
+
+  local jobs_info="%(1j.%{$fg[black]%}[&%j].)"
+
+  printf "%s%s%s[%s]%s%%B%%#%%b " "$ssh_info" "$jobs_info" "%{$fg[cyan]%}" "$(_makeClickablePath)" "%(?.%{$fg[green]%}.%{$fg[red]%})"
 }
 
 function pipestatus_parse {
