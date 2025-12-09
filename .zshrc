@@ -155,6 +155,11 @@ alias localai="ollama run gemma3n:e4b 'You are run in a unix zsh CLI, stay conci
 alias claude="~/.local/bin/claude"
 CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
 
+# shell integration for vscode for better copilot support
+# https://code.visualstudio.com/docs/terminal/shell-integration
+[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
+
+
 
 # ==============
 # DevOps

@@ -13,8 +13,9 @@
         "editor.suggest.filterGraceful": true,
         "editor.suggest.showClasses": false,
         "editor.inlayHints.enabled": "offUnlessPressed",
-        "editor.lineHeight": 17,
+        "editor.lineHeight": 17
     },
+    "dart.analyzerLogFile": "/tmp/dart_analyzer.log",
     "dart.debugExternalPackageLibraries": true,
     "dart.debugSdkLibraries": true,
     "dart.previewFlutterUiGuidesCustomTracking": true,
@@ -83,6 +84,13 @@
             "dartdocs"
         ]
     },
+    "terminal.integrated.shellIntegration.enabled": false,
+
+    "toggle.settingTitle": "[dart]editor.inlayHints.enabled",
+    "toggle.setting1Title": "off",
+    "toggle.settingState1": "offUnlessPressed",
+    "toggle.setting2Title": "on",
+    "toggle.settingState2": "onUnlessPressed",
     "workbench.editor.wrapTabs": true,
     "workbench.editor.pinnedTabsOnSeparateRow": true,
 
@@ -113,15 +121,12 @@
         "editorWhitespace.foreground": "#cccccc",
       },
     },
-    "toggle.settingTitle": "[dart]editor.inlayHints.enabled",
-    "toggle.setting1Title": "off",
-    "toggle.settingState1": "offUnlessPressed",
-    "toggle.setting2Title": "on",
-    "toggle.settingState2": "onUnlessPressed",
-    "[yaml]": {
-        "editor.defaultFormatter": "redhat.vscode-yaml"
-    },
+
+
     "workbench.preferredLightColorTheme": "Quiet Light",
     "workbench.preferredDarkColorTheme": "One Quiet Dark Pro",
+    "[yaml]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    }
 }
 
