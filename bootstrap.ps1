@@ -2,6 +2,7 @@
 # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 # Bootstrap Windows dotfiles for Powershell & Vim
 
+
 # need some functions from profile.ps1
 . $PSScriptRoot\profile.ps1
 
@@ -24,6 +25,12 @@ Copy-Item -Path ./.gitconfig -Destination $HOME/.gitconfig
 Copy-Item -Path ./vscode/.vscode-settings.json -Destination $env:APPDATA\Code\User\settings.json
 Copy-Item -Path ./.vimrc -Destination $HOME/.vimrc
 
+# Powershell packages
+Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
+Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+Install-Module -Name PSScriptAnalyzer -Scope CurrentUser
+
+
 do {
     $answer = Read-Host "Installed dotfiles, continue to install winget packages and vim packages? (y/n)"
 }
@@ -34,51 +41,56 @@ if ($answer -eq "n") {
 }
 
 
+
 ### Install packages using winget
-$packageToInstall=winget list "Microsoft.VisualStudio.2022.Community"
-if ($packageToInstall -lt 4) {
-    winget install --id Microsoft.VisualStudio.2022.Community --interactive
-}
-$packageToInstall=winget list "Microsoft.VisualStudioCode"
-if ($packageToInstall -lt 4) {
-    winget install Microsoft.VisualStudioCode --override '/SILENT /mergetasks="!runcode,addcontextmenufiles,addcontextmenufolders"'
-}
-# Git, make sure to select openssh and use recommendations. You can add ssh keys to $HOME/.ssh
-$packageToInstall=winget list "Git.Git"
-if ($packageToInstall -lt 4) {
-    winget install --id Git.Git -e --source winget --interactive
+# show dependencies of a package using: winget show -e --id <package-id>
+$wingetPackages = @(
+    "ajeetdsouza.zoxide",
+    "ArtifexSoftware.Ghostscript",
+    "burntsushi.ripgrep.msvc",
+    "dundee.gdu",  # gdu, but works more like ncdu
+    "Git.Git",  # Make sure to select openssh and use recommendations. You can add ssh keys to $HOME/.ssh
+    "JQLang.jq",
+    "Junegunn.fzf",
+    "MikeFarah.yq",
+    "Microsoft.NuGet",
+    "Microsoft.PowerToys",
+    "Microsoft.VisualStudioCode",
+    # "OpenJS.NodeJS",
+    "SharkDP.Bat",
+    "Vim.Vim",  # Make sure to enable .bat scripts
+    "yt-dlp.yt-dlp"  # also installs yt-dlp.fmpeg and DenoLand.Deno
+)
+
+foreach ($package in $wingetPackages) {
+    $packageToInstall = winget list $package
+    if ($packageToInstall -lt 4) {
+        winget install --id $package -e --source winget --interactive
+    }
 }
 
-# NPM
-$packageToInstall=winget list "OpenJS.NodeJS"
-if ($packageToInstall -lt 4) {
-    winget install OpenJS.NodeJS
+### Install packages using msstore
+$msstorePackages = @(
+    "Perplexity"
+)
+
+foreach ($package in $msstorePackages) {
+    $packageToInstall = winget list $package
+    if ($packageToInstall -lt 4) {
+        winget install $package --source msstore
+    }
 }
 
-# NuGet
-$packageToInstall=winget list "Microsoft.NuGet"
+# Special instructions: Visual Studio
+# uninstall previous versions if there are issues using:
+# cd "C:\Program Files (x86)\Microsoft Visual Studio\Installer"
+# .\InstallCleanup.exe -i 17 # to cleanup 2022
+# .\InstallCleanup.exe -i 18 # to cleanup 2026
+# Make sure to enable: Desktop development with C++
+$packageToInstall=winget list "Microsoft.VisualStudio.Community"
 if ($packageToInstall -lt 4) {
-    winget install Microsoft.NuGet --interactive
+    winget install --id Microsoft.VisualStudio.Community -e --interactive
 }
-
-
-# Install vim
-# make sure to enable .bat scripts.
-$packageToInstall=winget list "Vim.Vim"
-if ($packageToInstall -lt 4) {
-    winget install Vim.Vim --interactive
-}
-
-$packageToInstall=winget list "burntsushi.ripgrep.msvc"
-if ($packageToInstall -lt 4) {
-    winget install burntsushi.ripgrep.msvc
-}
-
-$packageToInstall=winget list "GnuWin32.Tree"
-if ($packageToInstall -lt 4) {
-    winget install GnuWin32.Tree
-}
-
 
 # Installing vim plug
 iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim |`
@@ -95,6 +107,7 @@ code --install-extension usernamehw.errorlens
 code --install-extension eamodio.gitlens
 code --install-extension PKief.material-icon-theme
 code --install-extension Ho-Wan.setting-toggle
+code --install-extension ms-vscode.PowerShell
 
 # generic linters
 code --install-extension DavidAnson.vscode-markdownlint
@@ -114,8 +127,6 @@ Set-PathVariable -AddPath "$env:USERPROFILE\AppData\Local\Pub\Cache\bin" -Scope 
 
 ### Installing npm packages
 npm install -g firebase-tools
-# Set-PathVariable -AddPath "C:\flutter\bin" -Scope "User"se
-
 
 
 # Alternatively: Installing chocolatey

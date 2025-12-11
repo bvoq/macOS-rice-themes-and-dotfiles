@@ -1,10 +1,13 @@
 # Windows dotfiles
 # Set-Location C:\
 new-alias -Name clip -Value "C:\Windows\System32\clip.exe"
+new-alias -Name ncdu -Value gdu
+
+# Use analyzer using: Invoke-ScriptAnalyzer .\your-script.ps1
+Import-Module PSScriptAnalyzer
 
 # Usage: Set-PathVariable -AddPath C:\tmp\bin -RemovePath C:\path\java
 # To persist changes set the -Scope User or -Scope Machine
-
 Function Set-PathVariable {
     param (
         [string]$AddPath,
@@ -53,6 +56,15 @@ function sudo() {
     }
 }
 function hopen() { start powershell } # start powershell in same directory, with the same user and elevation
+function caffeinate() {
+    # Usage: caffeinate (indefinitely), caffeinate --time-limit 3600 (1 hour), caffeinate --display-on true
+    $awakeExe = "C:\Program Files\PowerToys\PowerToys.Awake.exe"
+    if (Test-Path $awakeExe) {
+        & $awakeExe $args
+    } else {
+        Write-Host "PowerToys Awake not found. Install PowerToys first." -ForegroundColor Red
+    }
+}
 
 function System-Update() {
     Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
@@ -89,3 +101,7 @@ Clear-Host
 # Enable this if you use Flutter in China.
 # $env:FLUTTER_STORAGE_BASE_URL='https://storage.flutter-io.cn'
 # $env:PUB_HOSTED_URL='https://pub.flutter-io.cn'
+
+
+Invoke-Expression (& { (zoxide init powershell | Out-String) })
+
