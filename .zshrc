@@ -420,6 +420,7 @@ if type brew &>/dev/null; then
   BREW_PREFIX=$(brew --prefix)
   FPATH=$BREW_PREFIX/share/zsh/site-functions:$BREW_PREFIX/share/zsh-completions:$FPATH
 fi
+FPATH=$HOME/.zsh/completions:$FPATH
 autoload -Uz compinit
 compinit -u 2>/dev/null || compinit -C
 
