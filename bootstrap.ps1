@@ -48,29 +48,29 @@ if ($answer -eq "n") {
 $wingetPackages = @(
     "7zip.7zip",
     "ajeetdsouza.zoxide",
-    "ArtifexSoftware.Ghostscript",
-    # "BareMetalSoftware.BareTail",
-    "burntsushi.ripgrep.msvc",
+    # "baremetalsoft.baretail",
+    "BurntSushi.ripgrep.MSVC",
     "Schniz.fnm",
     "Starship.Starship",
     "dundee.gdu",  # gdu, but works more like ncdu
     "Git.Git",  # Make sure to select openssh and use recommendations. You can add ssh keys to $HOME/.ssh
-    "JQLang.jq",
-    "Junegunn.fzf",
+    "jqlang.jq",
+    "junegunn.fzf",
     "MikeFarah.yq",
     "Microsoft.NuGet",
     "Microsoft.PowerToys",
     "Microsoft.VisualStudioCode",
+    "NickeManarin.ScreenToGif",
+    # "PaperCutSoftware.GhostTrap", # aka GhostScript
     "Rclone.Rclone",
-    "ScreenToGif.ScreenToGif",
-    "SharkDP.Bat",
-    "Vim.Vim",  # Make sure to enable .bat scripts
+    "sharkdp.bat",
+    "vim.vim",  # Make sure to enable .bat scripts
     "yt-dlp.yt-dlp"  # also installs yt-dlp.fmpeg and DenoLand.Deno
 )
 
 foreach ($package in $wingetPackages) {
     Write-Host "Installing package: $package" -ForegroundColor Cyan
-    $packageToInstall = winget list $package
+    $packageToInstall = winget list -e $package
     if ($packageToInstall -lt 4) {
         winget install --id $package -e --source winget --interactive
     }
