@@ -38,7 +38,6 @@ do {
     $answer = Read-Host "Installed dotfiles, continue to install winget packages and vim packages? (y/n)"
 }
 while("y","n" -notcontains $answer)
-
 if ($answer -eq "n") {
     exit 0
 }
@@ -127,11 +126,13 @@ Set-PathVariable -AddPath "$env:USERPROFILE\AppData\Local\Pub\Cache\bin" -Scope 
 ### Installing npm packages
 # npm install -g firebase-tools
 
-
 do {
     $answer = Read-Host "Installed everything apart from Visual Studio? Continue (y/n)"
 }
 while("y","n" -notcontains $answer)
+if ($answer -eq "n") {
+    exit 0
+}
 
 # Special instructions: Visual Studio
 # uninstall previous versions if there are issues using:
