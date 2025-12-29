@@ -70,6 +70,7 @@ $wingetPackages = @(
 )
 
 foreach ($package in $wingetPackages) {
+    Write-Host "Installing package: $package" -ForegroundColor Cyan
     $packageToInstall = winget list $package
     if ($packageToInstall -lt 4) {
         winget install --id $package -e --source winget --interactive
@@ -125,6 +126,12 @@ Set-PathVariable -AddPath "$env:USERPROFILE\AppData\Local\Pub\Cache\bin" -Scope 
 
 ### Installing npm packages
 # npm install -g firebase-tools
+
+
+do {
+    $answer = Read-Host "Installed everything apart from Visual Studio? Continue (y/n)"
+}
+while("y","n" -notcontains $answer)
 
 # Special instructions: Visual Studio
 # uninstall previous versions if there are issues using:
