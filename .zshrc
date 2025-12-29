@@ -33,25 +33,21 @@ stty sane
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 command -v rbenv >/dev/null 2>&1 && eval "$(rbenv init - zsh)"
+command -v fnm >/dev/null 2>&1 && eval "$(fnm env --use-on-cd --shell zsh)"
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 export PATH="$(gem env gemdir)/bin:$PATH"
 
 ###################
-# Oh-my-zsh / NVM #
+# Antidote / Plugins #
 ###################
 
 CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
-export ZSH="$HOME/.oh-my-zsh"
-chmod -R go-w "$ZSH"
-ZSH_THEME="bvoqs-omz"
 DISABLE_AUTO_TITLE="true"
 #ENABLE_CORRECTION="true"
-#Uncomment below to stop marking untracked files as dirty for speedup.
-DISABLE_UNTRACKED_FILES_DIRTY="true"
-zstyle ':omz:update' mode reminder
-plugins=(brew git pyautoenv zsh-nvm)
-zstyle ':omz:update' mode reminder
-source $ZSH/oh-my-zsh.sh
-nvm use node --silent
+
+# Initialize antidote plugin manager
+source ${ZDOTDIR:-~}/.antidote/antidote.zsh
+antidote load
 
 ###########
 # Aliases #
@@ -190,7 +186,8 @@ drmi() { docker rm $(dsi $1  | tr '\n' ' '); }
 
 # enable zsh-completions
 if type brew &>/dev/null; then
-  FPATH=$(brew --prefix)/share/zsh/site-functions:$(brew --prefix)/share/zsh-completions:$ZSH/completions:$FPATH
+  BREW_PREFIX=$(brew --prefix)
+  FPATH=$BREW_PREFIX/share/zsh/site-functions:$BREW_PREFIX/share/zsh-completions:$FPATH
   autoload -Uz compinit
   compinit -u 2>/dev/null || compinit -C
 fi

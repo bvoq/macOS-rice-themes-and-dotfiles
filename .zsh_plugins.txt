@@ -1,0 +1,20 @@
+# This file is used by antidote to manage zsh plugins
+
+# Oh-My-Zsh plugins
+# ohmyzsh/ohmyzsh path:plugins/brew
+# ohmyzsh/ohmyzsh path:plugins/git
+
+# Python automatic virtual environment activation
+MichaelAquilina/zsh-autoswitch-virtualenv
+
+# Node Version Manager for zsh
+lukechilds/zsh-nvm
+
+# Syntax highlighting (should be near the end)
+zsh-users/zsh-syntax-highlighting
+
+# Autosuggestions (should be near the end)
+zsh-users/zsh-autosuggestions
+
+# History substring search (should be last)
+zsh-users/zsh-history-substring-search

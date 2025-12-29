@@ -438,3 +438,14 @@ compressvideo() {
     done
     return 1
 }
+
+hopen() {
+    local dir="${1:-.}"
+    if [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
+        open "$dir" -a Terminal.app
+    elif [[ -d "/Applications/iTerm.app" ]]; then
+        open "$dir" -a iTerm.app
+    else
+        open "$dir" -a Terminal.app
+    fi
+}

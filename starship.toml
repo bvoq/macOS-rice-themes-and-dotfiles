@@ -1,0 +1,321 @@
+# Starship configuration - similar to bvoqs-omz theme
+# Place this file at ~/.config/starship.toml
+
+# Use custom format
+format = """
+$shlvl\
+$cmd_duration\
+$status\
+[](fg:bright-black)\
+$username\
+$hostname\
+$jobs\
+[](fg:bright-black)\
+$directory\
+[](fg:bright-black)\
+$character\
+"""
+
+right_format = """
+$git_status\
+$git_branch\
+$git_commit\
+$git_state\
+"""
+
+# Disable automatic newline
+add_newline = false
+
+[character]
+success_symbol = '[%](bold green)'
+error_symbol = '[%](bold red)'
+
+[status]
+disabled = false
+format = '[\[](bright-black)[$int](red)[\]](bright-black)'
+pipestatus = false
+
+[cmd_duration]
+min_time = 0
+show_milliseconds = true
+format = '[\[](bright-black)[$duration]($style)[\]](bright-black)'
+style = 'bold green'
+show_notifications = false
+min_time_to_notify = 10_000
+
+[directory]
+format = '[$path]($style)'
+style = 'cyan'
+truncation_length = 3
+truncate_to_repo = false
+truncation_symbol = '.../'
+home_symbol = '~'
+
+[directory.substitutions]
+
+[username]
+show_always = false
+format = '[$user@]($style)'
+style_user = 'cyan'
+disabled = false
+
+[hostname]
+ssh_only = true
+format = '[$hostname:]($style)'
+style = 'cyan'
+disabled = false
+
+[jobs]
+symbol = '&'
+number_threshold = 1
+symbol_threshold = 1
+format = '[\[](bright-black)[$symbol$number](black)[\]](bright-black)'
+style = 'black'
+
+# Git configuration
+[git_branch]
+format = '[$symbol$branch]($style)'
+symbol = ''
+style = 'bold green'
+
+[git_commit]
+format = '[ \[](white)[$hash]($style)[\]](white)'
+tag_symbol = ''
+tag_disabled = false
+only_detached = true
+style = 'yellow'
+commit_hash_length = 7
+
+[git_state]
+format = '[\($state( $progress_current/$progress_total)\)]($style) '
+style = 'bold yellow'
+
+[git_status]
+format = '([\[](bright-black)[$ahead_behind$all_status]($style)[\]](bright-black))'
+style = 'bold green'
+conflicted = '[U](red)'
+ahead = '[>](yellow)'
+behind = '[<](red)'
+diverged = '[X](red)'
+up_to_date = '[=](green)'
+untracked = '[%](cyan)'
+stashed = '[\$](blue)'
+modified = '[*](red)'
+staged = '[+](green)'
+renamed = '[R](yellow)'
+deleted = '[D](red)'
+
+# Disable modules we don't need for this minimalist theme
+[aws]
+disabled = true
+
+[azure]
+disabled = true
+
+[battery]
+disabled = true
+
+[buf]
+disabled = true
+
+[bun]
+disabled = true
+
+[c]
+disabled = true
+
+[cmake]
+disabled = true
+
+[cobol]
+disabled = true
+
+[conda]
+disabled = true
+
+[container]
+disabled = true
+
+[crystal]
+disabled = true
+
+[daml]
+disabled = true
+
+[dart]
+disabled = true
+
+[deno]
+disabled = true
+
+[docker_context]
+disabled = true
+
+[dotnet]
+disabled = true
+
+[elixir]
+disabled = true
+
+[elm]
+disabled = true
+
+[env_var]
+disabled = true
+
+[erlang]
+disabled = true
+
+[fennel]
+disabled = true
+
+[fill]
+disabled = true
+
+[fossil_branch]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[golang]
+disabled = true
+
+[guix_shell]
+disabled = true
+
+[gradle]
+disabled = true
+
+[haskell]
+disabled = true
+
+[haxe]
+disabled = true
+
+[helm]
+disabled = true
+
+[hg_branch]
+disabled = true
+
+[java]
+disabled = true
+
+[julia]
+disabled = true
+
+[kotlin]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+[line_break]
+disabled = true
+
+[lua]
+disabled = true
+
+[memory_usage]
+disabled = true
+
+[meson]
+disabled = true
+
+[nim]
+disabled = true
+
+[nix_shell]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[ocaml]
+disabled = true
+
+[opa]
+disabled = true
+
+[openstack]
+disabled = true
+
+[package]
+disabled = true
+
+[perl]
+disabled = true
+
+[php]
+disabled = true
+
+[pijul_channel]
+disabled = true
+
+[pulumi]
+disabled = true
+
+[purescript]
+disabled = true
+
+[python]
+disabled = true
+
+[raku]
+disabled = true
+
+[red]
+disabled = true
+
+[rlang]
+disabled = true
+
+[ruby]
+disabled = true
+
+[rust]
+disabled = true
+
+[scala]
+disabled = true
+
+[shell]
+disabled = true
+
+[shlvl]
+disabled = false
+symbol = '^'
+
+[singularity]
+disabled = true
+
+[solidity]
+disabled = true
+
+[spack]
+disabled = true
+
+[sudo]
+disabled = true
+
+[swift]
+disabled = true
+
+[terraform]
+disabled = true
+
+[time]
+disabled = true
+
+[vagrant]
+disabled = true
+
+[vlang]
+disabled = true
+
+[vcsh]
+disabled = true
+
+[zig]
+disabled = true

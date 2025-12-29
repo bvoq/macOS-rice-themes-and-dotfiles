@@ -31,7 +31,7 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
 
   if [ $GENERICTOOLS = 1 ]; then
     # essentials
-    brew install bat direnv fzf git gs jq ncdu nvim oath-toolkit rg tldr tmux trash tree zoxide yq yt-dlp watch zsh-completions
+    brew install bat direnv fnm fzf git gs jq ncdu nvim oath-toolkit rg starship tldr tmux trash tree zoxide yq yt-dlp watch zsh-completions
     # tiny and nice to have
     brew install ipcalc
 
@@ -47,32 +47,15 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
     brew install xcodes
     brew install --cask devcleaner
 
-    # oh-my-zsh
-    if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-      sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-
-      # zsh-nvm
-      git clone https://github.com/lukechilds/zsh-nvm ~/.oh-my-zsh/custom/plugins/zsh-nvm
-      git clone https://github.com/hsaunders1904/pyautoenv.git ~/.oh-my-zsh/custom/plugins/pyautoenv
-
-      # zsh-completions setup script
-      if type brew &>/dev/null; then
-        rm -f ~/.zcompdump
-        FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
-        autoload -Uz compinit compaudit
-        compaudit | xargs chmod g-w
-        # rm -f ~/.zcompdump # may be necessary
-        compinit
-      fi
-    fi
+    # zsh - antidote
+    [ ! -d "${ZDOTDIR:-$HOME}/.antidote" ] && git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-$HOME}/.antidote
 
     # iterm2 shell integration
     curl -L https://iterm2.com/shell_integration/zsh -o ~/.iterm2_shell_integration.zsh
 
     # Claude AI
     export CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
-    curl -fsSL claude.ai/install.sh | bash
-
+    curl -fsSL claude.ai/install.sh | zsh -s -- stable --force
   fi
 
   if [ $MOBILETOOLS = 1 ]; then
@@ -213,6 +196,7 @@ fi
 [ -f ~/.zshrc ] && mv ~/.zshrc     ~/.zshrc.old
 [ -f ~/.zshfunctions ] && mv ~/.zshfunctions ~/.zshfunctions.old
 [ -f ~/.zshenv ] && mv ~/.zshenv     ~/.zshenv.old
+[ -f ~/.config/starship.toml ] && mv ~/.config/starship.toml ~/.config/starship.toml.old
 
 cp .claude/CLAUDE.md ~/.claude/CLAUDE.md
 cp .claude/settings.json ~/.claude/settings.json
@@ -224,10 +208,10 @@ cp .tmux.conf ~/.tmux.conf
 cp .zshrc     ~/.zshrc
 cp .zshenv    ~/.zshenv
 cp .zshfunctions ~/.zshfunctions
-mkdir -p ~/.oh-my-zsh/custom/themes
-cp .oh-my-zsh/custom/themes/bvoqs-omz.zsh-theme ~/.oh-my-zsh/custom/themes/bvoqs-omz.zsh-theme
+cp .zsh_plugins.txt ~/.zsh_plugins.txt
+mkdir -p ~/.config && cp starship.toml ~/.config/starship.toml
 
-source ~/.zshrc || true  # Will return an error until this is merged: https://github.com/ohmyzsh/ohmyzsh/pull/13217
+source ~/.zshrc  # Source the new zshrc with antidote
 
 
 if [[ $OSTYPE == 'darwin'* ]]; then

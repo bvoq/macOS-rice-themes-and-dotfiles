@@ -25,6 +25,10 @@ Copy-Item -Path ./.gitconfig -Destination $HOME/.gitconfig
 Copy-Item -Path ./vscode/.vscode-settings.json -Destination $env:APPDATA\Code\User\settings.json
 Copy-Item -Path ./.vimrc -Destination $HOME/.vimrc
 
+# Create .config directory and copy starship config
+New-Item -Path $HOME/.config -ItemType Directory -Force -ErrorAction SilentlyContinue
+Copy-Item -Path ./starship.toml -Destination $HOME/.config/starship.toml
+
 # Powershell packages
 Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
 Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
@@ -48,6 +52,8 @@ $wingetPackages = @(
     "ajeetdsouza.zoxide",
     "ArtifexSoftware.Ghostscript",
     "burntsushi.ripgrep.msvc",
+    "Schniz.fnm",
+    "Starship.Starship",
     "dundee.gdu",  # gdu, but works more like ncdu
     "Git.Git",  # Make sure to select openssh and use recommendations. You can add ssh keys to $HOME/.ssh
     "JQLang.jq",
