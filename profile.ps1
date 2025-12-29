@@ -116,6 +116,7 @@ Invoke-Expression (& { (zoxide init powershell | Out-String) })
 
 # Starship prompt
 Invoke-Expression (&starship init powershell)
+Enable-TransientPrompt
 
 # fnm (Fast Node Manager)
 fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression
