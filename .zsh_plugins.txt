@@ -10,6 +10,9 @@ MichaelAquilina/zsh-autoswitch-virtualenv
 # Node Version Manager for zsh
 lukechilds/zsh-nvm
 
+# Better NPM completion
+lukechilds/zsh-better-npm-completion
+
 # Syntax highlighting (should be near the end)
 zsh-users/zsh-syntax-highlighting
 

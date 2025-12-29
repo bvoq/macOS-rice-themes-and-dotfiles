@@ -37,18 +37,6 @@ command -v fnm >/dev/null 2>&1 && eval "$(fnm env --use-on-cd --shell zsh)"
 command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 export PATH="$(gem env gemdir)/bin:$PATH"
 
-###################
-# Antidote / Plugins #
-###################
-
-CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
-DISABLE_AUTO_TITLE="true"
-#ENABLE_CORRECTION="true"
-
-# Initialize antidote plugin manager
-source ${ZDOTDIR:-~}/.antidote/antidote.zsh
-antidote load
-
 ###########
 # Aliases #
 ###########
@@ -184,13 +172,6 @@ drmi() { docker rm $(dsi $1  | tr '\n' ' '); }
 # macOS specific 
 # ==============
 
-# enable zsh-completions
-if type brew &>/dev/null; then
-  BREW_PREFIX=$(brew --prefix)
-  FPATH=$BREW_PREFIX/share/zsh/site-functions:$BREW_PREFIX/share/zsh-completions:$FPATH
-  autoload -Uz compinit
-  compinit -u 2>/dev/null || compinit -C
-fi
 if type fzf &>/dev/null; then
   eval "$(fzf --zsh)"
 fi
@@ -429,3 +410,23 @@ simulatordata() { cd ~/Library/Developer/CoreSimulator/Devices/"${1}"/data/Conta
 # SOURCEDIR=${SOURCEDIR##*/} # get last part of path
 # SOURCEDIR=${SOURCEDIR#*/}  # get first part of path
 # SOURCEDIR=${${SOURCEDIR%/*}%/*} # go up two folders
+
+# ===============================
+# ZSH Completion System & Plugins
+# ===============================
+
+# Initialize completion system
+if type brew &>/dev/null; then
+  BREW_PREFIX=$(brew --prefix)
+  FPATH=$BREW_PREFIX/share/zsh/site-functions:$BREW_PREFIX/share/zsh-completions:$FPATH
+fi
+autoload -Uz compinit
+compinit -u 2>/dev/null || compinit -C
+
+# Initialize antidote plugin manager
+CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
+DISABLE_AUTO_TITLE="true"
+#ENABLE_CORRECTION="true"
+
+source ${ZDOTDIR:-~}/.antidote/antidote.zsh
+antidote load
