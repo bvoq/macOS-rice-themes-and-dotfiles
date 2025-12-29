@@ -50,6 +50,7 @@ $wingetPackages = @(
     "ajeetdsouza.zoxide",
     # "baremetalsoft.baretail",
     "BurntSushi.ripgrep.MSVC",
+    "dbrgn.tealdeer",
     "Schniz.fnm",
     "Starship.Starship",
     "dundee.gdu",  # gdu, but works more like ncdu

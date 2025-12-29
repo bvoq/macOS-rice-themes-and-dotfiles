@@ -4,6 +4,7 @@
 # Windows dotfiles
 # Set-Location C:\
 new-alias -Name clip -Value "C:\Windows\System32\clip.exe"
+new-alias -Name pbcopy -Value "C:\Windows\System32\clip.exe"
 new-alias -Name ncdu -Value gdu
 
 # Github GNU tools aliases
