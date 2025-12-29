@@ -55,6 +55,7 @@ $wingetPackages = @(
     "Starship.Starship",
     "dundee.gdu",  # gdu, but works more like ncdu
     "Git.Git",  # Make sure to select openssh and use recommendations. You can add ssh keys to $HOME/.ssh
+    "GitHub.Copilot",
     "jqlang.jq",
     "junegunn.fzf",
     "MikeFarah.yq",
