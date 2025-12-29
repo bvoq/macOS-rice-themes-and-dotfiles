@@ -45,7 +45,7 @@ Clear-Host
 Invoke-Expression (& { (zoxide init powershell | Out-String) })
 
 # Starship
-Invoke-Expression (&starship init powershell)
+Invoke-Expression (& 'C:\Program Files\starship\bin\starship.exe' init powershell)
 Enable-TransientPrompt
 
 # fnm (Fast Node Manager)
