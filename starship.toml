@@ -50,6 +50,7 @@ truncation_length = 3
 truncate_to_repo = false
 truncation_symbol = '.../'
 home_symbol = '~'
+use_os_path_sep = true
 
 [directory.substitutions]
 
