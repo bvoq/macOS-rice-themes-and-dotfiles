@@ -1,3 +1,5 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
 # Starship configuration - similar to bvoqs-omz theme
 # Place this file at ~/.config/starship.toml
 

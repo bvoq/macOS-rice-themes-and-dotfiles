@@ -1,10 +1,9 @@
+# Source shared functions
+. $PSScriptRoot\functions.ps1
+
 # To run this script you might have to be Admin and run this before:
 # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 # Bootstrap Windows dotfiles for Powershell & Vim
-
-
-# need some functions from profile.ps1
-. $PSScriptRoot\profile.ps1
 
 ### Move profile.ps1 into the main powershell location
 $profileDir = Split-Path -parent $profile
@@ -45,12 +44,13 @@ if ($answer -eq "n") {
 }
 
 
-
 ### Install packages using winget
 # show dependencies of a package using: winget show -e --id <package-id>
 $wingetPackages = @(
+    "7zip.7zip",
     "ajeetdsouza.zoxide",
     "ArtifexSoftware.Ghostscript",
+    # "BareMetalSoftware.BareTail",
     "burntsushi.ripgrep.msvc",
     "Schniz.fnm",
     "Starship.Starship",
@@ -62,8 +62,8 @@ $wingetPackages = @(
     "Microsoft.NuGet",
     "Microsoft.PowerToys",
     "Microsoft.VisualStudioCode",
-    # "OpenJS.NodeJS",
     "Rclone.Rclone",
+    "ScreenToGif.ScreenToGif",
     "SharkDP.Bat",
     "Vim.Vim",  # Make sure to enable .bat scripts
     "yt-dlp.yt-dlp"  # also installs yt-dlp.fmpeg and DenoLand.Deno
@@ -86,17 +86,6 @@ foreach ($package in $msstorePackages) {
     if ($packageToInstall -lt 4) {
         winget install $package --source msstore
     }
-}
-
-# Special instructions: Visual Studio
-# uninstall previous versions if there are issues using:
-# cd "C:\Program Files (x86)\Microsoft Visual Studio\Installer"
-# .\InstallCleanup.exe -i 17 # to cleanup 2022
-# .\InstallCleanup.exe -i 18 # to cleanup 2026
-# Make sure to enable: Desktop development with C++
-$packageToInstall=winget list "Microsoft.VisualStudio.Community"
-if ($packageToInstall -lt 4) {
-    winget install --id Microsoft.VisualStudio.Community -e --interactive
 }
 
 # Installing vim plug
@@ -127,36 +116,24 @@ code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
 
 
 ### Install flutter
-# make sure git is configured first
-git clone -b stable git@github.com:flutter/flutter.git C:\flutter
+if (-not (Test-Path "C:\flutter")) {
+    git clone -b stable git@github.com:flutter/flutter.git C:\flutter
+}
 Set-PathVariable -AddPath "C:\flutter\bin" -Scope "User"
 Set-PathVariable -AddPath "$env:USERPROFILE\AppData\Local\Pub\Cache\bin" -Scope "User"
 
+
 ### Installing npm packages
-npm install -g firebase-tools
+# npm install -g firebase-tools
 
+# Special instructions: Visual Studio
+# uninstall previous versions if there are issues using:
+# cd "C:\Program Files (x86)\Microsoft Visual Studio\Installer"
+# .\InstallCleanup.exe -i 17 # to cleanup 2022
+# .\InstallCleanup.exe -i 18 # to cleanup 2026
+# Make sure to enable: Desktop development with C++
+$packageToInstall=winget list "Microsoft.VisualStudio.Community"
+if ($packageToInstall -lt 4) {
+    winget install --id Microsoft.VisualStudio.Community -e --interactive
+}
 
-# Alternatively: Installing chocolatey
-# Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-# 
-# Installing choco packages
-#choco install 7zip
-#choco install dotnet
-#choco install ffmpeg
-#choco install nvm.portable
-#choco install nuget.commandline
-#choco install ripgrep # or use :vimgrep (using :cnext), :lvimgrep (using :lnext)
-#choco install screentogif
-#choco install webpi
-#choco install vim
-#choco install vcredist140
-#choco install vcredist2015
-#choco install vcredist2017
-
-# less used
-# choco install baretail
-# choco install boldon-james-file-classifier
-# choco install boldon-james-office-classifier
-# choco install boldon-james-power-classifier
-# choco install conemu
-# choco install wireshark
