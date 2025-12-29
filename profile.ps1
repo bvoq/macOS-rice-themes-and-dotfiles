@@ -3,6 +3,17 @@
 new-alias -Name clip -Value "C:\Windows\System32\clip.exe"
 new-alias -Name ncdu -Value gdu
 
+# Github GNU tools aliases
+new-alias -Name awk -Value "C:\Program Files\Git\usr\bin\awk.exe"
+new-alias -Name bzip2 -Value "C:\Program Files\Git\usr\bin\bzip2.exe"
+new-alias -Name cut -Value "C:\Program Files\Git\usr\bin\cut.exe"
+new-alias -Name grep -Value "C:\Program Files\Git\usr\bin\grep.exe"
+new-alias -Name gzip -Value "C:\Program Files\Git\usr\bin\gzip.exe"
+new-alias -Name sed -Value "C:\Program Files\Git\usr\bin\sed.exe"
+new-alias -Name touch -Value "C:\Program Files\Git\usr\bin\touch.exe"
+new-alias -Name uniq -Value "C:\Program Files\Git\usr\bin\uniq.exe"
+new-alias -Name xargs -Value "C:\Program Files\Git\usr\bin\xargs.exe"
+
 # Use analyzer using: Invoke-ScriptAnalyzer .\your-script.ps1
 Import-Module PSScriptAnalyzer
 
@@ -25,9 +36,7 @@ Function Set-PathVariable {
     }
     $arrPath = [System.Environment]::GetEnvironmentVariable('PATH', $Scope) -split ';'
     foreach ($path in $regexPaths) {
-        $arrPath = $arrPath | Where-Object { $_ -notMatch "^$path\\?" }
-    }
-    $value = ($arrPath + $addPath) -join ';'
+        $arrPath = $arrPath | Where-Object { $_ -notMatch "^$path\\?" } } $value = ($arrPath + $addPath) -join ';'
     [System.Environment]::SetEnvironmentVariable('PATH', $value, $Scope)
 }
 

@@ -57,6 +57,7 @@ $wingetPackages = @(
     "Microsoft.PowerToys",
     "Microsoft.VisualStudioCode",
     # "OpenJS.NodeJS",
+    "Rclone.Rclone",
     "SharkDP.Bat",
     "Vim.Vim",  # Make sure to enable .bat scripts
     "yt-dlp.yt-dlp"  # also installs yt-dlp.fmpeg and DenoLand.Deno
