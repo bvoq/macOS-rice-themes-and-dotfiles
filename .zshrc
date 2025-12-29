@@ -151,9 +151,6 @@ alias localai="ollama run gemma3n:e4b 'You are run in a unix zsh CLI, stay conci
 alias claude="~/.local/bin/claude"
 CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
 
-# Copy current working directory to clipboard
-alias cpwd='pwd | pbcopy'
-
 # shell integration for vscode for better copilot support
 # https://code.visualstudio.com/docs/terminal/shell-integration
 [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
@@ -315,6 +312,7 @@ for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
     alias "N${method}"="PERL_LWP_SSL_VERIFY_HOSTNAME=0 lwp-request -m '${method}' -H 'Content-type: application/json' -H 'Accept: application/json'"
 done
 
+alias cpwd='pwd | pbcopy'
 
 # Kill all the tabs in Chrome to free up memory
 # [C] explained: http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
