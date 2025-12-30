@@ -31,19 +31,20 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
 
   if [ $GENERICTOOLS = 1 ]; then
     # essentials
-    brew install bat copilot-cli direnv fnm fzf git gs jq ncdu nvim oath-toolkit rg starship tldr tmux trash tree zoxide yq yt-dlp watch zsh-completions
+    brew install bat copilot-cli direnv fnm fzf git gs jq ncdu nvim oath-toolkit rg starship tealdeer tmux trash tree zoxide yq yt-dlp watch zsh-completions
     # tiny and nice to have
     brew install ipcalc
 
     # apple essentails
-    brew install rbenv # 
-    eval "$(rbenv init - zsh)"
+    brew install rbenv
     if [ ! -d "$HOME/.rbenv/versions/3.3.0" ]; then
       rbenv install 3.3.0
       rbenv global 3.3.0
     fi
+    eval "$(rbenv init - zsh --no-rehash)"
     gem install cocoapods
-    rbenv rehash
+    rbenv rehash 2>/dev/null || true  # see: https://github.com/rbenv/rbenv/pull/1641
+
     brew install xcodes
     brew install --cask devcleaner
 

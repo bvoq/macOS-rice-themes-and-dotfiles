@@ -32,7 +32,7 @@ stty sane
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
-command -v rbenv >/dev/null 2>&1 && eval "$(rbenv init - zsh)"
+command -v rbenv >/dev/null 2>&1 && ( eval "$(rbenv init - zsh)" || true )
 command -v fnm >/dev/null 2>&1 && eval "$(fnm env --use-on-cd --shell zsh)"
 command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 export PATH="$(gem env gemdir)/bin:$PATH"
