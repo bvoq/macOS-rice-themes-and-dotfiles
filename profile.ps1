@@ -1,11 +1,16 @@
 # Source shared functions
 . $PSScriptRoot\functions.ps1
 
+# PowerShell privacy and update settings
+$env:POWERSHELL_TELEMETRY_OPTOUT = "1"
+$env:POWERSHELL_UPDATECHECK = "Off"
+
 # Windows dotfiles
 # Set-Location C:\
 new-alias -Name clip -Value "C:\Windows\System32\clip.exe"
 new-alias -Name pbcopy -Value "C:\Windows\System32\clip.exe"
 new-alias -Name ncdu -Value gdu
+new-alias -Name dup -Value windows_czkawka_cli 
 
 # Github GNU tools aliases
 new-alias -Name awk -Value "C:\Program Files\Git\usr\bin\awk.exe"

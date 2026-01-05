@@ -33,9 +33,21 @@ Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
 Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 Install-Module -Name PSScriptAnalyzer -Scope CurrentUser
 
+# Update Microsoft PowerShell first (before using it for other installations)
+do {
+    $answer = Read-Host "Install/Update Microsoft PowerShell with privacy settings and context menus? (y/n)"
+}
+while("y","n" -notcontains $answer)
+if ($answer -eq "y") {
+    Write-Host "Installing Microsoft PowerShell with privacy settings and context menus..." -ForegroundColor Cyan
+    $packageToInstall = winget list -e "Microsoft.PowerShell"
+    if ($packageToInstall -lt 4) {
+        winget install --id Microsoft.PowerShell -e --source winget --interactive --override 'USE_MU=0 ENABLE_MU=0 DISABLE_TELEMETRY=1 REGISTER_MANIFEST=1 ENABLE_PSREMOTING=0 ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=1 ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL=1 ADD_PATH=1'
+    }
+}
 
 do {
-    $answer = Read-Host "Installed dotfiles, continue to install winget packages and vim packages? (y/n)"
+    $answer = Read-Host "Installed dotfiles and PowerShell, continue to install other winget packages and vim? (y/n)"
 }
 while("y","n" -notcontains $answer)
 if ($answer -eq "n") {
@@ -64,6 +76,7 @@ $wingetPackages = @(
     "Microsoft.VisualStudioCode",
     "NickeManarin.ScreenToGif",
     # "PaperCutSoftware.GhostTrap", # aka GhostScript
+    "qarmin.czkawka.cli",
     "Rclone.Rclone",
     "sharkdp.bat",
     "vim.vim",  # Make sure to enable .bat scripts
@@ -76,6 +89,13 @@ foreach ($package in $wingetPackages) {
     if ($packageToInstall -lt 4) {
         winget install --id $package -e --source winget --interactive
     }
+}
+
+# Special handling: PowerShell with privacy settings
+Write-Host "Installing Microsoft PowerShell with privacy settings..." -ForegroundColor Cyan
+$packageToInstall = winget list -e "Microsoft.PowerShell"
+if ($packageToInstall -lt 4) {
+    winget install --id Microsoft.PowerShell -e --source winget --interactive --override 'USE_MU=0 ENABLE_MU=0 DISABLE_TELEMETRY=1 REGISTER_MANIFEST=1 ENABLE_PSREMOTING=0'
 }
 
 ### Install packages using msstore
@@ -128,22 +148,19 @@ Set-PathVariable -AddPath "$env:USERPROFILE\AppData\Local\Pub\Cache\bin" -Scope 
 ### Installing npm packages
 # npm install -g firebase-tools
 
+# Special instructions: Visual Studio
 do {
-    $answer = Read-Host "Installed everything apart from Visual Studio? Continue (y/n)"
+    $answer = Read-Host "Install Microsoft Visual Studio Community? (y/n)"
 }
 while("y","n" -notcontains $answer)
-if ($answer -eq "n") {
-    exit 0
+    if ($answer -eq "y") {
+    # uninstall previous versions if there are issues using:
+    # cd "C:\Program Files (x86)\Microsoft Visual Studio\Installer"
+    # .\InstallCleanup.exe -i 17 # to cleanup 2022
+    # .\InstallCleanup.exe -i 18 # to cleanup 2026
+    # Make sure to enable: Desktop development with C++
+    $packageToInstall=winget list "Microsoft.VisualStudio.Community"
+    if ($packageToInstall -lt 4) {
+        winget install --id Microsoft.VisualStudio.Community -e --interactive
+    }
 }
-
-# Special instructions: Visual Studio
-# uninstall previous versions if there are issues using:
-# cd "C:\Program Files (x86)\Microsoft Visual Studio\Installer"
-# .\InstallCleanup.exe -i 17 # to cleanup 2022
-# .\InstallCleanup.exe -i 18 # to cleanup 2026
-# Make sure to enable: Desktop development with C++
-$packageToInstall=winget list "Microsoft.VisualStudio.Community"
-if ($packageToInstall -lt 4) {
-    winget install --id Microsoft.VisualStudio.Community -e --interactive
-}
-
