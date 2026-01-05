@@ -54,13 +54,14 @@
     "github.copilot.enable": {
         "*": true,
         "plaintext": true,
-        "markdown": "false",
-        "yaml": false
+        "markdown": false,
+        "yaml": true
     },
 
     "redhat.telemetry.enabled": false,
     "http.proxyAuthorization": null,
     "terminal.integrated.scrollback": 1000000,
+    "debug.console.maximumLines":     1000000,
 
     "dash.fileNameToDocsetMap": {
 
