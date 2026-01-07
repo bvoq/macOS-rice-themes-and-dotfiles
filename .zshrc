@@ -20,6 +20,10 @@ else
   export EDITOR='nvim'
 fi
 
+# Pager settings for less
+export PAGER='less'
+export LESS='-R'
+
 # store all cd directory pushes
 setopt AUTO_PUSHD
 
