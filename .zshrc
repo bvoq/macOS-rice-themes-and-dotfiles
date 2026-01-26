@@ -136,6 +136,7 @@ alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(obj
 # rm -Rf .git/refs/original
 # git gc --aggressive --prune=now
 
+
 # =============
 # AI
 # =============
@@ -175,6 +176,17 @@ drmi() { docker rm $(dsi $1  | tr '\n' ' '); }
 # ==============
 # macOS specific 
 # ==============
+
+# Hardening secure commands.
+# Prevent internet access and logging to Console.app
+alias nonet='sandbox-exec -p "(version 1)(allow default)(deny network*)(debug deny)"'
+alias gopass='nonet gopass'
+alias gpg='nonet gpg'
+alias oathtool='nonet oathtool'
+alias pass='nonet gopass'
+alias ripsecrets='nonet ripsecrets'
+alias ssh-keygen='nonet ssh-keygen'
+
 
 if type fzf &>/dev/null; then
   eval "$(fzf --zsh)"
