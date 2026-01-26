@@ -179,9 +179,9 @@ drmi() { docker rm $(dsi $1  | tr '\n' ' '); }
 
 # Hardening secure commands.
 # Prevent internet access and logging to Console.app
-alias nonet='sandbox-exec -p "(version 1)(allow default)(deny network*)(debug deny)"'
-alias gopass='nonet gopass'
-alias gpg='nonet gpg'
+alias nonet='sandbox-exec -p "(version 1)(allow default)(deny network*)(allow network-outbound (to unix-socket))(allow mach-lookup (global-name \"com.apple.cfprefsd.*\"))(allow mach-lookup (global-name \"com.apple.system.notification_center\"))(debug deny)"'
+#alias gopass='nonet gopass'
+#alias gpg='nonet gpg'
 alias oathtool='nonet oathtool'
 alias pass='nonet gopass'
 alias ripsecrets='nonet ripsecrets'
