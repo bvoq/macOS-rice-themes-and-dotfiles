@@ -2,6 +2,6 @@
 alias pbcopy="cat > /dev/clipboard"
 alias pbpaste="cat /dev/clipboard"
 
-totp() { oathtool --totp -b $(<~/".totp_${1}") | pbcopy; }
+totp() { local code=$(oathtool --totp -b "$(<~/.totp_${1})"); echo "$code"; echo "$code" > /dev/clipboard; }
 
 eval "$(zoxide init posix --hook prompt)"
