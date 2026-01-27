@@ -1,6 +1,6 @@
 #!/bin/sh
 apk add curl git gnupg openssh pass vim zoxide
-apk add bat ncdu
+apk add bat ncdu oath-toolkit oath-toolkit-oathtool
 
 # install ashrc properly
 echo "ENV=$HOME/.ashrc; export ENV" > ~/.profile
