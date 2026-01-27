@@ -63,11 +63,11 @@ $wingetPackages = @(
     # "baremetalsoft.baretail",
     "BurntSushi.ripgrep.MSVC",
     "dbrgn.tealdeer",
-    "Schniz.fnm",
-    "Starship.Starship",
     "dundee.gdu",  # gdu, but works more like ncdu
     "Git.Git",  # Make sure to select openssh and use recommendations. You can add ssh keys to $HOME/.ssh
     "GitHub.Copilot",
+    "GnuPG.Gpg4win",
+    "gopass.gopass",
     "jqlang.jq",
     "junegunn.fzf",
     "MikeFarah.yq",
@@ -78,7 +78,9 @@ $wingetPackages = @(
     # "PaperCutSoftware.GhostTrap", # aka GhostScript
     "qarmin.czkawka.cli",
     "Rclone.Rclone",
+    "Schniz.fnm",
     "sharkdp.bat",
+    "Starship.Starship",
     "vim.vim",  # Make sure to enable .bat scripts
     "yt-dlp.yt-dlp"  # also installs yt-dlp.fmpeg and DenoLand.Deno
 )

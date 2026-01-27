@@ -12,6 +12,8 @@ new-alias -Name pbcopy -Value "C:\Windows\System32\clip.exe"
 new-alias -Name ncdu -Value gdu
 new-alias -Name dup -Value windows_czkawka_cli 
 
+new-alias -Name pass -Value gopass
+
 # Github GNU tools aliases
 new-alias -Name awk -Value "C:\Program Files\Git\usr\bin\awk.exe"
 new-alias -Name bzip2 -Value "C:\Program Files\Git\usr\bin\bzip2.exe"
