@@ -1,5 +1,6 @@
 #!/bin/sh
-apk add curl git gnupg openssh vim
+apk add curl git gnupg openssh pass vim zoxide
+apk add bat ncdu
 
 # install ashrc properly
 echo "ENV=$HOME/.ashrc; export ENV" > ~/.profile
@@ -27,6 +28,11 @@ if command -v nvim > /dev/null; then
 fi
 \vim +'PlugInstall --sync' +qa
 \vim +'PlugClean --sync' +qa
+
+# you can mount a drive on iOS using:
+# mkdir -p /mnt/mysharedfolder
+# mount -t ios . /mnt/mysharedfolder
+# the above command will make you have to chose a folder to share.
 
 ## manual way: install cydownload for installing cydia tools
 # https://github.com/borishonman/cydownload/releases
