@@ -26,7 +26,11 @@ new-alias -Name uniq -Value "C:\Program Files\Git\usr\bin\uniq.exe"
 new-alias -Name xargs -Value "C:\Program Files\Git\usr\bin\xargs.exe"
 
 # Use analyzer using: Invoke-ScriptAnalyzer .\your-script.ps1
-Import-Module PSScriptAnalyzer
+# Auto-install PSScriptAnalyzer if not present
+if (-not (Get-Module -ListAvailable -Name PSScriptAnalyzer)) {
+    Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force -ErrorAction SilentlyContinue
+}
+Import-Module PSScriptAnalyzer -ErrorAction SilentlyContinue
 
 function ymp3 { yt-dlp -x --audio-format mp3 --add-metadata --embed-thumbnail --cookies-from-browser chrome $args }
 function ymp4 { yt-dlp -fmp4 --write-sub --write-auto-sub --sub-lang "en.*" --cookies-from-browser chrome $args }
