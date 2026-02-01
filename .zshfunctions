@@ -125,6 +125,23 @@ decompressdir() {
     if [ $# -eq 2 ]; then mv "$fname" "$2";  fi
 }
 
+foldertopdf () {
+  for d in "$@"; do
+    if [ -d "$d" ]; then
+      dname="${d%/}"
+      echo "converting $d"
+      (
+        cd "$d" || exit 1
+        files=( *.webp(N) *.png(N) *.jpg(N) *.jpeg(N) *.tif(N) *.tiff(N) *.pdf(N) )
+        echo "found $files"
+        (( ${#files[@]} == 0 )) && exit 0
+        files=("${(@on)files}")
+        magick "${files[@]}" "../${dname}.pdf"
+      )
+    fi
+  done
+}
+
 # Create a data URL from a file
 dataurl () {
     local mimeType=$(file -b --mime-type "$1");
