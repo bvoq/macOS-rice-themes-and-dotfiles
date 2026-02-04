@@ -24,6 +24,11 @@
     "dart.enableCompletionCommitCharacters": true,
     "dart.runPubGetOnNestedProjects": "both",
 
+
+    // Hot AI garbage
+    "chat.agent.maxRequests": 250,
+
+
     // Editor settings - Fonts
     "editor.codeLensFontFamily": "SourceCodePro",
     "editor.fontFamily": "SourceCodePro, Menlo, Monaco, 'Courier New', monospace",
@@ -48,6 +53,13 @@
     "editor.scrollBeyondLastLine": false, // see also editor.padding.bottom
     "editor.semanticHighlighting.enabled": true,
     "editor.suggestSelection": "first",
+    "explorer.fileNesting.expand": false,
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        ".gitignore": ".gitattributes,.gitignore",
+        "pubspec.yaml": ".editorconfig,.flutter-plugins,.flutter-plugins-dependencies,.metadata,.packages,build.yaml,pubspec.lock,pubspec.yaml,all_lint_rules.yaml,analysis_options.yaml,l10n.yaml,dcm_baseline.json,cspell.json,melos_*.iml",
+        "*.dart": "${capture}.freezed.dart,${capture}.g.dart,${capture}.hive.dart,${capture}.gr.dart",
+    },
 
     "git.openRepositoryInParentFolders": "always",
     "git.suggestSmartCommit": true,
@@ -55,7 +67,7 @@
         "*": true,
         "plaintext": true,
         "markdown": false,
-        "yaml": true
+        "yaml": false
     },
 
     "redhat.telemetry.enabled": false,
