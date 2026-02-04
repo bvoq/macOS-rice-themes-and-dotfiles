@@ -24,9 +24,32 @@
     "dart.enableCompletionCommitCharacters": true,
     "dart.runPubGetOnNestedProjects": "both",
 
-
     // Hot AI garbage
-    "chat.agent.maxRequests": 250,
+    "chat.agent.maxRequests": 2000,
+    "chat.tools.urls.autoApprove": {
+        "*": true
+    },
+    "github.copilot.chat.anthropic.tools.websearch.allowedDomains": [
+        "*"
+    ],
+    "chat.tools.terminal.autoApprove": {
+      // Block specific risky commands (evaluated first)
+      "rm": false,
+      "rmdir": false,
+      "del": false,
+      "kill": false,
+      "chmod": false,
+      "chown": false,
+      "/^git\\s+(push|reset|revert|clean)\\b/": false,
+      "/.*\\s+-f\\b/": false,     
+      "/.*\\s+-rf\\b/": false,    
+      "/.*\\s+-fr\\b/": false,     
+      "/.*\\s+--force\\b/": false,
+      
+      // Default: auto-approve everything else
+      "*": true
+    },
+
 
 
     // Editor settings - Fonts
@@ -69,6 +92,13 @@
         "markdown": false,
         "yaml": false
     },
+
+    "material-icon-theme.foldersAssociations": {
+      "application": "folder-type",
+      "domain": "include",
+      "infrastructure": "database",
+      "ui": "views"
+    }
 
     "redhat.telemetry.enabled": false,
     "http.proxyAuthorization": null,
