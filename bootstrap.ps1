@@ -5,6 +5,10 @@
 # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 # Bootstrap Windows dotfiles for Powershell & Vim
 
+start ms-settings:developers
+
+Invoke-Expression (&starship init powershell)
+
 ### Move profile.ps1 into the main powershell location
 $profileDir = Split-Path -parent $profile
 $componentDir = Join-Path $profileDir "components"
