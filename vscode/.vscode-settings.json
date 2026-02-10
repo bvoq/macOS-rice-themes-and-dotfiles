@@ -26,6 +26,17 @@
 
     // Hot AI garbage
     "chat.agent.maxRequests": 2000,
+    "chat.tools.global.autoApprove": true,
+    "chat.tools.eligibleForAutoApproval": {
+      // GitKraken/GitLens MCP tools: block risky write operations
+      "mcp_gitkraken_git_push": false,
+      "mcp_gitkraken_git_add_or_commit": false,
+      "mcp_gitkraken_git_checkout": false,
+      "mcp_gitkraken_git_stash": false,
+      "mcp_gitkraken_pull_request_create": false,
+      "mcp_gitkraken_pull_request_create_review": false,
+      "mcp_gitkraken_issues_add_comment": false
+    },
     "chat.tools.urls.autoApprove": {
         "*": true
     },
@@ -40,7 +51,7 @@
       "kill": false,
       "chmod": false,
       "chown": false,
-      "/^git\\s+(push|reset|revert|clean)\\b/": false,
+      "/^git\\s+(push|reset|revert|clean|checkout|stash|commit|add|merge|rebase)\\b/": false,
       "/.*\\s+-f\\b/": false,     
       "/.*\\s+-rf\\b/": false,    
       "/.*\\s+-fr\\b/": false,     
@@ -98,7 +109,7 @@
       "domain": "include",
       "infrastructure": "database",
       "ui": "views"
-    }
+    },
 
     "redhat.telemetry.enabled": false,
     "http.proxyAuthorization": null,
