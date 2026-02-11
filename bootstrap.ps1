@@ -99,6 +99,7 @@ $wingetPackages = @(
     "BurntSushi.ripgrep.MSVC",
     "dbrgn.tealdeer",
     "dundee.gdu",  # gdu, but works more like ncdu
+    "eza-community.eza",
     "Git.Git",  # Make sure to select openssh and use recommendations. You can add ssh keys to $HOME/.ssh
     "GitHub.Copilot",
     "GnuPG.Gpg4win",
@@ -180,6 +181,7 @@ if (-not (Test-Path "C:\flutter")) {
 }
 Set-PathVariable -AddPath "C:\flutter\bin" -Scope "User"
 Set-PathVariable -AddPath "$env:USERPROFILE\AppData\Local\Pub\Cache\bin" -Scope "User"
+Set-PathVariable -AddPath "$env:USERPROFILE\AppData\Local\gopass" -Scope "User"
 
 
 ### Installing npm packages
