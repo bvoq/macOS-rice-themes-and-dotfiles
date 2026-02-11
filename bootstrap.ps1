@@ -1,6 +1,34 @@
 # Source shared functions
 . $PSScriptRoot\functions.ps1
 
+Write-Host "PowerShell $($PSVersionTable.PSVersion)" -ForegroundColor Cyan
+Write-Host "PSScriptRoot $PSScriptRoot" -ForegroundColor Cyan
+
+# Detect and fix PSModulePath cross-contamination (pwsh 7 paths leaking into PS 5.1 or vice versa)
+# See https://github.com/PowerShell/PowerShell/issues/18530
+$pathEntries = $env:PSModulePath -split ';'
+$contaminated = @()
+if ($PSVersionTable.PSVersion.Major -le 5) {
+    # PS 5.1 should NOT have pwsh 7 module paths
+    $contaminated = $pathEntries | Where-Object {
+        ($_ -match '\\PowerShell\\[7-9]') -or
+        ($_ -match '[\\\/]PowerShell[\\\/]Modules' -and $_ -notmatch 'WindowsPowerShell')
+    }
+} else {
+    # pwsh 7 inheriting WindowsPowerShell paths is normal (by design), so nothing to fix
+}
+if ($contaminated.Count -gt 0) {
+    Write-Host "`nWARN: PSModulePath cross-contamination detected!" -ForegroundColor Red
+    Write-Host "  The following pwsh 7 paths do not belong in PowerShell $($PSVersionTable.PSVersion):" -ForegroundColor Yellow
+    $contaminated | ForEach-Object { Write-Host "    $_" -ForegroundColor Red }
+    $clean = ($pathEntries | Where-Object { $_ -notin $contaminated }) -join ';'
+    $env:PSModulePath = $clean
+    Write-Host "  OK: Removed contaminated paths for this session." -ForegroundColor Green
+    Write-Host "  Tip: run bootstrap.ps1 directly from powershell.exe, not from a pwsh/VS Code terminal.`n" -ForegroundColor Yellow
+} else {
+    Write-Host "PSModulePath: OK (no cross-contamination)" -ForegroundColor Green
+}
+
 # To run this script you might have to be Admin and run this before:
 # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 # Bootstrap Windows dotfiles for Powershell & Vim
@@ -33,9 +61,12 @@ New-Item -Path $HOME/.config -ItemType Directory -Force -ErrorAction SilentlyCon
 Copy-Item -Path ./starship.toml -Destination $HOME/.config/starship.toml
 
 # Powershell packages
-Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
+# Bootstrap NuGet provider if available (may fail on PS 5.1 with corrupted PSModulePath from PS 7)
+try { Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser -ErrorAction Stop }
+catch { Write-Host "Skipping Install-PackageProvider (not available or already installed)" -ForegroundColor Yellow }
 Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-Install-Module -Name PSScriptAnalyzer -Scope CurrentUser
+Install-Module -Name PowerShellGet -Force -AllowClobber -Scope CurrentUser -ErrorAction SilentlyContinue
+Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force
 
 # Update Microsoft PowerShell first (before using it for other installations)
 do {
