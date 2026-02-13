@@ -63,10 +63,8 @@ else # macOS `ls`
     colorflag="-G"
     export LSCOLORS='BxBxhxDxfxhxhxhxhxcxcx'
 fi
-# Always use color output for `ls`
-alias ls="command ls ${colorflag}"
 # List all files colorized in long format
-alias l="ls -lF ${colorflag}"
+alias l="eza"
 # List all files colorized in long format, excluding . and ..
 alias la="ls -lAF ${colorflag}"
 # List only directories

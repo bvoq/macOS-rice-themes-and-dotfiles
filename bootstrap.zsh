@@ -31,7 +31,7 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
 
   if [ $GENERICTOOLS = 1 ]; then
     # essentials
-    brew install bat copilot-cli direnv fnm fdupes fzf git gopass gs jq mas ncdu nvim oath-toolkit rg ripsecrets starship tealdeer tmux trash tree zoxide yq yt-dlp watch zsh-completions
+    brew install bat copilot-cli direnv eza fnm fdupes fzf git gopass gs jq mas ncdu nvim oath-toolkit rg ripsecrets starship tealdeer tmux trash tree zoxide yq yt-dlp watch zsh-completions
     # tiny and nice to have
     brew install ipcalc
 

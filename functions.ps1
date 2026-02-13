@@ -37,6 +37,9 @@ function vimdirdiff {
 
 function open($name) { start $name  }
 
+function l { eza @args }
+function la { eza -lAF @args }
+
 function which($name) {
     $command = Get-Command $name -ErrorAction SilentlyContinue
     if ($command -is [Management.Automation.FunctionInfo]) { $command.ScriptBlock.ToString() }
