@@ -179,6 +179,7 @@
 
     "workbench.preferredLightColorTheme": "Quiet Light",
     "workbench.preferredDarkColorTheme": "One Quiet Dark Pro",
+    "diffEditor.experimental.showMoves": true,
     "[yaml]": {
         "editor.defaultFormatter": "redhat.vscode-yaml"
     }

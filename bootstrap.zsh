@@ -190,6 +190,7 @@ fi
 [ -f ~/.emacs ] && mv ~/.emacs     ~/.emacs.old
 [ -f ~/.inputrc ] && mv ~/.inputrc   ~/.inputrc.old
 [ -f ~/.gitconfig ] && mv ~/.gitconfig ~/.gitconfig.old
+[ -f ~/.gitattributes_global ] && mv ~/.gitattributes_global ~/.gitattributes_global.old
 [ -f ~/.tmux.conf ] && mv ~/.tmux.conf ~/.tmux.conf.old
 [ -d ~/.tmux ] && mv ~/.tmux ~/.tmux.old
 [ -f ~/.vimrc ] && mv ~/.vimrc     ~/.vimrc.old
@@ -205,6 +206,7 @@ cp .emacs ~/.emacs
 cp .inputrc   ~/.inputrc
 cp .gitconfig ~/.gitconfig
 cp .gitignore_global ~/.gitignore_global
+cp .gitattributes_global ~/.gitattributes_global
 cp .tmux.conf ~/.tmux.conf
 cp .zshrc     ~/.zshrc
 cp .zshenv    ~/.zshenv

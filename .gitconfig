@@ -19,12 +19,31 @@
 [color "diff"]
     meta = yellow bold
     frag = magenta bold
-    old = red
-    new = green
+    old = red bold
+    new = green bold
     whitespace = white reverse
+    commit = yellow bold
+    oldMoved = red italic
+    newMoved = green italic
+    oldMovedAlternative = red dim
+    newMovedAlternative = green dim
+[delta]
+    navigate = true
+    line-numbers = false
+    syntax-theme = zenburn
+    #minus-style = red bold
+    #minus-emph-style = red bold reverse
+    #plus-style = green bold
+    #plus-emph-style = green bold reverse
+    #hunk-header-style = yellow bold
+    #file-style = yellow bold
+    #commit-style = yellow bold
 [diff]
     algorithm = patience
     submodule = log
+    colorMoved = default
+[diff "dart"]
+    xfuncname = "!^[ \t]*(catch|do|for|if|new|return|switch|throw|while|await|try|else)\n!^.*[,?;][ \t]*$\n^[ \t]*(((abstract|sealed|base|final|mixin)[ \t]+)*(class|enum|mixin|extension|typedef)[ \t]+.*)$\n^[ \t]*(([A-Za-z_<>?@][A-Za-z_0-9<>?, ]*[ \t]+)+[A-Za-z_][A-Za-z_0-9.]*[ \t]*\\([^;]*)$"
 [log]
     decorate = true
     date = relative
@@ -33,6 +52,8 @@
     changed = bold red
     untracked = bold cyan
     unmerged = magenta bold
+[interactive]
+    diffFilter = delta --color-only
 [rebase]
     autoStash = true
 [rerere]
@@ -123,7 +144,7 @@
     ci = commit
     co = checkout
     br = branch
-    diff = difftool -y -x "colordiff -y " | less -R
+    diffside = !git -c delta.side-by-side=true -c delta.line-numbers=true diff
     d = diff
     dc = diff --cached
     ds = diff --staged
@@ -186,12 +207,16 @@
     submodulesummary = true
 [merge]
     log = true
-	tool = meld
+    tool = meld
+    conflictStyle = zdiff3
+
 [include]
     path = .gitconfig.user
 [core]
     excludesfile = ~/.gitignore_global
+    attributesfile = ~/.gitattributes_global
     editor = vim
+	pager = delta
     autocrlf = input
     quotepath = false
     legacyheaders = false

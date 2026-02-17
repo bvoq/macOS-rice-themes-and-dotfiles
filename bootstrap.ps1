@@ -53,6 +53,7 @@ Remove-Variable profileDir
 
 ### copy config files 
 Copy-Item -Path ./.gitconfig -Destination $HOME/.gitconfig
+Copy-Item -Path ./.gitattributes_global -Destination $HOME/.gitattributes_global
 Copy-Item -Path ./vscode/.vscode-settings.json -Destination $env:APPDATA\Code\User\settings.json
 Copy-Item -Path ./.vimrc -Destination $HOME/.vimrc
 

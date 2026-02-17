@@ -22,7 +22,11 @@ fi
 
 # Pager settings for less
 export PAGER='less'
+export GIT_PAGER='delta'
 export LESS='-R'
+
+# Bat theme
+export BAT_THEME='zenburn'
 
 # store all cd directory pushes
 setopt AUTO_PUSHD

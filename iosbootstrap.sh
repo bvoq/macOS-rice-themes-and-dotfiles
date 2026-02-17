@@ -8,6 +8,8 @@ echo ". $ENV" >> ~/.profile
 cp .ashrc ~/.ashrc
 
 cp .gitconfig ~/.gitconfig
+cp .gitignore_global ~/.gitignore_global
+cp .gitattributes_global ~/.gitattributes_global
 
 echo "Installing  Vim and Neovim configurations and plugins"
 
