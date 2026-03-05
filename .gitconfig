@@ -144,7 +144,8 @@
     ci = commit
     co = checkout
     br = branch
-    diffside = !git -c delta.side-by-side=true -c delta.line-numbers=true diff
+    diffdelta = "!GIT_PAGER=delta git diff"
+    diffside = "!GIT_PAGER=delta git -c delta.side-by-side=true -c delta.line-numbers=true diff"
     d = diff
     dc = diff --cached
     ds = diff --staged
@@ -216,7 +217,6 @@
     excludesfile = ~/.gitignore_global
     attributesfile = ~/.gitattributes_global
     editor = vim
-	pager = delta
     autocrlf = input
     quotepath = false
     legacyheaders = false

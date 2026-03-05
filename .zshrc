@@ -22,7 +22,6 @@ fi
 
 # Pager settings for less
 export PAGER='less'
-export GIT_PAGER='delta'
 export LESS='-R'
 
 # Bat theme
