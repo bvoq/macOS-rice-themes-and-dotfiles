@@ -8,7 +8,7 @@ GENERICCASKTOOLS=1
 DEVOPSTOOLS=0
 MOBILETOOLS=0
 UNITYTOOLS=0
-CPPTOOLS=0
+LOWLEVELTOOLS=0
 JSSTACK=1
 TEXLIGHT=0
 TEXFULL=0
@@ -85,10 +85,12 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
     [ ! -d ~/.maestro/bin ] && curl -Ls "https://get.maestro.mobile.dev" | bash
   fi
 
-  if [ $CPPTOOLS = 1 ]; then
+  if [ $LOWLEVELTOOLS = 1 ]; then
     brew install gmp mpfr ncurses
     # Boehm-Demers-Weiser garbage collector
     brew install bdw-gc
+    # Install rust, use --profile complete for everything.
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile default --no-modify-path -y
   fi
   if [ $UNITYTOOLS = 1 ]; then
     # for some reason, brew install dotnet doesn't provide the right arm binaries....
