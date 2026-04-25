@@ -189,6 +189,7 @@ fi
 [ -f ~/.zshenv ] && mv ~/.zshenv     ~/.zshenv.old
 [ -f ~/.config/starship.toml ] && mv ~/.config/starship.toml ~/.config/starship.toml.old
 
+mkdir -p ~/.claude ~/.config
 cp .claude/CLAUDE.md ~/.claude/CLAUDE.md
 cp .claude/settings.json ~/.claude/settings.json
 cp .emacs ~/.emacs
