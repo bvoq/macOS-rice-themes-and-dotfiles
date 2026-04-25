@@ -37,6 +37,8 @@ stty sane
 # Source stuff #
 ################
 
+[ -f ~/.zshrc_private ] && source ~/.zshrc_private
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 # command -v rbenv >/dev/null 2>&1 && ( eval "$(rbenv init - zsh)" || true )
@@ -108,27 +110,6 @@ alias ymp4='yt-dlp -fmp4 --write-sub --write-auto-sub --sub-lang "en.*" --cookie
 
 alias sqloptimize='sqlite3 "$1" "VACUUM;" && sqlite3 "$1" "REINDEX;"'
 alias gitzip="git archive HEAD -o ${PWD##*/}.zip"
-gitissues() { curl -i "https://api.github.com/repos/$1/issues?state=open" -u "$GIT_USER":"$GIT_TOKEN" } # can also use ?state=closed, ?state=all
-gitdiscussions() {
-    curl -H "Authorization: Bearer $GITHUB_TOKEN" \
-         -X POST https://api.github.com/graphql \
-         -d '
-    {
-      "query": "
-        {
-          repository(owner: \"$1\", name: \"$2\") {
-            (first: 100, states: [ALL]) {
-              nodes {
-                number
-                title
-                url
-              }
-            }
-          }
-        }"
-    }
-    '
-}
 
 # find large git files in repo history.
 alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | awk '/^blob/ {print substr($""0,6)}' | sort --numeric-sort --key=2 | gnumfmt --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest"
@@ -322,7 +303,7 @@ alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v exten
 # }
 # fi
 
-# play playlist by added by date:
+# play files by "added by date":
 alias mplaylist='mdfind -onlyin . "kMDItemContentTypeTree == \"public.audio\"" | while read -r file; do echo "$(mdls -name kMDItemDateAdded -raw "$file") $file"; done | sort | cut -d" " -f4- | xargs -I {} mpg123 "{}"'
 alias vplaylist='mdfind -onlyin . "kMDItemContentTypeTree == \"public.movie\"" | while read -r file; do echo "$(mdls -name kMDItemDateAdded -raw "$file") $file"; done | sort | cut -d" " -f4- > playlist.m3u && open -a VLC playlist.m3u'
 
@@ -357,7 +338,6 @@ pdfjoings () {
 # =======================
 
 alias rclone="rclone -v -P"
-alias rstream="rclone serve http safe: --addr localhost:8080 --vfs-cache-mode full"
 # mkdir -p ~/wasabi-kdkdk
 # rclone mount -q wasabi-kdkdk:kdkdk/ ~/wasabi-kdkdk/ &
 
@@ -376,16 +356,7 @@ export -f fixkeys > /dev/null
 export -f nofixkeys > /dev/null
 
 
-# Add secrets and auth from private repo
-# export GOOGLE_APPLICATION_CREDENTIALS="~/private/keys/mooddex-key.json"
-
-# bb & azure auth, private access token
-bbauth() { pbcopy < ~/private/keys/bbauth.txt }
-azauth() { pbcopy < ~/private/keys/azureauth.txt }
-
-totp() { oathtool --totp -b $(<~/".totp_${1:-zuhlke}") | pbcopy; }
-# add more (umask 0077;pbpaste > ~/.totp_)
-# call otherprovider using totp otherprovider for e.g.
+# Private secrets/auth moved to ~/.zshrc_private
 
 simulatordata() { cd ~/Library/Developer/CoreSimulator/Devices/"${1}"/data/Containers/Data/Application ; ls -lt ; pwd}
 
