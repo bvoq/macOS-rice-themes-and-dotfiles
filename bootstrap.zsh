@@ -40,21 +40,6 @@ if isadmin; then
   if [ $GENERICTOOLS = 1 ]; then
     install_brewfile brew/Brewfile.generic_crossplatform
     install_brewfile brew/Brewfile.generic_macos
-
-    # apple essentials: rbenv-managed Ruby + cocoapods (special: needs version pin)
-    if [ ! -d "$HOME/.rbenv/versions/3.3.0" ]; then
-      rbenv install 3.3.0
-      rbenv global 3.3.0
-    fi
-    eval "$(rbenv init - zsh --no-rehash)"
-    gem install cocoapods
-    rbenv rehash 2>/dev/null || true  # see: https://github.com/rbenv/rbenv/pull/1641
-
-    # zsh - antidote
-    [ ! -d "${ZDOTDIR:-$HOME}/.antidote" ] && git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-$HOME}/.antidote
-
-    # iterm2 shell integration
-    curl -L https://iterm2.com/shell_integration/zsh -o ~/.iterm2_shell_integration.zsh
   fi
 
   if [ $MOBILETOOLS = 1 ]; then
@@ -63,34 +48,10 @@ if isadmin; then
     # special: dcm requires its own tap
     brew tap CQLabs/dcm
     brew install dcm
-
-    if [ ! -d ~/Developer/flutter ]; then
-      git clone -b main https://github.com/flutter/flutter.git ~/Developer/flutter
-    fi
-
-    # maestro for testing
-    [ ! -d ~/.maestro/bin ] && curl -Ls "https://get.maestro.mobile.dev" | bash
   fi
 
   if [ $LOWLEVELTOOLS = 1 ]; then
     install_brewfile brew/Brewfile.lowlevel
-    # Install rust, use --profile complete for everything.
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile default --no-modify-path -y
-  fi
-
-  if [ $UNITYTOOLS = 1 ]; then
-    # for some reason, brew install dotnet doesn't provide the right arm binaries....
-    if [[ ! -d "$HOME/.dotnet" ]]; then
-        mkdir -p "$HOME/.dotnet"
-        ARCH=$(uname -m)
-        if [[ "$ARCH" == "arm64" ]]; then
-            curl "https://download.visualstudio.microsoft.com/download/pr/d81d84cf-4bb8-4371-a4d2-88699a38a83b/9bddfe1952bedc37e4130ff12abc698d/dotnet-sdk-8.0.303-osx-arm64.tar.gz" > "$HOME/dotnet.tar.gz"
-        else
-            curl "https://download.visualstudio.microsoft.com/download/pr/295f5e51-4d26-4706-90c1-25b745cd2abf/ef976bfc166782e519036ee7670eac36/dotnet-sdk-8.0.303-osx-x64.tar.gz" > "$HOME/dotnet.tar.gz"
-        fi
-        tar -xzvf "$HOME/dotnet.tar.gz" -C "$HOME/.dotnet"
-        rm "$HOME/dotnet.tar.gz"
-    fi
   fi
 
   if [ $DEVOPSTOOLS = 1 ]; then
@@ -98,17 +59,6 @@ if isadmin; then
 
     # special: kubetail lives on a custom tap
     brew tap johanhaleby/kubetail && brew install kubetail
-
-    # special: krew (kubectl plugin manager) is shipped as a curl-installer
-    (
-      set -x; cd "$(mktemp -d)" &&
-      OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
-      ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
-      KREW="krew-${OS}_${ARCH}" &&
-      curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
-      tar zxvf "${KREW}.tar.gz" &&
-      ./"${KREW}" install krew
-    )
   fi
 
   ### Formal methods
@@ -159,10 +109,32 @@ if isadmin; then
 
   if [ $AITOOLS = 1 ]; then
     install_brewfile brew/Brewfile.ai
+  fi
 
-    # Claude CLI
-    export CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
-    curl -fsSL claude.ai/install.sh | zsh -s -- stable --force
+  if [ $CRYPTO = 1 ]; then
+    echo "Next: Installing monero."
+    waitconfirm
+    if [ ! -d ~/monero ]; then
+      git clone --recursive https://github.com/monero-project/monero ~/monero
+    fi
+    {
+      cd ~/monero
+      chmod -R u+rw ~/monero
+      git fetch --all
+      BRANCH=$(git ls-remote --heads origin | grep 'release-' | awk -F'/' '{print $3}' | sort -V | tail -n 1)
+      echo "Using monero branch: ${BRANCH}"
+      git checkout --recurse-submodules ${BRANCH}
+      git submodule init
+      git submodule update
+      brew update
+      brew bundle --file=contrib/brew/Brewfile || true # this command can fail due to empty brew taps.
+      chmod -R u+rw ~/monero
+      make USE_SINGLE_BUILDDIR=0 # makes sure that only a single build dir is used.
+      # a few notes
+      # ledger is stored in $HOME/.bitmonero. Copy for faster sync.
+      # keys are stored next to monero-wallet-cli.
+      # to recover use: monero-wallet-cli --restore-deterministic-wallet
+    }
   fi
 
 else
@@ -170,11 +142,74 @@ else
 fi
 
 
-#####################################################
-# Section 2: Dotfiles and other user-level installs #
-#####################################################
+##################################
+# Section 2: User-level installs #
+##################################
 
-# Copy dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)
+echo "Installing other user-level tools."
+
+if [ $GENERICTOOLS = 1 ]; then
+  # zsh - antidote
+  [ ! -d "${ZDOTDIR:-$HOME}/.antidote" ] && git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-$HOME}/.antidote
+
+  # iterm2 shell integration
+  curl -L https://iterm2.com/shell_integration/zsh -o ~/.iterm2_shell_integration.zsh
+fi
+
+if [ $MOBILETOOLS = 1 ]; then
+  if [ ! -d ~/Developer/flutter ]; then
+    git clone -b main https://github.com/flutter/flutter.git ~/Developer/flutter
+  fi
+
+  # maestro for testing
+  [ ! -d ~/.maestro/bin ] && curl -Ls "https://get.maestro.mobile.dev" | bash
+fi
+
+if [ $LOWLEVELTOOLS = 1 ]; then
+  # Install rust, use --profile complete for everything.
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile default --no-modify-path -y
+fi
+
+if [ $UNITYTOOLS = 1 ]; then
+  # for some reason, brew install dotnet doesn't provide the right arm binaries....
+  if [[ ! -d "$HOME/.dotnet" ]]; then
+      mkdir -p "$HOME/.dotnet"
+      ARCH=$(uname -m)
+      if [[ "$ARCH" == "arm64" ]]; then
+          curl "https://download.visualstudio.microsoft.com/download/pr/d81d84cf-4bb8-4371-a4d2-88699a38a83b/9bddfe1952bedc37e4130ff12abc698d/dotnet-sdk-8.0.303-osx-arm64.tar.gz" > "$HOME/dotnet.tar.gz"
+      else
+          curl "https://download.visualstudio.microsoft.com/download/pr/295f5e51-4d26-4706-90c1-25b745cd2abf/ef976bfc166782e519036ee7670eac36/dotnet-sdk-8.0.303-osx-x64.tar.gz" > "$HOME/dotnet.tar.gz"
+      fi
+      tar -xzvf "$HOME/dotnet.tar.gz" -C "$HOME/.dotnet"
+      rm "$HOME/dotnet.tar.gz"
+  fi
+fi
+
+if [ $DEVOPSTOOLS = 1 ]; then
+  # special: krew (kubectl plugin manager) is shipped as a curl-installer
+  (
+    set -x; cd "$(mktemp -d)" &&
+    OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
+    ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
+    KREW="krew-${OS}_${ARCH}" &&
+    curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
+    tar zxvf "${KREW}.tar.gz" &&
+    ./"${KREW}" install krew
+  )
+fi
+
+if [ $AITOOLS = 1 ]; then
+  # Claude CLI
+  export CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
+  curl -fsSL claude.ai/install.sh | zsh -s -- stable --force
+fi
+
+############################################
+# Section 3: Dotfiles install and sourcing #
+############################################
+
+echo "Copying dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)."
+
 # create a backup, better safe than sorry.
 [ -f ~/.emacs ] && mv ~/.emacs     ~/.emacs.old
 [ -f ~/.inputrc ] && mv ~/.inputrc   ~/.inputrc.old
@@ -204,9 +239,7 @@ cp .zshfunctions ~/.zshfunctions
 cp .zsh_plugins.txt ~/.zsh_plugins.txt
 mkdir -p ~/.config && cp starship.toml ~/.config/starship.toml
 
-source ~/.zshrc  # Source the new zshrc with antidote
-
-
+# macOS specific dotfile changes.
 if [[ $OSTYPE == 'darwin'* ]]; then
   [ -f ~/Library/Application\ Support/Code/User/settings.json ] && mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.old
   mkdir -p ~/Library/Application\ Support/Code/User
@@ -218,6 +251,12 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false # VSCode
   defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false # VSCode Insiders
 fi
+
+source ~/.zshrc  # Source the new zshrc with antidote
+
+####################################################################################
+# Section 4: Installing user-level tools that require the dotfiles to be in place. #
+####################################################################################
 
 
 echo "Installing Vim and Neovim configurations and plugins"
@@ -239,8 +278,6 @@ if command -v nvim > /dev/null; then
 fi
 \vim +'PlugInstall --sync' +qa
 \vim +'PlugClean --sync' +qa
-
-echo "To enable trace, run: 'csrutil enable --without dtrace --without debug' in reboot mode."
 
 echo "Installing VSCode extensions"
 waitconfirm
@@ -291,43 +328,8 @@ if [ $MOBILETOOLS = 1 ]; then
   code --install-extension flutterando.flutter-coverage
 fi
 
-
-if [ $CRYPTO = 1 ] && isadmin; then
-  echo "Next: Installing monero."
-  waitconfirm
-  if [ ! -d ~/monero ]; then
-    git clone --recursive https://github.com/monero-project/monero ~/monero
-  fi
-  {
-    cd ~/monero
-    chmod -R u+rw ~/monero
-    git fetch --all
-    BRANCH=$(git ls-remote --heads origin | grep 'release-' | awk -F'/' '{print $3}' | sort -V | tail -n 1)
-    echo "Using monero branch: ${BRANCH}"
-    git checkout --recurse-submodules ${BRANCH}
-    git submodule init
-    git submodule update
-    brew update
-    brew bundle --file=contrib/brew/Brewfile || true # this command can fail due to empty brew taps.
-    chmod -R u+rw ~/monero
-    make USE_SINGLE_BUILDDIR=0 # makes sure that only a single build dir is used.
-    # a few notes
-    # ledger is stored in $HOME/.bitmonero. Copy for faster sync.
-    # keys are stored next to monero-wallet-cli.
-    # to recover use: monero-wallet-cli --restore-deterministic-wallet
-  }
-fi
-if [ $MOBILETOOLS = 1 ] && isadmin; then
-  echo "Next: Installing firebase, requires root permission."
-  waitconfirm
-  curl -sL https://firebase.tools | bash
-  dart pub global activate flutterfire_cli 0.3.0-dev.16 --overwrite
-fi
-
-
-
 #########################################################
-# Section 3: Heavy macOS system changes, requires admin #
+# Section 5: Heavy macOS system changes, requires admin #
 #########################################################
 
 # System changes for macOS

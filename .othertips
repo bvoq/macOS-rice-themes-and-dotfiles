@@ -16,6 +16,8 @@
 # https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
 # ps aux | grep fsck
 
+# To enable trace, run: 'csrutil enable --without dtrace --without debug' in reboot mode.
+
 # Password store locked / gpg locked
 # rm ~/.gnupg/public-keys.d/pubring.db.lock
 
