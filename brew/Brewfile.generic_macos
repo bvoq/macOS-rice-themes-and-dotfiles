@@ -1,0 +1,22 @@
+# GENERICTOOLS=1 (macOS-only essentials)
+# Cross-platform tools (also installed via winget on Windows) live in
+# Brewfile.generic_crossplatform and are installed alongside this file.
+# Special installs (rbenv ruby version, antidote, iterm2 shell integration,
+# claude) remain inline in bootstrap.zsh.
+
+brew "direnv"
+brew "fdupes"
+brew "ghostscript"
+brew "ipcalc"
+brew "mas"
+brew "ncdu"
+brew "neovim"
+brew "oath-toolkit"
+brew "rbenv"
+brew "ripsecrets"
+brew "tmux"
+brew "trash"
+brew "tree"
+brew "watch"
+brew "xcodes"
+brew "zsh-completions"

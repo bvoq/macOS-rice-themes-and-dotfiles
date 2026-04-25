@@ -1,0 +1,4 @@
+# DEVOPSTOOLS=1
+
+brew "fluxcd/tap/flux"
+brew "kubernetes-cli"

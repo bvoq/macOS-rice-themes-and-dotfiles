@@ -1,0 +1,16 @@
+# Cross-platform "generic" tools — also present in bootstrap.ps1 (winget).
+# Loaded together with Brewfile.generic when GENERICTOOLS=1.
+
+brew "bat"
+brew "eza"
+brew "fnm"
+brew "fzf"
+brew "git"
+brew "gopass"
+brew "jq"
+brew "ripgrep"
+brew "starship"
+brew "tealdeer"
+brew "yq"
+brew "yt-dlp"
+brew "zoxide"

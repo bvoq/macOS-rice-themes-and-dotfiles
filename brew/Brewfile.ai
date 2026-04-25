@@ -1,0 +1,6 @@
+# AITOOLS=1
+
+cask "chatgpt"
+cask "claude"
+cask "ollama"
+cask "perplexity"

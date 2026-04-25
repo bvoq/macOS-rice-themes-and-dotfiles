@@ -1,6 +1,7 @@
 #!/bin/zsh
 
 # enable what you want to install here
+AITOOLS=0
 CRYPTO=0
 FORMALMETHODS=0
 GENERICTOOLS=1
@@ -9,7 +10,6 @@ DEVOPSTOOLS=0
 MOBILETOOLS=0
 UNITYTOOLS=0
 LOWLEVELTOOLS=0
-JSSTACK=1
 TEXLIGHT=0
 TEXFULL=0
 
@@ -30,13 +30,10 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   brew cleanup
 
   if [ $GENERICTOOLS = 1 ]; then
-    # essentials
-    brew install bat copilot-cli direnv eza fnm fdupes fzf git gopass gs jq mas ncdu nvim oath-toolkit rg ripsecrets starship tealdeer tmux trash tree zoxide yq yt-dlp watch zsh-completions
-    # tiny and nice to have
-    brew install ipcalc
+    install_brewfile brew/Brewfile.generic_crossplatform
+    install_brewfile brew/Brewfile.generic_macos
 
-    # apple essentails
-    brew install rbenv
+    # apple essentials: rbenv-managed Ruby + cocoapods (special: needs version pin)
     if [ ! -d "$HOME/.rbenv/versions/3.3.0" ]; then
       rbenv install 3.3.0
       rbenv global 3.3.0
@@ -45,33 +42,20 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
     gem install cocoapods
     rbenv rehash 2>/dev/null || true  # see: https://github.com/rbenv/rbenv/pull/1641
 
-    brew install xcodes
-    brew install --cask devcleaner
-
     # zsh - antidote
     [ ! -d "${ZDOTDIR:-$HOME}/.antidote" ] && git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-$HOME}/.antidote
 
     # iterm2 shell integration
     curl -L https://iterm2.com/shell_integration/zsh -o ~/.iterm2_shell_integration.zsh
-
-    # Claude AI
-    export CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
-    curl -fsSL claude.ai/install.sh | zsh -s -- stable --force
   fi
 
   if [ $MOBILETOOLS = 1 ]; then
-    brew install ccache
-    # Android
-    brew install android-platform-tools
-    brew install --cask android-file-transfer
-    # flutter-stylizer
-    brew install go
-    export GOPATH=${HOME}/go
-    mkdir -p $GOPATH
-    export PATH=${PATH}:${HOME}/go/bin
-    go install github.com/gmlewis/go-flutter-stylizer/cmd/flutter-stylizer@latest
+    install_brewfile brew/Brewfile.mobile
+
+    # special: dcm requires its own tap
     brew tap CQLabs/dcm
     brew install dcm
+
     mkdir -p ~/Developer # create the ~/Developer folder if it doesn't exist yet.
     country=$(curl -s ipinfo.io/country --connect-timeout 5)
 
@@ -79,19 +63,16 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
       git clone -b main https://github.com/flutter/flutter.git ~/Developer/flutter
     fi
 
-    brew tap CQLabs/dcm
-    brew install dcm
     # maestro for testing
     [ ! -d ~/.maestro/bin ] && curl -Ls "https://get.maestro.mobile.dev" | bash
   fi
 
   if [ $LOWLEVELTOOLS = 1 ]; then
-    brew install gmp mpfr ncurses
-    # Boehm-Demers-Weiser garbage collector
-    brew install bdw-gc
+    install_brewfile brew/Brewfile.cpp
     # Install rust, use --profile complete for everything.
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile default --no-modify-path -y
   fi
+
   if [ $UNITYTOOLS = 1 ]; then
     # for some reason, brew install dotnet doesn't provide the right arm binaries....
     if [[ ! -d "$HOME/.dotnet" ]]; then
@@ -108,11 +89,12 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   fi
 
   if [ $DEVOPSTOOLS = 1 ]; then
-    brew install kubectl fluxcd/tap/flux kubetail
-    brew tap johanhaleby/kubetail && brew install kubetail
-    brewprefixlocation=$(brew --prefix)
-    echo "$(brew --prefix)/share/zsh"
+    install_brewfile brew/Brewfile.devops
 
+    # special: kubetail lives on a custom tap
+    brew tap johanhaleby/kubetail && brew install kubetail
+
+    # special: krew (kubectl plugin manager) is shipped as a curl-installer
     (
       set -x; cd "$(mktemp -d)" &&
       OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
@@ -122,17 +104,13 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
       tar zxvf "${KREW}.tar.gz" &&
       ./"${KREW}" install krew
     )
-
-    # For MQTT connections.
-    brew install mqttx --cask
   fi
 
   ### Formal methods
   if [ $FORMALMETHODS = 1 ]; then
-    brew install eprover
-    brew install spin
-    brew install --cask tla-plus-toolbox
-    # PsiSolver
+    install_brewfile brew/Brewfile.formal
+
+    # special: PsiSolver lives on a custom tap
     brew tap bvoq/bvoq
     brew install psisolver
     # Kframework
@@ -152,40 +130,37 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   #  # frida
   #fi
   if [ $GENERICCASKTOOLS = 1 ]; then
-    brew install appcleaner baidunetdisk keka paintbrush telegram tor-browser vlc --cask
+    install_brewfile brew/Brewfile.generic-cask
     # manually install regex for safari: https://apps.apple.com/ch/app/regex-for-safari/id1597580456?l=en-GB
     # manually install shortery: https://apps.apple.com/us/app/shortery/id1594183810?mt=12
-    brew install visual-studio-code --cask  # or use visual-studio-code@insiders instead
+    # or use visual-studio-code@insiders instead of visual-studio-code
 
     # reminder to self: you own a license to use this:
     #brew install daisydisk --cask
   fi
 
   if [ $TEXLIGHT = 1 ]; then
-    # reminder to self: you own a license to use this:
-    # comes with its own latex.
-    brew install texifier --cask
-    ## tex light version CLI
+    # reminder to self: you own a license to use texifier:
+    install_brewfile brew/Brewfile.tex-light
+    ## tex light version CLI alternatives:
     # brew install --cask basictex
     # brew install --cask tex-live-utility
   fi
 
   if [ $TEXFULL = 1 ]; then
-    # reminder to self: you own a license to use this:
-    # comes with its own latex.
-    brew install texifier --cask
-    brew install mactex --cask
+    # reminder to self: you own a license to use texifier:
+    install_brewfile brew/Brewfile.tex-full
+  fi
+
+  if [ $AITOOLS = 1 ]; then
+    install_brewfile brew/Brewfile.ai
+
+    # Claude CLI
+    export CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
+    curl -fsSL claude.ai/install.sh | zsh -s -- stable --force
   fi
 
 fi
-
-#if [[ $JSSTACK == 1 ]]; then
-#    curl -fsSL https://deno.land/install.sh > deno_install.sh
-#    chmod +x deno_install.sh
-#    ./deno_install.sh -y --no-modify-path
-#    rm deno_install.sh
-#fi
-
 
 # Copy dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)
 # create a backup, better safe than sorry.
@@ -256,7 +231,7 @@ echo "To enable trace, run: 'csrutil enable --without dtrace --without debug' in
 
 echo "Installing VSCode extensions"
 waitconfirm
-# general
+# General
 code --install-extension aaron-bond.better-comments
 code --install-extension johnpapa.vscode-peacock
 code --install-extension usernamehw.errorlens
@@ -268,19 +243,16 @@ code --install-extension ms-vsliveshare.vsliveshare
 code --install-extension eamodio.gitlens
 code --install-extesion github.vscode-github-actions
 code --install-extension GitHub.vscode-pull-request-github
-# Dart specific ones:
-code --install-extension dart-code.dart-code
-code --install-extension dart-code.flutter
-code --install-extension dcmdev.dcm-vscode-extension
-# theme
+# Theme
 code --install-extension ifahrentholz.one-quiet-dark-pro
-# generic linters
+# Generic linters
 code --install-extension redhat.vscode-yaml
 code --install-extension DavidAnson.vscode-markdownlint
-# ChatGPT
-curl "https://persistent.oaistatic.com/pair-with-ai/openai-chatgpt-latest.vsix" > openai-chatgpt-latest.vsix
-code --install-extension openai-chatgpt-latest.vsix
-rm openai-chatgpt-latest.vsix
+if [ $AITOOLS = 1 ]; then
+    curl "https://persistent.oaistatic.com/pair-with-ai/openai-chatgpt-latest.vsix" > openai-chatgpt-latest.vsix
+    code --install-extension openai-chatgpt-latest.vsix
+    rm openai-chatgpt-latest.vsix
+  fi
 
 if [ $UNITYTOOLS = 1 ]; then
   # Note this also installs its own dotnet runtime, but not dotnet sdk!
@@ -300,13 +272,14 @@ if [ $MOBILETOOLS = 1 ]; then
   code --install-extension Dart-Code.flutter
   code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
   code --install-extension qlevar.pub-manager
+  code --install-extension dcmdev.dcm-vscode-extension
   # Flutter test coverage:
   code --install-extension ryanluker.vscode-coverage-gutters
   code --install-extension flutterando.flutter-coverage
 fi
 
 
-if [ $CRYPTO = 1 ]; then
+if [ $CRYPTO = 1 ] && isadmin; then
   echo "Next: Installing monero."
   waitconfirm
   if [ ! -d ~/monero ]; then

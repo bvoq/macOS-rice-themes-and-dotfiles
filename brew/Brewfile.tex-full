@@ -1,0 +1,5 @@
+# TEXFULL=1
+# Warning: mactex is the largest single install in this repo (~5.9 GB).
+
+cask "mactex"
+cask "texifier"

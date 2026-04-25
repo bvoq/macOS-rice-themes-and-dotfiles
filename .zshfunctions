@@ -112,6 +112,32 @@ set_error_handler() {
     fi
 }
 
+install_brewfile() {
+  local file="$1"
+  [ -f "$file" ] || { echo "Brewfile missing: $file"; return 1; }
+  echo "\n>>> brew bundle --file=$file"
+  brew bundle --file="$file"
+  report_brewfile_size "$file"
+}
+
+report_brewfile_size() {
+  local file="$1"
+  local cellar caskroom name path
+  cellar="$(brew --cellar)"
+  caskroom="$(brew --caskroom)"
+  echo "--- size report for $file ---"
+  brew bundle list --file="$file" --formula 2>/dev/null | while read -r name; do
+    name="${name##*/}"
+    path="$cellar/$name"
+    [ -d "$path" ] && /usr/bin/du -sh "$path"
+  done
+  brew bundle list --file="$file" --cask 2>/dev/null | while read -r name; do
+    path="$caskroom/$name"
+    [ -d "$path" ] && /usr/bin/du -sh "$path"
+  done
+  echo "--- end size report ---"
+}
+
 # First argument = dir, Second argument = location and name (.tar.xz)
 compressdir() {
     if [ $# -eq 1 ]; then tar --xz -cf "$1.tar.xz" "$1"; fi

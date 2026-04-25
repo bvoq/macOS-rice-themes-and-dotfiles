@@ -1,0 +1,13 @@
+# GENERICCASKTOOLS=1
+# GUI apps. Real footprint lives under /Applications/, not /opt/homebrew/Caskroom.
+
+cask "appcleaner"
+cask "baidunetdisk"
+cask "copilot-cli"
+cask "devcleaner"
+cask "keka"
+cask "paintbrush"
+cask "telegram"
+cask "tor-browser"
+cask "visual-studio-code"
+cask "vlc"
