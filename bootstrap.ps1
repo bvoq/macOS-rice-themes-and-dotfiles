@@ -93,34 +93,42 @@ if ($answer -eq "n") {
 
 ### Install packages using winget
 # show dependencies of a package using: winget show -e --id <package-id>
-$wingetPackages = @(
-    "7zip.7zip",
+
+# Cross-platform tools — also present in brew/Brewfile.generic_crossplatform.
+$wingetPackagesCrossplatform = @(
     "ajeetdsouza.zoxide",
-    # "baremetalsoft.baretail",
     "BurntSushi.ripgrep.MSVC",
     "dbrgn.tealdeer",
-    "dundee.gdu",  # gdu, but works more like ncdu
     "eza-community.eza",
     "Git.Git",  # Make sure to select openssh and use recommendations. You can add ssh keys to $HOME/.ssh
-    "GitHub.Copilot",
-    "GnuPG.Gpg4win",
     "gopass.gopass",
     "jqlang.jq",
     "junegunn.fzf",
     "MikeFarah.yq",
+    "Rclone.Rclone",
+    "Schniz.fnm",
+    "sharkdp.bat",
+    "Starship.Starship",
+    "yt-dlp.yt-dlp"  # also installs yt-dlp.fmpeg and DenoLand.Deno
+)
+
+# Windows-only tools.
+$wingetPackagesWindowsOnly = @(
+    "7zip.7zip",
+    # "baremetalsoft.baretail",
+    "dundee.gdu",  # gdu, similar to ncdu
+    "GitHub.Copilot",
+    "GnuPG.Gpg4win",
     "Microsoft.NuGet",
     "Microsoft.PowerToys",
     "Microsoft.VisualStudioCode",
     "NickeManarin.ScreenToGif",
     # "PaperCutSoftware.GhostTrap", # aka GhostScript
     "qarmin.czkawka.cli",
-    "Rclone.Rclone",
-    "Schniz.fnm",
-    "sharkdp.bat",
-    "Starship.Starship",
-    "vim.vim",  # Make sure to enable .bat scripts
-    "yt-dlp.yt-dlp"  # also installs yt-dlp.fmpeg and DenoLand.Deno
+    "vim.vim"  # Make sure to enable .bat scripts
 )
+
+$wingetPackages = $wingetPackagesCrossplatform + $wingetPackagesWindowsOnly
 
 foreach ($package in $wingetPackages) {
     Write-Host "Installing package: $package" -ForegroundColor Cyan
