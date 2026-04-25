@@ -5,3 +5,54 @@ alias pbpaste="cat /dev/clipboard"
 totp() { local code=$(oathtool --totp -b "$(<~/.totp_${1})"); echo "$code"; echo "$code" > /dev/clipboard; }
 
 eval "$(zoxide init posix --hook prompt)"
+
+bsync() {
+  local RESYNC=0
+  [[ "$1" == "--resync" ]] && { RESYNC=1; shift }
+
+  local LOCAL="$1"
+  local REMOTE="$2"
+  local MAX_DELETE=20
+
+  # Preflight
+  command -v rclone &>/dev/null || { echo "rclone not found"; return 1 }
+  [[ -d "$LOCAL" ]]            || { echo "Local path missing: $LOCAL"; return 1 }
+  rclone lsd "$REMOTE" &>/dev/null || { echo "Remote not accessible: $REMOTE"; return 1 }
+
+  # Ensure access sentinel exists on BOTH sides (required for --check-access)
+  if [[ ! -f "$LOCAL/RCLONE_TEST" ]]; then
+    echo "Creating RCLONE_TEST locally..."
+    echo "rclone bisync access check" > "$LOCAL/RCLONE_TEST"
+  fi
+  
+  # Copy it to remote if it doesn't exist there
+  if ! rclone lsf "$REMOTE" | grep -q "^RCLONE_TEST$"; then
+    echo "Creating RCLONE_TEST on remote..."
+    rclone copyto "$LOCAL/RCLONE_TEST" "$REMOTE/RCLONE_TEST"
+  fi
+
+  # Common flags
+  local FLAGS=(
+    --check-access
+    --max-delete "$MAX_DELETE"
+    --conflict-resolve newer
+    --exclude ".DS_Store"
+    --exclude "._*"
+    --exclude ".Spotlight-V100"
+    --exclude ".Trashes"
+    --exclude ".fseventsd"
+    --exclude ".TemporaryItems"
+    --exclude "Thumbs.db"
+    --exclude "desktop.ini"
+    --exclude '$RECYCLE.BIN'
+    --exclude "System Volume Information"
+    -v
+  )
+
+  _run_bisync() {
+    rclone bisync "$LOCAL" "$REMOTE" "${FLAGS[@]}" "$@"
+  }
+
+  _confirm() {
+    read "reply?$1 (y/n): "
+    [[ "$reply" == "y" ]]
