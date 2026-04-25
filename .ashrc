@@ -6,6 +6,7 @@ totp() { local code=$(oathtool --totp -b "$(<~/.totp_${1})"); echo "$code"; echo
 
 eval "$(zoxide init posix --hook prompt)"
 
+
 bsync() {
   local RESYNC=0
   [[ "$1" == "--resync" ]] && { RESYNC=1; shift }
@@ -56,3 +57,37 @@ bsync() {
   _confirm() {
     read "reply?$1 (y/n): "
     [[ "$reply" == "y" ]]
+  }
+
+  # Resync mode
+  if [[ $RESYNC -eq 1 ]]; then
+    echo "=== Resync dry-run ==="
+    _run_bisync --resync --dry-run || return 1
+    _confirm "Run actual resync?" || { echo "Cancelled."; return 0 }
+    echo "=== Resyncing ==="
+    _run_bisync --resync && echo "✓ Done. Use 'bsync' from now on." || echo "ERROR. Check $LOG"
+    return
+  fi
+
+  # Normal sync: dry-run, summarise, confirm
+  echo "=== Dry-run: $LOCAL <-> $REMOTE ==="
+  local out
+  out=$(_run_bisync --dry-run 2>&1)
+  local rc=$?
+  echo "$out"
+
+  echo "\n--- Summary ---"
+  echo "Copy  → remote : $(echo "$out" | grep -c "COPY.*$REMOTE")"
+  echo "Copy  → local  : $(echo "$out" | grep -c "COPY.*$LOCAL")"
+  echo "Delete (remote): $(echo "$out" | grep -c "DELETE.*$REMOTE")"
+  echo "Delete (local) : $(echo "$out" | grep -c "DELETE.*$LOCAL")"
+  local conflicts=$(echo "$out" | grep -c "conflict\|CONFLICT")
+  (( conflicts > 0 )) && echo "Conflicts      : $conflicts (keeping newer)"
+
+  [[ $rc -ne 0 ]] && { echo "Dry-run failed (exit $rc). First run? Try: bsync --resync"; return $rc }
+  echo "$out" | grep -q "up to date\|No changes\|0 changes" && { echo "✓ Already in sync."; return 0 }
+
+  _confirm "\nProceed with sync?" || { echo "Cancelled."; return 0 }
+  echo "=== Syncing ==="
+  _run_bisync && echo "✓ Done. Log: $LOG" || { echo "ERROR. Check $LOG"; return 1 }
+}
