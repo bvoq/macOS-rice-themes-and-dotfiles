@@ -18,13 +18,21 @@ set_error_handler
 
 git submodule update --init --recursive
 
-if [[ $OSTYPE == 'darwin'* ]]; then
-    # sanity checks
-    assure_userlevel_zsh
-    check_not_rosetta
+if ! [[ $OSTYPE == 'darwin'* ]]; then
+  echo "This bootstrap script is only meant for macOS. Exiting."
+  exit 1
 fi
 
-if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
+# macOS sanity checks
+assure_userlevel_zsh
+check_not_rosetta
+mkdir -p ~/Developer
+
+#############################################################
+# Section 1: Brew tools and other admin-privileged installs #
+#############################################################
+
+if isadmin; then
   # clean up brew
   brew autoremove
   brew cleanup
@@ -56,9 +64,6 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
     brew tap CQLabs/dcm
     brew install dcm
 
-    mkdir -p ~/Developer # create the ~/Developer folder if it doesn't exist yet.
-    country=$(curl -s ipinfo.io/country --connect-timeout 5)
-
     if [ ! -d ~/Developer/flutter ]; then
       git clone -b main https://github.com/flutter/flutter.git ~/Developer/flutter
     fi
@@ -68,7 +73,7 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
   fi
 
   if [ $LOWLEVELTOOLS = 1 ]; then
-    install_brewfile brew/Brewfile.cpp
+    install_brewfile brew/Brewfile.lowlevel
     # Install rust, use --profile complete for everything.
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile default --no-modify-path -y
   fi
@@ -160,7 +165,14 @@ if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
     curl -fsSL claude.ai/install.sh | zsh -s -- stable --force
   fi
 
+else
+  echo "Skipping brew and other admin-privileged installs."
 fi
+
+
+#####################################################
+# Section 2: Dotfiles and other user-level installs #
+#####################################################
 
 # Copy dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)
 # create a backup, better safe than sorry.
@@ -312,35 +324,10 @@ if [ $MOBILETOOLS = 1 ] && isadmin; then
 fi
 
 
-# Language servers for vim and vscode (also edit in init.vim)
-echo "Next: Installing language servers."
-waitconfirm
 
-# Probably better installed by the user
-#nvm install node
-#nvm install-latest-npm
-
-#if ! isadmin; then
-#    # store npm packages on the user-level not admin level.
-#    # http://michaelb.org/archive/article/30.html
-#    npm config set prefix ~/.local
-#fi
-#npm install -g pyright
-#npm install -g bash-language-server
-
-
-if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
-  echo "Next: Installing chatgpt cli"
-  curl -sS https://raw.githubusercontent.com/0xacx/chatGPT-shell-cli/main/install.sh | sudo -E zsh
-fi
-
-if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
-  echo "Next: Installing rclone and macfuse which need root permission"
-  brew install rclone
-  #waitconfirm
-  #sudo -v ; curl https://rclone.org/install.sh | sudo bash
-  # brew install macfuse --cask # reinstall after changing security properties
-fi
+#########################################################
+# Section 3: Heavy macOS system changes, requires admin #
+#########################################################
 
 # System changes for macOS
 if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
