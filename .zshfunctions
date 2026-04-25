@@ -608,3 +608,79 @@ gifgen() {
     ffmpeg -v "$verbosity" $begin $duration -i "$input" -i "$palette" -lavfi "fps=$fps$scale [x]; [x][1:v] paletteuse=dither=$dither" -y "$output"
     echo "Done!"
 }
+
+
+bsync() {
+  local RESYNC=0
+  [[ "$1" == "--resync" ]] && { RESYNC=1; shift }
+
+  local LOCAL="$1"
+  local REMOTE="$2"
+  local MAX_DELETE=20
+
+  # Preflight
+  command -v rclone &>/dev/null || { echo "rclone not found"; return 1 }
+  [[ -d "$LOCAL" ]]            || { echo "Local path missing: $LOCAL"; return 1 }
+  rclone lsd "$REMOTE" &>/dev/null || { echo "Remote not accessible: $REMOTE"; return 1 }
+
+  # Ensure access sentinel exists on BOTH sides (required for --check-access)
+  if [[ ! -f "$LOCAL/RCLONE_TEST" ]]; then
+    echo "Creating RCLONE_TEST locally..."
+    echo "rclone bisync access check" > "$LOCAL/RCLONE_TEST"
+  fi
+  
+  # Copy it to remote if it doesn't exist there
+  if ! rclone lsf "$REMOTE" | grep -q "^RCLONE_TEST$"; then
+    echo "Creating RCLONE_TEST on remote..."
+    rclone copyto "$LOCAL/RCLONE_TEST" "$REMOTE/RCLONE_TEST"
+  fi
+
+  # Common flags
+  local FLAGS=(
+    --check-access
+    --max-delete "$MAX_DELETE"
+    --conflict-resolve newer
+    -v
+  )
+
+  _run_bisync() {
+    rclone bisync "$LOCAL" "$REMOTE" "${FLAGS[@]}" "$@"
+  }
+
+  _confirm() {
+    read "reply?$1 (y/n): "
+    [[ "$reply" == "y" ]]
+  }
+
+  # Resync mode
+  if [[ $RESYNC -eq 1 ]]; then
+    echo "=== Resync dry-run ==="
+    _run_bisync --resync --dry-run || return 1
+    _confirm "Run actual resync?" || { echo "Cancelled."; return 0 }
+    echo "=== Resyncing ==="
+    _run_bisync --resync && echo "✓ Done. Use 'bsync' from now on." || echo "ERROR. Check $LOG"
+    return
+  fi
+
+  # Normal sync: dry-run, summarise, confirm
+  echo "=== Dry-run: $LOCAL <-> $REMOTE ==="
+  local out
+  out=$(_run_bisync --dry-run 2>&1)
+  local rc=$?
+  echo "$out"
+
+  echo "\n--- Summary ---"
+  echo "Copy  → remote : $(echo "$out" | grep -c "COPY.*$REMOTE")"
+  echo "Copy  → local  : $(echo "$out" | grep -c "COPY.*$LOCAL")"
+  echo "Delete (remote): $(echo "$out" | grep -c "DELETE.*$REMOTE")"
+  echo "Delete (local) : $(echo "$out" | grep -c "DELETE.*$LOCAL")"
+  local conflicts=$(echo "$out" | grep -c "conflict\|CONFLICT")
+  (( conflicts > 0 )) && echo "Conflicts      : $conflicts (keeping newer)"
+
+  [[ $rc -ne 0 ]] && { echo "Dry-run failed (exit $rc). First run? Try: bsync --resync"; return $rc }
+  echo "$out" | grep -q "up to date\|No changes\|0 changes" && { echo "✓ Already in sync."; return 0 }
+
+  _confirm "\nProceed with sync?" || { echo "Cancelled."; return 0 }
+  echo "=== Syncing ==="
+  _run_bisync && echo "✓ Done. Log: $LOG" || { echo "ERROR. Check $LOG"; return 1 }
+}
