@@ -250,6 +250,11 @@ if [[ $OSTYPE == 'darwin'* ]]; then
   #cp vscode/keybindings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/keybindings.json # VSCode Insiders
   defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false # VSCode
   defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false # VSCode Insiders
+  
+  mkdir -p ~/Library/Developer/Xcode/UserData/FontAndColorThemes/ && cp xcode/Zenburn.xccolortheme ~/Library/Developer/Xcode/UserData/FontAndColorThemes/Zenburn.xccolortheme
+  echo "You will need to manually select the Zenburn theme under Xcode > Preferences > Themes."
+  echo "Further, you will need to manually install the Zenburn themes for Terminal.app and iTerm2.app"
+
 fi
 
 source ~/.zshrc  # Source the new zshrc with antidote
@@ -328,26 +333,14 @@ if [ $MOBILETOOLS = 1 ]; then
   code --install-extension flutterando.flutter-coverage
 fi
 
-#########################################################
-# Section 5: Heavy macOS system changes, requires admin #
-#########################################################
+####################################################################
+# Section 5: Heavy macOS system changes, requires admin and reboot #
+####################################################################
 
 # System changes for macOS
 if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
-  echo "Next: Installing system changes for macOS."
+  echo "Next: Installing system-wide macOS defaults (sudo required)."
   waitconfirm
-
   bash .macos
-  echo "Almost done. Next we will install some Terminal and Xcode themes. You can also install them manually alternatively."
-  waitconfirm
-  mkdir -p ~/Library/Developer/Xcode/UserData/FontAndColorThemes/ && cp xcode/Zenburn.xccolortheme ~/Library/Developer/Xcode/UserData/FontAndColorThemes/Zenburn.xccolortheme
-  echo "Done. It will need to be manually selected under Xcode > Preferences > Themes > Zenburn"
-  echo "Also, in the new Xcode you may need to set Xcode > Preferences > General > Appearance > Dark"
-  echo "Afer this Terminal.app will be killed. Note that in order to apply all settings a full restart is required."
-  waitconfirm
-
-  cp terminal/com.apple.Terminal.plist ~/Library/Preferences/com.apple.Terminal.plist
-  defaults read com.apple.Terminal
-  echo "Done. Goodbye."
-  killall "Terminal"
+  echo "Done. A full restart is required for all settings to take effect."
 fi
