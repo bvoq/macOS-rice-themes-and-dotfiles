@@ -2,92 +2,107 @@
 alias pbcopy="cat > /dev/clipboard"
 alias pbpaste="cat /dev/clipboard"
 
-totp() { local code=$(oathtool --totp -b "$(<~/.totp_${1})"); echo "$code"; echo "$code" > /dev/clipboard; }
+totp() { code=$(oathtool --totp -b "$(cat ~/.totp_${1})"); echo "$code"; echo "$code" > /dev/clipboard; }
 
 eval "$(zoxide init posix --hook prompt)"
 
 
-bsync() {
-  local RESYNC=0
-  [[ "$1" == "--resync" ]] && { RESYNC=1; shift }
+_bsync_confirm() {
+  printf '%s (y/n): ' "$1"
+  read reply
+  [ "$reply" = "y" ]
+}
 
-  local LOCAL="$1"
-  local REMOTE="$2"
-  local MAX_DELETE=20
+_bsync_run() {
+  rclone bisync "$1" "$2" \
+    --check-access \
+    --max-delete 20 \
+    --conflict-resolve newer \
+    --exclude ".DS_Store" \
+    --exclude "._*" \
+    --exclude ".Spotlight-V100" \
+    --exclude ".Trashes" \
+    --exclude ".fseventsd" \
+    --exclude ".TemporaryItems" \
+    --exclude "Thumbs.db" \
+    --exclude "desktop.ini" \
+    --exclude '$RECYCLE.BIN' \
+    --exclude "System Volume Information" \
+    -v \
+    "$3" "$4" "$5" "$6"
+}
+
+bsync() {
+  RESYNC=0
+  if [ "$1" = "--resync" ]; then
+    RESYNC=1
+    shift
+  fi
+
+  LOCAL="$1"
+  REMOTE="$2"
 
   # Preflight
-  command -v rclone &>/dev/null || { echo "rclone not found"; return 1 }
-  [[ -d "$LOCAL" ]]            || { echo "Local path missing: $LOCAL"; return 1 }
-  rclone lsd "$REMOTE" &>/dev/null || { echo "Remote not accessible: $REMOTE"; return 1 }
+  if ! command -v rclone >/dev/null 2>&1; then echo "rclone not found"; return 1; fi
+  if [ ! -d "$LOCAL" ]; then echo "Local path missing: $LOCAL"; return 1; fi
+  if ! rclone lsd "$REMOTE" >/dev/null 2>&1; then echo "Remote not accessible: $REMOTE"; return 1; fi
 
   # Ensure access sentinel exists on BOTH sides (required for --check-access)
-  if [[ ! -f "$LOCAL/RCLONE_TEST" ]]; then
+  if [ ! -f "$LOCAL/RCLONE_TEST" ]; then
     echo "Creating RCLONE_TEST locally..."
     echo "rclone bisync access check" > "$LOCAL/RCLONE_TEST"
   fi
-  
+
   # Copy it to remote if it doesn't exist there
   if ! rclone lsf "$REMOTE" | grep -q "^RCLONE_TEST$"; then
     echo "Creating RCLONE_TEST on remote..."
     rclone copyto "$LOCAL/RCLONE_TEST" "$REMOTE/RCLONE_TEST"
   fi
 
-  # Common flags
-  local FLAGS=(
-    --check-access
-    --max-delete "$MAX_DELETE"
-    --conflict-resolve newer
-    --exclude ".DS_Store"
-    --exclude "._*"
-    --exclude ".Spotlight-V100"
-    --exclude ".Trashes"
-    --exclude ".fseventsd"
-    --exclude ".TemporaryItems"
-    --exclude "Thumbs.db"
-    --exclude "desktop.ini"
-    --exclude '$RECYCLE.BIN'
-    --exclude "System Volume Information"
-    -v
-  )
-
-  _run_bisync() {
-    rclone bisync "$LOCAL" "$REMOTE" "${FLAGS[@]}" "$@"
-  }
-
-  _confirm() {
-    read "reply?$1 (y/n): "
-    [[ "$reply" == "y" ]]
-  }
-
   # Resync mode
-  if [[ $RESYNC -eq 1 ]]; then
+  if [ "$RESYNC" -eq 1 ]; then
     echo "=== Resync dry-run ==="
-    _run_bisync --resync --dry-run || return 1
-    _confirm "Run actual resync?" || { echo "Cancelled."; return 0 }
+    _bsync_run "$LOCAL" "$REMOTE" --resync --dry-run || return 1
+    _bsync_confirm "Run actual resync?" || { echo "Cancelled."; return 0; }
     echo "=== Resyncing ==="
-    _run_bisync --resync && echo "✓ Done. Use 'bsync' from now on." || echo "ERROR. Check $LOG"
+    if _bsync_run "$LOCAL" "$REMOTE" --resync; then
+      echo "✓ Done. Use 'bsync' from now on."
+    else
+      echo "ERROR."
+    fi
     return
   fi
 
   # Normal sync: dry-run, summarise, confirm
   echo "=== Dry-run: $LOCAL <-> $REMOTE ==="
-  local out
-  out=$(_run_bisync --dry-run 2>&1)
-  local rc=$?
+  out=$(_bsync_run "$LOCAL" "$REMOTE" --dry-run 2>&1)
+  rc=$?
   echo "$out"
 
-  echo "\n--- Summary ---"
-  echo "Copy  → remote : $(echo "$out" | grep -c "COPY.*$REMOTE")"
-  echo "Copy  → local  : $(echo "$out" | grep -c "COPY.*$LOCAL")"
+  printf '\n--- Summary ---\n'
+  echo "Copy  -> remote : $(echo "$out" | grep -c "COPY.*$REMOTE")"
+  echo "Copy  -> local  : $(echo "$out" | grep -c "COPY.*$LOCAL")"
   echo "Delete (remote): $(echo "$out" | grep -c "DELETE.*$REMOTE")"
   echo "Delete (local) : $(echo "$out" | grep -c "DELETE.*$LOCAL")"
-  local conflicts=$(echo "$out" | grep -c "conflict\|CONFLICT")
-  (( conflicts > 0 )) && echo "Conflicts      : $conflicts (keeping newer)"
+  conflicts=$(echo "$out" | grep -c "conflict\|CONFLICT")
+  if [ "$conflicts" -gt 0 ]; then echo "Conflicts      : $conflicts (keeping newer)"; fi
 
-  [[ $rc -ne 0 ]] && { echo "Dry-run failed (exit $rc). First run? Try: bsync --resync"; return $rc }
-  echo "$out" | grep -q "up to date\|No changes\|0 changes" && { echo "✓ Already in sync."; return 0 }
+  if [ "$rc" -ne 0 ]; then
+    echo "Dry-run failed (exit $rc). First run? Try: bsync --resync"
+    return "$rc"
+  fi
+  if echo "$out" | grep -q "up to date\|No changes\|0 changes"; then
+    echo "✓ Already in sync."
+    return 0
+  fi
 
-  _confirm "\nProceed with sync?" || { echo "Cancelled."; return 0 }
+  printf '\n'
+  _bsync_confirm "Proceed with sync?" || { echo "Cancelled."; return 0; }
   echo "=== Syncing ==="
-  _run_bisync && echo "✓ Done. Log: $LOG" || { echo "ERROR. Check $LOG"; return 1 }
+  if _bsync_run "$LOCAL" "$REMOTE"; then
+    echo "✓ Done."
+  else
+    echo "ERROR."
+    return 1
+  fi
 }
