@@ -315,15 +315,7 @@ alias cpwd='pwd | pbcopy'
 # [C] explained: http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
 alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
 
-# open new window in same location as current terminal.
-if [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
-    alias hopen='open . -a Terminal.app'
-elif [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
-    alias hopen='open . -a iTerm'
-    source ~/.iterm2_shell_integration.zsh
-fi
-
-# iTerm2 or other terminals, make sure that the last two folders of PWD is shown in the tab bar.
+# iTerm2 or other terminals, make sure that the last two folders of PWD is shownh in the tab bar.
 # if [ $ITERM_SESSION_ID ]; then
 # precmd() {
 #   echo -ne "\033]0;${PWD#*${PWD%*/*/*}}\007"
