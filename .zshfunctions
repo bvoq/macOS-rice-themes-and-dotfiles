@@ -609,6 +609,23 @@ gifgen() {
     echo "Done!"
 }
 
+rcloneclean() {
+  [[ -z "$1" ]] && { echo "Usage: rcloneclean <remote:path/>"; return 1 }
+  command -v rclone &>/dev/null || { echo "rclone not found"; return 1 }
+  rclone delete "$1" \
+    --include ".DS_Store" \
+    --include "._*" \
+    --include "Thumbs.db" \
+    --include "desktop.ini" \
+    --include ".Spotlight-V100/**" \
+    --include ".Trashes/**" \
+    --include ".fseventsd/**" \
+    --include ".TemporaryItems/**" \
+    --include '$RECYCLE.BIN/**' \
+    --include "System Volume Information/**" \
+    -v
+}
+
 
 bsync() {
   local RESYNC=0
@@ -640,6 +657,16 @@ bsync() {
     --check-access
     --max-delete "$MAX_DELETE"
     --conflict-resolve newer
+    --exclude ".DS_Store"
+    --exclude "._*"
+    --exclude ".Spotlight-V100"
+    --exclude ".Trashes"
+    --exclude ".fseventsd"
+    --exclude ".TemporaryItems"
+    --exclude "Thumbs.db"
+    --exclude "desktop.ini"
+    --exclude '$RECYCLE.BIN'
+    --exclude "System Volume Information"
     -v
   )
 
