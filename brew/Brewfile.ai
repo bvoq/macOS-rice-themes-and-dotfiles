@@ -1,6 +1,6 @@
 # AITOOLS=1
 
-cask "chatgpt"
 cask "claude"
+cask "copilot-cli"
 cask "ollama"
 cask "perplexity"

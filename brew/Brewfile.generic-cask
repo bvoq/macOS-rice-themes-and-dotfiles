@@ -3,7 +3,6 @@
 
 cask "appcleaner"
 cask "baidunetdisk"
-cask "copilot-cli"
 cask "devcleaner"
 cask "keka"
 cask "paintbrush"
