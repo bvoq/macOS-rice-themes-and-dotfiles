@@ -222,7 +222,6 @@ fi
 echo "Copying dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)."
 
 # create a backup, better safe than sorry.
-[ -f ~/.emacs ] && mv ~/.emacs     ~/.emacs.old
 [ -f ~/.inputrc ] && mv ~/.inputrc   ~/.inputrc.old
 [ -f ~/.gitconfig ] && mv ~/.gitconfig ~/.gitconfig.old
 [ -f ~/.gitattributes_global ] && mv ~/.gitattributes_global ~/.gitattributes_global.old
@@ -238,7 +237,6 @@ echo "Copying dotfiles after installation, because some install script like to a
 mkdir -p ~/.claude ~/.config
 cp .claude/CLAUDE.md ~/.claude/CLAUDE.md
 cp .claude/settings.json ~/.claude/settings.json
-cp .emacs ~/.emacs
 cp .inputrc   ~/.inputrc
 cp .gitconfig ~/.gitconfig
 cp .gitignore_global ~/.gitignore_global
@@ -294,6 +292,30 @@ if command -v nvim > /dev/null; then
 fi
 \vim +'PlugInstall --sync' +qa
 \vim +'PlugClean --sync' +qa
+
+if [ $EMACSTOOLS = 1 ]; then
+    # doom emacs
+    if [ ! -f ~/.config/emacs/bin/doom ]; then
+      git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
+      ~/.config/emacs/bin/doom install
+    fi
+    ~/.config/emacs/bin/doom upgrade
+
+    cp -r .config/doom ~/.config/doom
+    ~/.config/emacs/bin/doom sync
+
+    echo "installing nerdfonts"
+    waitconfirm
+
+    # nerd-icons-install
+    emacs \
+      --batch \
+      --load ~/.config/emacs/init.el \
+      --eval '
+        (message "Running nerd-icons-install-fonts...")
+        (require ''nerd-icons-install)
+        (call-interactively ''nerd-icons-install-fonts)'
+fi
 
 echo "Installing VSCode extensions"
 waitconfirm
