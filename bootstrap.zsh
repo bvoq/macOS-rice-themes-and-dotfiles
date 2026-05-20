@@ -6,6 +6,7 @@ CRYPTO=0
 FORMALMETHODS=0
 GENERICTOOLS=1
 GENERICCASKTOOLS=1
+EMACSTOOLS=1
 DEVOPSTOOLS=0
 MOBILETOOLS=0
 UNITYTOOLS=0
@@ -40,6 +41,16 @@ if isadmin; then
   if [ $GENERICTOOLS = 1 ]; then
     install_brewfile brew/Brewfile.generic_crossplatform
     install_brewfile brew/Brewfile.generic_macos
+  fi
+
+  if [ $EMACSTOOLS = 1 ]; then
+    install_brewfile brew/Brewfile.emacs
+    # tdlib is needed for telegram for emacs
+    # tdlib --HEAD needs ccache to be installed and have super shims set up.
+    brew install ccache
+    ln -s /opt/homebrew/bin/ccache /opt/homebrew/Library/Homebrew/shims/mac/super/ccache
+    brew install tdlib --HEAD
+    rm -f /opt/homebrew/Library/Homebrew/shims/mac/super/ccache
   fi
 
   if [ $MOBILETOOLS = 1 ]; then

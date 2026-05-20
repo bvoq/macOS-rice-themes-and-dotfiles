@@ -1,5 +1,10 @@
 #!/bin/zsh
 
+# General
+export XDG_CONFIG_HOME="$HOME/.config"
+
+# ccache
+export PATH="/opt/homebrew/opt/ccache/libexec:$PATH"
 # Python
 # PYBIN=$(realpath ~/Library/Python/3.8/bin)
 # export PATH="$PYBIN:$PATH"
@@ -37,6 +42,9 @@ export PATH=${PATH}:${HOME}/.local/bin
 export PATH="$PATH:$HOME/monero/build/release/bin"
 # Devops
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+# Emacs
+export PATH="$PATH:$XDG_CONFIG_HOME/emacs/bin"
+export DOOMDIR="$XDG_CONFIG_HOME/doom"
 
 # Unity/Dotnet
 export DOTNET_ROOT="${HOME}/.dotnet"
