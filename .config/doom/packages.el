@@ -54,4 +54,5 @@
 ;; (unpin! t)
 
 (package! telega)
+(package! tldr)
 (package! visual-fill-column)

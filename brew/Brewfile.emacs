@@ -1,7 +1,7 @@
 # EMACSTOOLS = 1
 
-cask "coreutils"
-cask "fd"
-cask "fontconfig"
+brew "cmake"
+brew "coreutils"
 cask "emacs-app"
-cask "ripgrep"
+brew "fd"
+brew "ripgrep"

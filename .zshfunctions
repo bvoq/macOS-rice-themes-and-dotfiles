@@ -138,8 +138,8 @@ install_brewfile() {
   local brew_file="$1"
   [ -f "$brew_file" ] || { echo "Brewfile missing: $brew_file"; return 1; }
   echo "\n>>> brew bundle --file=$brew_file"
-  brew bundle --file="$brew_file"
-  report_brewfile_size "$brew_file"
+  brew bundle --verbose --file="$brew_file"
+  #report_brewfile_size "$brew_file"
 }
 
 report_brewfile_size() {

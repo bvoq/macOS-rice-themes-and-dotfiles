@@ -3,6 +3,11 @@
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
 
+;; Left Option/Alt behaves like normal macOS Option, e.g. for special chars
+;; Right Option/Alt becomes Meta
+(when (featurep :system 'macos)
+  (setq mac-option-modifier nil
+        mac-right-option-modifier 'meta))
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
@@ -28,6 +33,24 @@
 ;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
 ;; refresh your font settings. If Emacs still can't find your font, it likely
 ;; wasn't installed correctly. Font issues are rarely Doom issues!
+
+(custom-theme-set-faces!
+  'doom-one
+  '(org-level-8 :inherit outline-3 :height 1.0)
+  '(org-level-7 :inherit outline-3 :height 1.0)
+  '(org-level-6 :inherit outline-3 :height 1.1)
+  '(org-level-5 :inherit outline-3 :height 1.2)
+  '(org-level-4 :inherit outline-3 :height 1.3)
+  '(org-level-3 :inherit outline-3 :height 1.4)
+  '(org-level-2 :inherit outline-3 :height 1.5)
+  '(org-level-1 :inherit outline-3 :height 1.6)
+  '(org-document-title :height 1.8 :bold t :underline nil))
+
+(setq org-directory "~/org/")
+(setq org-roam-directory "~/org/roam/")
+(setq org-modern-table-vertical 1)
+(setq org-modern-table t)
+(add-hook 'org-mode-hook #'hl-todo-mode)
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
@@ -75,7 +98,14 @@
 ;; they are implemented.
 
 
+;; Doom prerequisite: Install nerd-icons fonts if missing. Next start should be fixed.
+(after! nerd-icons
+  (unless (find-font (font-spec :name "Symbols Nerd Font Mono"))
+    (nerd-icons-install-fonts t)))
+
+;; Telegram
 (setq telega-server-libs-prefix "/opt/homebrew/opt/tdlib")
 (use-package! telega
   :defer t
   :commands (telega))
+

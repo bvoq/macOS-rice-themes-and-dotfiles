@@ -49,7 +49,7 @@ if isadmin; then
     # tdlib --HEAD needs ccache to be installed and have super shims set up.
     brew install ccache
     ln -s /opt/homebrew/bin/ccache /opt/homebrew/Library/Homebrew/shims/mac/super/ccache
-    brew install tdlib --HEAD
+    brew install tdlib --HEAD || true # even if this fails, we need to remove ccache link
     rm -f /opt/homebrew/Library/Homebrew/shims/mac/super/ccache
   fi
 
@@ -138,7 +138,7 @@ if isadmin; then
       git submodule init
       git submodule update
       brew update
-      brew bundle --file=contrib/brew/Brewfile || true # this command can fail due to empty brew taps.
+      brew bundle --verbose --file=contrib/brew/Brewfile || true # this command can fail due to empty brew taps.
       chmod -R u+rw ~/monero
       make USE_SINGLE_BUILDDIR=0 # makes sure that only a single build dir is used.
       # a few notes
@@ -162,6 +162,9 @@ echo "Installing other user-level tools."
 if [ $GENERICTOOLS = 1 ]; then
   # zsh - antidote
   [ ! -d "${ZDOTDIR:-$HOME}/.antidote" ] && git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-$HOME}/.antidote
+
+  # update ~/Library/Caches/tealdeer/
+  tldr --update
 
   # iterm2 shell integration
   curl -L https://iterm2.com/shell_integration/zsh -o ~/.iterm2_shell_integration.zsh
@@ -297,24 +300,12 @@ if [ $EMACSTOOLS = 1 ]; then
     # doom emacs
     if [ ! -f ~/.config/emacs/bin/doom ]; then
       git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
-      ~/.config/emacs/bin/doom install
+      ~/.config/emacs/bin/doom install --env
     fi
     ~/.config/emacs/bin/doom upgrade
 
-    cp -r .config/doom ~/.config/doom
+    cp -rf .config/doom/ ~/.config/doom
     ~/.config/emacs/bin/doom sync
-
-    echo "installing nerdfonts"
-    waitconfirm
-
-    # nerd-icons-install
-    emacs \
-      --batch \
-      --load ~/.config/emacs/init.el \
-      --eval '
-        (message "Running nerd-icons-install-fonts...")
-        (require ''nerd-icons-install)
-        (call-interactively ''nerd-icons-install-fonts)'
 fi
 
 echo "Installing VSCode extensions"
