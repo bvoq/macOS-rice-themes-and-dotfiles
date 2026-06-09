@@ -231,11 +231,14 @@ echo "Copying dotfiles after installation, because some install script like to a
 [ -f ~/.tmux.conf ] && mv ~/.tmux.conf ~/.tmux.conf.old
 [ -d ~/.tmux ] && mv ~/.tmux ~/.tmux.old
 [ -f ~/.vimrc ] && mv ~/.vimrc     ~/.vimrc.old
-[ -f ~/.config ] && mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
+[ -f ~/.config/nvim ] && mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
+[ -f ~/.config/doom ] && mv ~/.config/doom/config.org ~/.config/doom/config.org.old
+[ -f ~/.config/doom ] && mv ~/.config/doom/init.el ~/.config/doom/init.el.old
+[ -f ~/.config/doom ] && mv ~/.config/doom/packages.el ~/.config/doom/packages.el.old
+[ -f ~/.config/starship.toml ] && mv ~/.config/starship.toml ~/.config/starship.toml.old
 [ -f ~/.zshrc ] && mv ~/.zshrc     ~/.zshrc.old
 [ -f ~/.zshfunctions ] && mv ~/.zshfunctions ~/.zshfunctions.old
 [ -f ~/.zshenv ] && mv ~/.zshenv     ~/.zshenv.old
-[ -f ~/.config/starship.toml ] && mv ~/.config/starship.toml ~/.config/starship.toml.old
 
 mkdir -p ~/.claude ~/.config
 cp .claude/CLAUDE.md ~/.claude/CLAUDE.md
@@ -302,8 +305,9 @@ if [ $EMACSTOOLS = 1 ]; then
       git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
       ~/.config/emacs/bin/doom install --env
     fi
-    ~/.config/emacs/bin/doom upgrade
 
+    mkdir -p ~/.config/doom
+    ~/.config/emacs/bin/doom upgrade
     cp -rf .config/doom/ ~/.config/doom
     ~/.config/emacs/bin/doom sync
 fi

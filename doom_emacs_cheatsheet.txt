@@ -1,6 +1,6 @@
-:h :<cmd> = evil help, get info about a command
-SPC h k <vim/doom commands> = will tell you the doom emacs command that is called.
-SPC h c <vim/doom commands> = will tell you mini info about doom emacs command that is called.
+SPC h k <keybinding> = M-x helpful-key <keybinding> = will tell you the emacs command behind a keybinding.
+SPC h c <keybinding> = M-x describe-key-briefly <keybinding> = will tell you mini info about doom emacs command that is called.
+:h :<cmd> = M-x +evil:help :<cmd> = evil help, get info about a : command
 C-h f <function> RET = will give you the documentation of a function
 C-h v <variable> RET = will tell you the value of a variable
 
@@ -9,6 +9,8 @@ M-x = SPC : = run elisp command
 
 SPC . = open file
 
+Neat:
+SPC t l = rotate through line number settings, relative -> t -> relative -> nil
 
 Buffer related:
 SPC b n = :bn = C-x RIGHT = next user buffer (or new if none exists)
@@ -33,6 +35,3 @@ windows:
 C-w v = SPC w v = :vsplit = C-x 3 = split vertically (vim like)
 C-w s = SPC w s = :split = C-x 2 = split horizontally (vim like)
 C-w d = SPC w c|d = :q = C-x 0 = delete window => sometimes ESC or q if temporary window
-
-
-
