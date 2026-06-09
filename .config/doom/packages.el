@@ -56,3 +56,4 @@
 (package! telega)
 (package! tldr)
 (package! visual-fill-column)
+(package! elpher)
