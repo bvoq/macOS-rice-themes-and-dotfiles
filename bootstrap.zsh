@@ -218,55 +218,35 @@ if [ $AITOOLS = 1 ]; then
   curl -fsSL claude.ai/install.sh | zsh -s -- stable --force
 fi
 
-############################################
-# Section 3: Dotfiles install and sourcing #
-############################################
+#########################################################
+# Section 3: Dotfiles (user-level) install and sourcing #
+#########################################################
 
-echo "Copying dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)."
+echo "Linking dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)."
 
-# create a backup, better safe than sorry.
-[ -f ~/.inputrc ] && mv ~/.inputrc   ~/.inputrc.old
-[ -f ~/.gitconfig ] && mv ~/.gitconfig ~/.gitconfig.old
-[ -f ~/.gitattributes_global ] && mv ~/.gitattributes_global ~/.gitattributes_global.old
-[ -f ~/.tmux.conf ] && mv ~/.tmux.conf ~/.tmux.conf.old
-[ -d ~/.tmux ] && mv ~/.tmux ~/.tmux.old
-[ -f ~/.vimrc ] && mv ~/.vimrc     ~/.vimrc.old
-[ -f ~/.config/nvim ] && mv ~/.config/nvim/init.vim ~/.config/nvim/init.vim.old
-[ -f ~/.config/doom ] && mv ~/.config/doom/config.org ~/.config/doom/config.org.old
-[ -f ~/.config/doom ] && mv ~/.config/doom/init.el ~/.config/doom/init.el.old
-[ -f ~/.config/doom ] && mv ~/.config/doom/packages.el ~/.config/doom/packages.el.old
-[ -f ~/.config/starship.toml ] && mv ~/.config/starship.toml ~/.config/starship.toml.old
-[ -f ~/.zshrc ] && mv ~/.zshrc     ~/.zshrc.old
-[ -f ~/.zshfunctions ] && mv ~/.zshfunctions ~/.zshfunctions.old
-[ -f ~/.zshenv ] && mv ~/.zshenv     ~/.zshenv.old
-
-mkdir -p ~/.claude ~/.config
-cp .claude/CLAUDE.md ~/.claude/CLAUDE.md
-cp .claude/settings.json ~/.claude/settings.json
-cp .inputrc   ~/.inputrc
-cp .gitconfig ~/.gitconfig
-cp .gitignore_global ~/.gitignore_global
-cp .gitattributes_global ~/.gitattributes_global
-cp .tmux.conf ~/.tmux.conf
-cp .zshrc     ~/.zshrc
-cp .zshenv    ~/.zshenv
-cp .zshfunctions ~/.zshfunctions
-cp .zsh_plugins.txt ~/.zsh_plugins.txt
-mkdir -p ~/.config && cp starship.toml ~/.config/starship.toml
+link_dotfile ".claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+link_dotfile ".claude/settings.json" "$HOME/.claude/settings.json"
+link_dotfile ".inputrc" "$HOME/.inputrc"
+link_dotfile ".gitconfig" "$HOME/.gitconfig"
+link_dotfile ".gitignore_global" "$HOME/.gitignore_global"
+link_dotfile ".gitattributes_global" "$HOME/.gitattributes_global"
+link_dotfile ".tmux.conf" "$HOME/.tmux.conf"
+link_dotfile ".zshrc" "$HOME/.zshrc"
+link_dotfile ".zshenv" "$HOME/.zshenv"
+link_dotfile ".zshfunctions" "$HOME/.zshfunctions"
+link_dotfile ".zsh_plugins.txt" "$HOME/.zsh_plugins.txt"
+link_dotfile "starship.toml" "$HOME/.config/starship.toml"
 
 # macOS specific dotfile changes.
 if [[ $OSTYPE == 'darwin'* ]]; then
-  [ -f ~/Library/Application\ Support/Code/User/settings.json ] && mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.old
-  mkdir -p ~/Library/Application\ Support/Code/User
-  mkdir -p ~/Library/Application\ Support/Code\ -\ Insiders/User
-  cp vscode/.vscode-settings.json ~/Library/Application\ Support/Code/User/settings.json # VSCode
-  cp vscode/.vscode-settings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/settings.json # VSCode Insiders
-  #cp vscode/keybindings.json ~/Library/Application\ Support/Code/User/keybindings # VSCode
-  #cp vscode/keybindings.json ~/Library/Application\ Support/Code\ -\ Insiders/User/keybindings.json # VSCode Insiders
+  link_dotfile "vscode/.vscode-settings.json" "$HOME/Library/Application Support/Code/User/settings.json" # VSCode
+  link_dotfile "vscode/.vscode-settings.json" "$HOME/Library/Application Support/Code - Insiders/User/settings.json" # VSCode Insiders
+  #link_dotfile "vscode/keybindings.json" "$HOME/Library/Application Support/Code/User/keybindings.json" # VSCode
+  #link_dotfile "vscode/keybindings.json" "$HOME/Library/Application Support/Code - Insiders/User/keybindings.json" # VSCode Insiders
   defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false # VSCode
   defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false # VSCode Insiders
   
-  mkdir -p ~/Library/Developer/Xcode/UserData/FontAndColorThemes/ && cp xcode/Zenburn.xccolortheme ~/Library/Developer/Xcode/UserData/FontAndColorThemes/Zenburn.xccolortheme
+  link_dotfile "xcode/Zenburn.xccolortheme" "$HOME/Library/Developer/Xcode/UserData/FontAndColorThemes/Zenburn.xccolortheme"
   echo "You will need to manually select the Zenburn theme under Xcode > Preferences > Themes."
   echo "Further, you will need to manually install the Zenburn themes for Terminal.app and iTerm2.app"
 
@@ -289,9 +269,8 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
-# copy the vim config files
-mkdir -p ~/.config/nvim && cp .config/nvim/init.vim ~/.config/nvim/init.vim
-cp .vimrc ~/.vimrc
+link_dotfile ".config/nvim/init.vim" "$HOME/.config/nvim/init.vim"
+link_dotfile ".vimrc" "$HOME/.vimrc"
 if command -v nvim > /dev/null; then
   nvim +'PlugInstall --sync' +qa
   nvim +'PlugClean --sync' +qa
@@ -308,7 +287,9 @@ if [ $EMACSTOOLS = 1 ]; then
 
     mkdir -p ~/.config/doom
     ~/.config/emacs/bin/doom upgrade
-    cp -rf .config/doom/ ~/.config/doom
+    link_dotfile ".config/doom/config.org" "$HOME/.config/doom/config.org"
+    link_dotfile ".config/doom/init.el" "$HOME/.config/doom/init.el"
+    link_dotfile ".config/doom/packages.el" "$HOME/.config/doom/packages.el"
     ~/.config/emacs/bin/doom sync
 fi
 

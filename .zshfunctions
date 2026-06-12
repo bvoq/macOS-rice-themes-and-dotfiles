@@ -142,6 +142,40 @@ install_brewfile() {
   #report_brewfile_size "$brew_file"
 }
 
+link_dotfile() {
+    local source_path="${1:a}"
+    local target_path="${2:a}"
+    local backup_root="$PWD/backups"
+    local backup_path
+
+    [[ -e "$source_path" || -L "$source_path" ]] || { echo "Dotfile source missing: $source_path"; return 1; }
+
+    if [[ "$target_path" == "$HOME/"* ]]; then
+        backup_path="$backup_root/home/${target_path#$HOME/}"
+    else
+        backup_path="$backup_root/absolute/${target_path#/}"
+    fi
+
+    if [[ -e "$target_path" || -L "$target_path" ]]; then
+        if [[ -L "$target_path" && "$(readlink "$target_path")" == "$source_path" ]]; then
+            return 0
+        fi
+
+        local backup_base="$backup_path"
+        local backup_suffix=1
+        while [[ -e "$backup_path" || -L "$backup_path" ]]; do
+            backup_path="$backup_base.$backup_suffix"
+            (( backup_suffix++ ))
+        done
+
+        mkdir -p "${backup_path:h}"
+        mv "$target_path" "$backup_path"
+    fi
+
+    mkdir -p "${target_path:h}"
+    ln -sfn "$source_path" "$target_path"
+}
+
 report_brewfile_size() {
   local brew_file="$1"
   local brew_cellar brew_caskroom
