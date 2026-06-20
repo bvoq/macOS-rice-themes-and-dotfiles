@@ -64,27 +64,6 @@ install_librewolf() {
   rm -rf "$tmp_dir"
 }
 
-install_librewolf_policies() {
-  local librewolf_app="/Applications/LibreWolf.app"
-  local info_plist="$librewolf_app/Contents/Info.plist"
-  local legacy_policy_dir="$librewolf_app/Contents/Resources/distribution"
-  local bundle_id policy_domain
-
-  [[ -d "$librewolf_app" ]] || { echo "LibreWolf.app must be installed before policies."; return 1; }
-  [[ -f "$info_plist" ]] || { echo "LibreWolf Info.plist missing: $info_plist"; return 1; }
-
-  rm -f "$legacy_policy_dir/policies.json"
-  rmdir "$legacy_policy_dir" 2>/dev/null || true
-
-  bundle_id="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$info_plist" 2>/dev/null)"
-  [[ -n "$bundle_id" ]] || { echo "Could not determine LibreWolf bundle identifier."; return 1; }
-
-  policy_domain="/Library/Preferences/$bundle_id"
-  defaults write "$policy_domain" EnterprisePoliciesEnabled -bool TRUE
-  defaults write "$policy_domain" 'ExtensionSettings__floccus@handmadeideas.org__installation_mode' -string normal_installed
-  defaults write "$policy_domain" 'ExtensionSettings__floccus@handmadeideas.org__install_url' -string 'https://addons.mozilla.org/firefox/downloads/latest/floccus/latest.xpi'
-}
-
 install_librewolf_arkenfox() {
   local librewolf_bin="/Applications/LibreWolf.app/Contents/MacOS/librewolf"
   local support_dir="$HOME/Library/Application Support/librewolf"
@@ -205,7 +184,7 @@ if isadmin; then
 
   if [ $LIBREWOLF = 1 ]; then
     install_librewolf
-    install_librewolf_policies
+    link_dotfile "librewolf/policies.json" "/Applications/LibreWolf.app/Contents/Resources/distribution/policies.json"
   fi
 
   if [ $TEXLIGHT = 1 ]; then

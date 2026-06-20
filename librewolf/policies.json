@@ -3,7 +3,13 @@
     "ExtensionSettings": {
       "floccus@handmadeideas.org": {
         "installation_mode": "normal_installed",
-        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/floccus/latest.xpi"
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/floccus/latest.xpi",
+        "default_area": "navbar"
+      },
+      "myallychou@gmail.com": {
+        "installation_mode": "normal_installed",
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/youtube-recommended-videos/latest.xpi",
+        "default_area": "navbar"
       }
     }
   }
