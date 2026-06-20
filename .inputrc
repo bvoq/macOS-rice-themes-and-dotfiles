@@ -1,0 +1,54 @@
+# do not bell on tab-completion
+set bell-style none # Options: none, visible, audible
+
+# Adds punctuation as word delimiters
+set bind-tty-special-chars off
+
+# completion doesnt care about case
+set completion-ignore-case on
+
+set page-completions on
+
+# Adding this will result in a character being appended to
+# any file-names returned by completion, in much the same
+# way as ls -F works.
+set visible-stats on
+
+# If you have this, you will no longer have to hit the <Tab>
+# key twice to produce a list of all possible completions.
+# A single <Tab> will suffice.
+set show-all-if-ambiguous on
+
+# List immediately, don't bell if ambigous.
+set show-all-if-unmodified on
+
+# Completed names which are symbolic links to
+# directories have a slash appended.
+set mark-symlinked-directories on
+
+# Show all autocomplete results at once
+set page-completions on
+
+# If there are more than 200 possible completions for a word, ask to show them all
+set completion-query-items 200
+
+# Show extra file information when completing, like `ls -F` does
+set visible-stats on
+
+# Be more intelligent when autocompleting by also looking at the text after
+# the cursor. For example, when the current line is "cd ~/src/mozil", and
+# the cursor is on the "z", pressing Tab will not autocomplete it to "cd
+# ~/src/mozillail", but to "cd ~/src/mozilla". (This is supported by the
+# Readline used by Bash 4.)
+set skip-completed-text on
+
+# Allow UTF-8 input and output, instead of showing stuff like $'\0123\0456'
+set input-meta on
+set output-meta on
+set convert-meta off
+
+# Fix for accents input with UTF-8.
+set meta-flag on
+set input-meta on
+set output-meta on
+set convert-meta off

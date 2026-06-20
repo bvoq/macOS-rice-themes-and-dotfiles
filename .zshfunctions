@@ -1,0 +1,784 @@
+#!/bin/zsh
+isadmin() { id -G $1 | grep -q -w 80 ; }
+semver() { printf "%03d%03d%03d%03d" $(echo "$1" | tr '.' ' '); }
+is_on() { [[ -o $1 ]] && return 0 || return 1 }
+
+# usage: gitissues owner/repo username token
+gitissues() { curl -i "https://api.github.com/repos/$1/issues?state=open" -u "$2:$3" }
+
+# usage: gitdiscussions owner repo token
+gitdiscussions() {
+    curl -H "Authorization: Bearer $3" \
+         -X POST https://api.github.com/graphql \
+         -d '
+    {
+      "query": "
+        {
+          repository(owner: \"$1\", name: \"$2\") {
+            (first: 100, states: [ALL]) {
+              nodes {
+                number
+                title
+                url
+              }
+            }
+          }
+        }"
+    }
+    '
+}
+
+waitconfirm() {
+    if read -q "choice?Continue [press y/n]? "; then
+        echo "Continuing..."
+    else
+        exit 0
+    fi
+}
+
+instruments() {
+    [[ $# -gt 0 ]] || { echo "Usage: instruments <cmd> [args…]"; return 1 }
+    local cmd_path; cmd_path=$(command -v -- "$1") || { echo "Not found: $1"; return 1 }
+    shift
+    local output="/var/tmp/instruments-$(date '+%Y%m%d-%H%M%S').trace"
+    xcrun xctrace record --no-prompt --output "$output" --launch -- "$cmd_path" "$@"
+    echo "✅ Trace saved to $output"
+    open "$output" -a Instruments.app
+}
+
+bash_error_handler() {
+    # Iterate over the stack trace to find the original error location
+    echo "Encountered an error. Stacktrace:"
+    for (( i=${#BASH_SOURCE[@]}-1; i >= 0; i-- )); do
+        if [[ $i == 0 ]]; then
+            args=("$@")
+            file="${args[0]}"
+            lineno="E" # the executed command
+            content_on_line="${args[*]:2}"
+        else
+            file="${BASH_SOURCE[$i]}"
+            lineno="${BASH_LINENO[$((i-1))]}"
+            content_on_line=$(awk "NR == $lineno" "$file")
+        fi
+        trimmed_line=$(echo "$content_on_line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        if [[ ${#trimmed_line} -gt 50 ]]; then
+            limited_line="${trimmed_line:0:47}..."
+        else
+            limited_line="$trimmed_line"
+        fi
+        padded_line=$(printf "%-50s" "$limited_line")
+        echo -e "\t$padded_line  on line $lineno\t in file $file"
+    done
+}
+
+add_vscode_bookmark () {
+        local file_line="$1"
+        local label="$2"
+        code --goto "$file_line"
+        sleep 0.5
+        osascript -e 'tell application "System Events" to keystroke "p" using {command down, shift down}'
+        sleep 0.4
+        osascript -e 'tell application "System Events" to keystroke "Bookmarks: Toggle Labeled"'
+        sleep 0.1
+        osascript -e 'tell application "System Events" to key code 36'
+        sleep 0.4
+        osascript -e "tell application \"System Events\" to keystroke \"$label\""
+        sleep 0.1
+        osascript -e 'tell application "System Events" to key code 36'
+}
+
+add_xcode_bookmark() {
+    local file_line="$1"
+    local label="$2"
+    local file="${file_line%:*}"
+    local line="${file_line##*:}"
+
+    xed --line "$line" "$file"
+    osascript -e "tell application \"Xcode\" to activate" \
+        -e "tell application \"Xcode\" to open \"$file\"" \
+        -e 'delay 1' \
+        -e 'tell application "System Events" to keystroke "^" using {control down, option down, command down}' \
+        -e 'delay 0.3' \
+        -e "tell application \"System Events\" to keystroke \"$label\"" \
+        -e 'tell application "System Events" to key code 36'
+
+    echo "Added Xcode bookmark: $label at $file:$line"
+    echo "Used keystroke '^' with Control+Option+Command"
+}
+
+zsh_error_handler() {
+    # Iterate over the stack trace to find the original error location
+    echo "Encountered an error. Stacktrace:"
+    for (( i=${#funcfiletrace[@]}; i >= 1; i-- )); do
+        fileandlineno=${funcfiletrace[i]}
+        file=${fileandlineno%%:*}  # Get the first part before the first ':'
+        lineno=${fileandlineno##*:}  # Get the last part after the last ':'
+        content_on_line="$(awk "NR == $lineno" "$file")"
+        trimmed_line=$(echo "$content_on_line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        if [[ ${#trimmed_line} -gt 50 ]]; then
+            limited_line="${trimmed_line:0:47}..."
+        else
+            limited_line="$trimmed_line"
+        fi
+        padded_line=$(printf "%-50s" "$limited_line")
+        echo "\t$padded_line  on line $lineno\t in file $file."
+    done
+}
+
+set_error_handler() {
+    if [[ $SHELL == "/bin/bash" ]]; then
+        set -eE -o functrace
+        trap 'bash_error_handler ${BASH_SOURCE} ${BASH_COMMAND} ${BASH_ARGV[@]}' ERR
+    elif [[ $SHELL == "/bin/zsh" ]]; then
+        set -e
+        trap 'zsh_error_handler' ERR
+    else
+        echo "No error handler for shell $SHELL"
+    fi
+}
+
+install_brewfile() {
+  local brew_file="$1"
+  [ -f "$brew_file" ] || { echo "Brewfile missing: $brew_file"; return 1; }
+  echo "\n>>> brew bundle --file=$brew_file"
+  brew bundle --verbose --file="$brew_file"
+  #report_brewfile_size "$brew_file"
+}
+
+link_dotfile() {
+    local source_path="${1:a}"
+    local target_path="${2:a}"
+    local backup_root="$PWD/backups"
+    local backup_path
+
+    [[ -e "$source_path" || -L "$source_path" ]] || { echo "Dotfile source missing: $source_path"; return 1; }
+
+    if [[ "$target_path" == "$HOME/"* ]]; then
+        backup_path="$backup_root/home/${target_path#$HOME/}"
+    else
+        backup_path="$backup_root/absolute/${target_path#/}"
+    fi
+
+    if [[ -e "$target_path" || -L "$target_path" ]]; then
+        if [[ -L "$target_path" && "$(readlink "$target_path")" == "$source_path" ]]; then
+            return 0
+        fi
+
+        local backup_base="$backup_path"
+        local backup_suffix=1
+        while [[ -e "$backup_path" || -L "$backup_path" ]]; do
+            backup_path="$backup_base.$backup_suffix"
+            (( backup_suffix++ ))
+        done
+
+        mkdir -p "${backup_path:h}"
+        mv "$target_path" "$backup_path"
+    fi
+
+    mkdir -p "${target_path:h}"
+    ln -sfn "$source_path" "$target_path"
+}
+
+report_brewfile_size() {
+  local brew_file="$1"
+  local brew_cellar brew_caskroom
+  brew_cellar="$(brew --cellar)"
+  brew_caskroom="$(brew --caskroom)"
+  echo ">>> size report for $brew_file (sorted by size, largest first)"
+
+  echo "  formulas (including transitive dependencies):"
+  {
+    brew bundle list --file="$brew_file" --formula 2>/dev/null | while read -r dep; do
+      dep="${dep##*/}"
+      echo "$dep"
+      brew deps --installed "$dep" 2>/dev/null
+    done
+  } | sort -u | while read -r dep; do
+    [ -d "$brew_cellar/$dep" ] && /usr/bin/du -sk "$brew_cellar/$dep" | awk -v name="$dep" '{ printf "%d\t%s\n", $1, name }'
+  done | sort -rn | awk -F'\t' '{ printf "  %8.1f MB  %s\n", $1/1024, $2 }'
+
+  echo "  casks:"
+  brew bundle list --file="$brew_file" --cask 2>/dev/null | while read -r cask; do
+    [ -d "$brew_caskroom/$cask" ] && /usr/bin/du -sk "$brew_caskroom/$cask" | awk -v name="$cask" '{ printf "%d\t%s\n", $1, name }'
+  done | sort -rn | awk -F'\t' '{ printf "  %8.1f MB  %s\n", $1/1024, $2 }'
+  echo ">>> finish\n"
+}
+
+# First argument = dir, Second argument = location and name (.tar.xz)
+compressdir() {
+    if [ $# -eq 1 ]; then tar --xz -cf "$1.tar.xz" "$1"; fi
+    if [ $# -eq 2 ]; then tar --xz -cf "$2.tar.xz" "$1"; fi
+}
+
+decompressdir() {
+    bname=$(basename $1)
+    fname=${bname%.tar.xz}
+    tar --xz -xvf "$1"
+    if [ $# -eq 2 ]; then mv "$fname" "$2";  fi
+}
+
+foldertopdf () {
+  for d in "$@"; do
+    if [ -d "$d" ]; then
+      dname="${d%/}"
+      echo "converting $d"
+      (
+        cd "$d" || exit 1
+        files=( *.webp(N) *.png(N) *.jpg(N) *.jpeg(N) *.tif(N) *.tiff(N) *.pdf(N) )
+        echo "found $files"
+        (( ${#files[@]} == 0 )) && exit 0
+        files=("${(@on)files}")
+        magick "${files[@]}" "../${dname}.pdf"
+      )
+    fi
+  done
+}
+
+# Create a data URL from a file
+dataurl () {
+    local mimeType=$(file -b --mime-type "$1");
+    if [[ $mimeType == text/* ]]; then
+        mimeType="${mimeType};charset=utf-8";
+    fi
+    echo "data:${mimeType};base64,$(openssl base64 -in "$1" | tr -d '\n')";
+}
+
+# eg. utf8_encode Zoë
+utf8_encode () {
+    printf "\\\x%s" $(printf "$@" | xxd -p -c1 -u);
+    if [ -t 1 ]; then
+        echo ""
+    fi
+}
+
+# eg. utf8_decode \\x5A\\x6F\\xC3\\xAB
+utf8_decode() {
+    perl -e "binmode(STDOUT, ':utf8'); print \"$@\"";
+    if [ -t 1 ]; then
+        echo ""; # newline
+    fi;
+}
+
+
+# ===========
+# Vim DirDiff
+# ===========
+vimdirdiff()
+{
+    # Shell-escape each path:
+    DIR1=$(printf '%q' "$1"); shift
+    DIR2=$(printf '%q' "$1"); shift
+    \vim $@ -c "DirDiff $DIR1 $DIR2"
+}
+
+nvimdirdiff()
+{
+    # Shell-escape each path:
+    DIR1=$(printf '%q' "$1"); shift
+    DIR2=$(printf '%q' "$1"); shift
+    nvim $@ -c "DirDiff $DIR1 $DIR2"
+}
+
+nvimdiff()
+{
+    # Shell-escape each path:
+    DIR1=$(printf '%q' "$1"); shift
+    DIR2=$(printf '%q' "$1"); shift
+    nvim $@ -d $DIR1 $DIR2
+}
+
+
+errors() {
+    local regex='\b(?:abort(?:ed|ing|s)?|anomal(?:y|ies)|block(?:ed|ing|s)?|breach(?:ed|ing|es)?|break(?:s|ing|age)?|brok(?:e|en)|bugs?|cannot|code 1|compromis(?:e|ed|ing|es)?|conflict(?:ed|ing|s)?|corrupt(?:ed|ing|s|ion|ions)?|crash(?:ed|ing|es)?|critical|defect(?:ed|ing|s|ive)?|den(?:y|ied|ies|ial|ials)?|deprecat(?:e|ed|ing|es|ion|ions)?|detect(?:ed|ing|s)?|discrepanc(?:y|ies)|err(?:or|ors)?|exceed(?:ed|ing|s)?|except(?:ion|ions)?|expir(?:e|ed|es|ing)|fail(?:ed|ing|s|ure|ures)?|fatal|fault(?:ed|ing|s|y)?|forbidden|hang(?:ed|ing|s)?|illegal|incorrect|inconsistent|invalid|issue(?:s)?|kill(?:ed|ing|s)?|leak(?:ed|ing|s)?|limit(?:ed|ing|s)?|loss(?:es)?|mismatch(?:ed|ing|es)?|miss(?:ed|ing|es)?|mistake(?:n|s)?|no\s+route|not\s+found|not\s+known|not\s+permitted|overflow(?:ed|ing|s)?|overheat(?:ed|ing|s)?|panic(?:s|ked|king)?|problem(?:s|atic)?|race\s+condition|refus(?:e|ed|ing|es|al)?|reject(?:ed|ing|s|ion|ions)?|segfault(?:ed|ing|s)?|shutdown(?:s)?|terminat(?:e|ed|ing|es|ion|ions)?|threat(?:en|ened|ening|s)?|timedout(?:s)?|timed out|unavailable|unauthori[sz]ed|undefined|unexpected|unhandled|unknown|unreachable|unrecoverable|unresponsive|violat(?:e|ed|ing|es|ion|ions)?|(?:server|system|connection|service|network|database|application|link|interface|cluster)\s+down|(?:disk|memory|buffer|queue|log|cache|storage|heap|stack|table)\s+full|(?:connection|read|write|request|operation|session|login|execution|gateway|handshake)\s+timeout)\b'
+
+  # Case: Input is an argument.
+  if [ -t 0 ]; then
+      # One argument: filename
+      if [ "$#" -eq 1 ]; then
+          local surroundno=1
+      elif [ "$#" -eq 2 ]; then
+          # Two arguments: filename and context lines
+          local surroundno="$2"
+      else
+          echo "Usage: filtererrors file [context_lines]" >&2
+          echo "Alternative Usage: cat file | filtererrors [context_lines]" >&2
+          return 1
+      fi
+      if command -v rg > /dev/null 2>&1; then
+          rg -n --colors 'column:fg:blue' \
+              --colors 'column:bg:yellow' \
+              --colors 'column:style:bold' \
+              --colors 'match:none' \
+              --colors 'match:bg:0x33,0x66,0xFF' \
+              --colors 'match:fg:white' \
+              --colors 'match:style:bold' \
+              --column \
+              -C "$surroundno" "$regex" "$1"
+                    else
+                        grep -Ei -C "$surroundno" -n "$regex" "$1"
+      fi
+      # Case: Input is piped in.
+  else
+      if [ "$#" -eq 0 ]; then
+          local surroundno=1
+      elif [ "$#" -eq 1 ]; then
+          local surroundno="$1"
+      else
+          echo "Usage: cat file | filtererrors [context_lines]" >&2
+          return 1
+      fi
+      if command -v rg > /dev/null 2>&1; then
+          rg -n --colors 'column:fg:blue' \
+              --colors 'column:bg:yellow' \
+              --colors 'column:style:bold' \
+              --colors 'match:none' \
+              --colors 'match:bg:0x33,0x66,0xFF' \
+              --colors 'match:fg:white' \
+              --colors 'match:style:bold' \
+              --column \
+              -C "$surroundno" "$regex"
+                    else
+                        grep -n -Ei -C "$surroundno" "$regex"
+      fi
+  fi
+}
+
+__removesensitive() {
+    echo "seding $1"
+    sed -E -i.bak 's/K.{13}\$/EXAMPLE/g' "$1" && rm "$1.bak"
+    sed -E -i.bak 's/K.{12}4/EXAMPLE/g' "$1" && rm "$1.bak"
+    sed -E -i.bak 's/I.{7}\$/EXAMPLE/g' "$1" && rm "$1.bak"
+    sed -E -i.bak 's/I.{6}4/EXAMPLE/g' "$1" && rm "$1.bak"
+    sed -E -i.bak 's/AKIA[0-9A-Z]{16}/EXAMPLE_AWS_ACCESS_KEY/g' "$1" && rm "$1.bak"
+
+    perl -0777 -pi -e 's/-----BEGIN.*?-----END.*?-----/-----BEGIN EXAMPLE KEY BLOCK-----\n-----END EXAMPLE KEY BLOCK-----/sg' "$1"
+}
+__removesensitiveandurls() {
+    __removesensitive "$1"
+    # remove all urls
+    perl -pi -e 's{https?://[^<('"'"')"\s]+}{https://example.com}g' "$1"
+    perl -pi -e 's{ftp?://[^<('"'"')"\s]+}{ftp://example}g' "$1"
+    perl -pi -e 's{mysql?://[^<('"'"')"\s]+}{mysql://example}g' "$1"
+    sed -E -i.bak 's/([a-zA-Z0-9._]+@[a-zA-Z0-9._]+\.[a-zA-Z0-9._]+)/example@example.com/g' "$1" && rm "$1.bak"
+}
+
+removesensitive() {
+    local files=()
+    if [ -t 0 ]; then
+        files=("$@")
+    else
+        while IFS= read -r line; do
+            files+=("$line")
+        done
+    fi
+    for file in "${files[@]}"; do
+        if [ ! -f "$file" ]; then
+            echo "File '$file' not found, skipping." >&2
+            continue
+        fi
+        __removesensitive "$file"
+    done
+}
+
+
+aichatgit() {
+    git diff > __changes.txt
+    files=($({ { git diff --name-only; git ls-files --others --exclude-standard; } | sort -u | while IFS= read -r file; do
+        if [ -f "$file" ] && [ "$(wc -l < "$file")" -le 4000 ]; then
+            echo "$file"
+        fi
+    done; }))
+    echo "Reading piped input"
+    if ! [ -t 0 ]; then
+        while IFS= read -r line; do
+            files+=("$line")
+        done
+    fi
+    echo "Finished reading piped input"
+    files+=( "__changes.txt" )
+    tmp_files=()
+    args=()
+    echo "all files ${files[@]}"
+    for file in "${files[@]}"; do
+        echo "$file"
+        if [ ! -f "$file" ]; then
+            echo "File '$file' not found, skipping." >&2
+            continue
+        fi
+
+    # Copy the file into /tmp using its basename.
+    cp "$file" /tmp/ || { echo "Failed to copy $file to /tmp" >&2; continue; }
+    local tmp_file="/tmp/$(basename "$file")"
+    echo "running __removesensitive $tmp_file"
+    __removesensitive "$tmp_file"
+    tmp_files+=( "$tmp_file" )
+    args+=( -f "$tmp_file" )
+    echo "$tmp_file"
+done
+rm __changes.txt
+if [ "${#args[@]}" -gt 0 ]; then
+    echo "aichat ${args[@]} $@"
+    aichat "${args[@]}" "$@"
+    rm "${args[@]}"
+else
+    echo "No valid files to process." >&2
+fi
+}
+
+# Darwin specific
+assure_userlevel_zsh() {
+    if [[ "$(dscl . -read ~/ UserShell)" == */bin/bash ]]; then
+        echo "Your current user shell is /bin/bash. Let's change this to zsh."
+        echo "This script will execute: chsh -s /bin/zsh"
+        waitconfirm
+        chsh -s /bin/zsh
+    fi
+}
+
+check_not_rosetta() {
+    if [[ "$(uname -m)" == "arm64" && "$(sysctl -n sysctl.proc_translated)" != 0 ]]; then
+        echo "It seems you are running this script with Rosetta enabled."
+        echo "Make sure that this terminal or session has Rosetta turned off."
+        echo "For example: Right-Click Terminal > Get Info > Uncheck Open using Rosetta"
+        exit 1
+    fi
+}
+
+
+flatten_folder() {
+    # Default values:
+    local comment="#"
+    local dir="."
+    # Process arguments:
+    while [[ "$1" == --* ]]; do
+        case "$1" in
+            --comment)
+                shift
+                comment="$1"
+                shift
+                ;;
+            --help)
+                echo "Usage: flatten_folder [--comment <comment_marker>] [directory]"
+                return 0
+                ;;
+            *)
+                echo "Unknown option: $1" >&2
+                return 1
+                ;;
+        esac
+    done
+    if [ -n "$1" ]; then
+        if [ -d "$1" ]; then
+            dir="$1"
+        else
+            dir=$(dirname "$1")
+        fi
+    fi
+
+    # Store all file paths in an array
+    local files=()
+    while IFS= read -r -d '' file; do
+        # Use iconv to verify the file only contains valid UTF-8.
+        if file "$file" | grep -qi text && iconv -f utf-8 -t utf-8 "$file" > /dev/null 2>&1; then
+            files+=("$file")
+        fi
+    done < <(find "$dir" -type f -print0)
+
+    # Calculate the total size (in bytes) of text files
+    local total_size=0
+    for file in "${files[@]}"; do
+        # Using GNU stat; adjust if on another platform
+        local size=$(wc -c < "$file" | awk '{print $1}')
+        total_size=$((total_size + size))
+    done
+
+    echo "$comment Total size of text files: $total_size bytes"
+
+    # Flatten the text files with a header for each file
+    for file in "${files[@]}"; do
+        if file "$file" | grep -qi text; then
+            echo '```'
+            echo "$comment File: $file"
+            cat "$file"
+            echo '```'
+        fi
+    done
+}
+
+compressvideo() {
+    if [ $# -lt 2 ]; then
+        echo "Usage: compress_video <input_file> <size_in_MB> [output_file]"
+        return 1
+    fi
+    INPUT="$1"
+    SIZE_MB="$2"
+    OUTPUT="${3:-output_compressed.mp4}"
+    MAX_ATTEMPTS=5
+    REDUCTION_FACTOR=0.9
+    DURATION=$(ffprobe -v error -select_streams v:0 -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$INPUT")
+    TARGET_SIZE_BYTES=$((SIZE_MB * 1024 * 1024))
+    AUDIO_BITRATE=128
+    TOTAL_BITRATE=$(echo "$TARGET_SIZE_BYTES * 8 / $DURATION / 1000" | bc)
+
+    attempt=1
+    while [ $attempt -le $MAX_ATTEMPTS ]; do
+        VIDEO_BITRATE=$((TOTAL_BITRATE - AUDIO_BITRATE))
+        if [ "$VIDEO_BITRATE" -le 0 ]; then
+            AUDIO_BITRATE=64
+            VIDEO_BITRATE=$((TOTAL_BITRATE - AUDIO_BITRATE))
+            if [ "$VIDEO_BITRATE" -le 0 ]; then
+                return 1
+            fi
+        fi
+        rm -f ffmpeg2pass-0.log*
+        ffmpeg -y -i "$INPUT" -c:v libx264 -preset medium -b:v "${VIDEO_BITRATE}k" -pass 1 -c:a aac -b:a "${AUDIO_BITRATE}k" -f mp4 /dev/null
+        ffmpeg -i "$INPUT" -c:v libx264 -preset medium -b:v "${VIDEO_BITRATE}k" -pass 2 -c:a aac -b:a "${AUDIO_BITRATE}k" "$OUTPUT"
+        SIZE=$(stat -c%s "$OUTPUT" 2>/dev/null || stat -f%z "$OUTPUT")
+        if [ "$SIZE" -le "$TARGET_SIZE_BYTES" ]; then
+            return 0
+        else
+            rm -f "$OUTPUT"
+            TOTAL_BITRATE=$(echo "$TOTAL_BITRATE * $REDUCTION_FACTOR" | bc | awk '{printf "%d\n",$0}')
+            if [ "$TOTAL_BITRATE" -le 0 ]; then
+                return 1
+            fi
+        fi
+        attempt=$((attempt + 1))
+    done
+    return 1
+}
+
+hopen() {
+    local dir="${1:-.}"
+    if [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
+        open "$dir" -a Terminal.app
+    elif [[ -d "/Applications/iTerm.app" ]]; then
+        open "$dir" -a iTerm.app
+    else
+        open "$dir" -a Terminal.app
+    fi
+}
+
+gifgen() {
+    # gifgen - Credits: https://github.com/lukechilds/gifgen
+    local show_help=false
+    
+    show_help_text() {
+        echo "gifgen 1.2.0"
+        echo
+        echo "Usage: gifgen [options] [input]"
+        echo
+        echo "Options:"
+        echo "  -o   Output file [input.gif]"
+        echo "  -f   Frames per second [10]"
+        echo "  -s   Optimize for static background"
+        echo "  -d   Set dither pattern in ffmpeg"
+        echo "  -v   Display verbose output from ffmpeg"
+        echo "  -w   Scale output with horizontal resolution"
+        echo "  -b   Begin the clip at a given timestamp (in seconds)"
+        echo "  -t   Duration in seconds of the resulting gif, can be combined with at"
+        echo
+        echo "Examples:"
+        echo "  $ gifgen video.mp4"
+        echo "  $ gifgen -o demo.gif SCM_1457.mp4"
+        echo "  $ gifgen -sf 15 screencap.mov"
+        echo "  $ gifgen -sf 15 -w 320 screencap.mov"
+        echo
+        echo "Begin at 3.5 seconds into the video, make the gif using the next 5.5 seconds"
+        echo "  $ gifgen -b 3.5 -t 5.5 screencap.mov"
+    }
+    
+    # Setup defaults
+    local pid=$$
+    local palette="/tmp/gif-palette-$pid.png"
+    local fps="24"
+    local verbosity="warning"
+    local stats_mode="full"
+    local dither="sierra2_4a"
+    local scale=""
+    local scale_num=""
+    local begin=""
+    local duration=""
+    local output=""
+    local input=""
+    
+    # Parse args
+    while getopts "hi:o:f:w:b:t:d:sv" opt; do
+        case "$opt" in
+            h)
+                show_help=true
+                ;;
+            o)
+                output=$OPTARG
+                ;;
+            f)
+                fps=$OPTARG
+                ;;
+            s)
+                stats_mode="diff"
+                ;;
+            d)
+                dither=$OPTARG
+                ;;
+            w)
+                scale_num=$OPTARG
+                ;;
+            b)
+                begin="-ss $OPTARG"
+                ;;
+            t)
+                duration="-t $OPTARG"
+                ;;
+            v)
+                verbosity="info"
+                ;;
+        esac
+    done
+    shift "$((OPTIND-1))"
+    # Grab input file from end of command
+    input=$1
+    
+    [[ -n "$scale_num" ]] && scale=",scale=$scale_num:-1:flags=lanczos"
+    
+    # Show help and exit if we have no input
+    [[ "$input" = "" ]] || [[ $show_help = true ]] && show_help_text && return
+    
+    # Check for ffmpeg before encoding
+    type ffmpeg >/dev/null 2>&1 || {
+        echo "Error: gifgen requires ffmpeg to be installed"
+        return 1
+    }
+    
+    # Set output if not specified
+    if [[ "$output" = "" ]]; then
+        local input_filename=${input##*/}
+        output=${input_filename%.*}
+        if [[ "$scale_num" != "" ]]; then
+            output=${output%.*}_$scale_num
+        fi
+        output=${output%.*}.gif
+    fi
+    
+    # Encode GIF
+    echo "Generating palette..."
+    ffmpeg -v "$verbosity" $begin $duration -i "$input" -vf "fps=$fps$scale,palettegen=stats_mode=$stats_mode" -y "$palette"
+    [[ "$verbosity" = "info" ]] && echo
+    echo "Encoding GIF..."
+    ffmpeg -v "$verbosity" $begin $duration -i "$input" -i "$palette" -lavfi "fps=$fps$scale [x]; [x][1:v] paletteuse=dither=$dither" -y "$output"
+    echo "Done!"
+}
+
+rcloneclean() {
+  [[ -z "$1" ]] && { echo "Usage: rcloneclean <remote:path/>"; return 1 }
+  command -v rclone &>/dev/null || { echo "rclone not found"; return 1 }
+  rclone delete "$1" \
+    --include ".DS_Store" \
+    --include "._*" \
+    --include "Thumbs.db" \
+    --include "desktop.ini" \
+    --include ".Spotlight-V100/**" \
+    --include ".Trashes/**" \
+    --include ".fseventsd/**" \
+    --include ".TemporaryItems/**" \
+    --include '$RECYCLE.BIN/**' \
+    --include "System Volume Information/**" \
+    -v
+}
+
+
+bsync() {
+  local RESYNC=0
+  [[ "$1" == "--resync" ]] && { RESYNC=1; shift }
+
+  local LOCAL="$1"
+  local REMOTE="$2"
+  local MAX_DELETE=20
+
+  # Preflight
+  command -v rclone &>/dev/null || { echo "rclone not found"; return 1 }
+  [[ -d "$LOCAL" ]]            || { echo "Local path missing: $LOCAL"; return 1 }
+  rclone lsd "$REMOTE" &>/dev/null || { echo "Remote not accessible: $REMOTE"; return 1 }
+
+  # Ensure access sentinel exists on BOTH sides (required for --check-access)
+  if [[ ! -f "$LOCAL/RCLONE_TEST" ]]; then
+    echo "Creating RCLONE_TEST locally..."
+    echo "rclone bisync access check" > "$LOCAL/RCLONE_TEST"
+  fi
+  
+  # Copy it to remote if it doesn't exist there
+  if ! rclone lsf "$REMOTE" | grep -q "^RCLONE_TEST$"; then
+    echo "Creating RCLONE_TEST on remote..."
+    rclone copyto "$LOCAL/RCLONE_TEST" "$REMOTE/RCLONE_TEST"
+  fi
+
+  # Common flags
+  local FLAGS=(
+    --check-access
+    --max-delete "$MAX_DELETE"
+    --conflict-resolve newer
+    --exclude ".DS_Store"
+    --exclude "._*"
+    --exclude ".Spotlight-V100"
+    --exclude ".Trashes"
+    --exclude ".fseventsd"
+    --exclude ".TemporaryItems"
+    --exclude "Thumbs.db"
+    --exclude "desktop.ini"
+    --exclude '$RECYCLE.BIN'
+    --exclude "System Volume Information"
+    -v
+  )
+
+  _run_bisync() {
+    rclone bisync "$LOCAL" "$REMOTE" "${FLAGS[@]}" "$@"
+  }
+
+  _confirm() {
+    read "reply?$1 (y/n): "
+    [[ "$reply" == "y" ]]
+  }
+
+  # Resync mode
+  if [[ $RESYNC -eq 1 ]]; then
+    echo "=== Resync dry-run ==="
+    _run_bisync --resync --dry-run || return 1
+    _confirm "Run actual resync?" || { echo "Cancelled."; return 0 }
+    echo "=== Resyncing ==="
+    _run_bisync --resync && echo "✓ Done. Use 'bsync' from now on." || echo "ERROR. Check $LOG"
+    return
+  fi
+
+  # Normal sync: dry-run, summarise, confirm
+  echo "=== Dry-run: $LOCAL <-> $REMOTE ==="
+  local out
+  out=$(_run_bisync --dry-run 2>&1)
+  local rc=$?
+  echo "$out"
+
+  echo "\n--- Summary ---"
+  echo "Copy  → remote : $(echo "$out" | grep -c "COPY.*$REMOTE")"
+  echo "Copy  → local  : $(echo "$out" | grep -c "COPY.*$LOCAL")"
+  echo "Delete (remote): $(echo "$out" | grep -c "DELETE.*$REMOTE")"
+  echo "Delete (local) : $(echo "$out" | grep -c "DELETE.*$LOCAL")"
+  local conflicts=$(echo "$out" | grep -c "conflict\|CONFLICT")
+  (( conflicts > 0 )) && echo "Conflicts      : $conflicts (keeping newer)"
+
+  [[ $rc -ne 0 ]] && { echo "Dry-run failed (exit $rc). First run? Try: bsync --resync"; return $rc }
+  echo "$out" | grep -q "up to date\|No changes\|0 changes" && { echo "✓ Already in sync."; return 0 }
+
+  _confirm "\nProceed with sync?" || { echo "Cancelled."; return 0 }
+  echo "=== Syncing ==="
+  _run_bisync && echo "✓ Done. Log: $LOG" || { echo "ERROR. Check $LOG"; return 1 }
+}
+
+# Find similar (near-duplicate) files using fuzzy hashing
+# Usage: dupsim <directory> <sensitivity 0-100>
+dupsim() {
+  if [[ $# -ne 2 ]]; then
+    echo "Usage: dupsim <directory> <sensitivity>"
+    echo "  Example: dupsim ~/Documents 70"
+    echo "  Sensitivity: 0 (low, many matches) to 100 (high, near-identical only)"
+    return 1
+  fi
+  find "$1" -type f -print0 | xargs -0 ssdeep -pl -t "$2"
+}

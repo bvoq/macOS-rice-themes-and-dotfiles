@@ -1,0 +1,187 @@
+{
+    "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "editor.rulers": [
+            80
+        ],
+        "editor.selectionHighlight": false,
+        "editor.suggest.snippetsPreventQuickSuggestions": false,
+        "editor.suggestSelection": "first",
+        "editor.tabCompletion": "onlySnippets",
+        "editor.wordBasedSuggestions": "off",
+        "editor.suggest.filterGraceful": true,
+        "editor.suggest.showClasses": false,
+        "editor.inlayHints.enabled": "offUnlessPressed",
+        "editor.lineHeight": 17
+    },
+    "dart.analyzerLogFile": "/tmp/dart_analyzer.log",
+    "dart.debugExternalPackageLibraries": true,
+    "dart.debugSdkLibraries": true,
+    "dart.previewFlutterUiGuidesCustomTracking": true,
+    "dart.previewFlutterUiGuides": true,
+    "dart.previewCommitCharacters": true,
+    "dart.enableCompletionCommitCharacters": true,
+    "dart.runPubGetOnNestedProjects": "both",
+
+    // Hot AI garbage
+    "chat.agent.maxRequests": 2000,
+    "chat.tools.global.autoApprove": true,
+    "chat.tools.eligibleForAutoApproval": {
+      // GitKraken/GitLens MCP tools: block risky write operations
+      "mcp_gitkraken_git_push": false,
+      "mcp_gitkraken_git_add_or_commit": false,
+      "mcp_gitkraken_git_checkout": false,
+      "mcp_gitkraken_git_stash": false,
+      "mcp_gitkraken_pull_request_create": false,
+      "mcp_gitkraken_pull_request_create_review": false,
+      "mcp_gitkraken_issues_add_comment": false
+    },
+    "chat.tools.urls.autoApprove": {
+        "*": true
+    },
+    "github.copilot.chat.anthropic.tools.websearch.allowedDomains": [
+        "*"
+    ],
+    "chat.tools.terminal.autoApprove": {
+      // Block specific risky commands (evaluated first)
+      "rm": false,
+      "rmdir": false,
+      "del": false,
+      "kill": false,
+      "chmod": false,
+      "chown": false,
+      "/^git\\s+(push|reset|revert|clean|checkout|stash|commit|add|merge|rebase)\\b/": false,
+      "/.*\\s+-f\\b/": false,     
+      "/.*\\s+-rf\\b/": false,    
+      "/.*\\s+-fr\\b/": false,     
+      "/.*\\s+--force\\b/": false,
+      
+      // Default: auto-approve everything else
+      "*": true
+    },
+
+
+
+    // Editor settings - Fonts
+    "editor.codeLensFontFamily": "SourceCodePro",
+    "editor.fontFamily": "SourceCodePro, Menlo, Monaco, 'Courier New', monospace",
+    "editor.fontLigatures": false,
+    // Editor settings - Color brackets
+    "editor.bracketPairColorization.enabled": true,
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": false,
+    "editor.guides.bracketPairs": true,
+    "editor.guides.bracketPairsHorizontal": false,
+    "editor.guides.highlightActiveBracketPair": true,
+    "editor.guides.indentation": false,
+    "editor.guides.highlightActiveIndentation": true,
+    // Editor settings - Others
+    "editor.accessibilitySupport": "off",
+    "editor.cursorSurroundingLines": 8,
+    "editor.inlineSuggest.enabled": true,
+    "editor.lineNumbers": "on",
+    "editor.padding.bottom": 48, // see also editor.scrollBeyondLastLine
+    "editor.renderWhitespace": "boundary",
+    "editor.renderControlCharacters": true,
+    "editor.render": true,
+    "editor.scrollBeyondLastLine": false, // see also editor.padding.bottom
+    "editor.semanticHighlighting.enabled": true,
+    "editor.suggestSelection": "first",
+    "explorer.fileNesting.expand": false,
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        ".gitignore": ".gitattributes,.gitignore",
+        "pubspec.yaml": ".editorconfig,.flutter-plugins,.flutter-plugins-dependencies,.metadata,.packages,build.yaml,pubspec.lock,pubspec.yaml,all_lint_rules.yaml,analysis_options.yaml,l10n.yaml,dcm_baseline.json,cspell.json,melos_*.iml",
+        "*.dart": "${capture}.freezed.dart,${capture}.g.dart,${capture}.hive.dart,${capture}.gr.dart",
+    },
+
+    "git.openRepositoryInParentFolders": "always",
+    "git.suggestSmartCommit": true,
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": true,
+        "markdown": false,
+        "yaml": false
+    },
+
+    "material-icon-theme.foldersAssociations": {
+      "application": "folder-type",
+      "domain": "include",
+      "infrastructure": "database",
+      "ui": "views"
+    },
+
+    "redhat.telemetry.enabled": false,
+    "http.proxyAuthorization": null,
+    "terminal.integrated.scrollback": 1000000,
+    "debug.console.maximumLines":     1000000,
+
+    "dash.fileNameToDocsetMap": {
+
+        "[dD]ocker*": [
+            "docker"
+        ],
+        "Vagrantfile": [
+            "vagrant"
+        ],
+        "gruntfile.js": [
+            "grunt"
+        ],
+        "gulpfile.js": [
+            "gulp"
+        ],
+        "*.ino": [
+            "arduino"
+        ],
+        "*.dart": [
+            "dartlang",
+            "dartdocs"
+        ]
+    },
+    "terminal.integrated.shellIntegration.enabled": false,
+
+    "toggle.settingTitle": "[dart]editor.inlayHints.enabled",
+    "toggle.setting1Title": "off",
+    "toggle.settingState1": "offUnlessPressed",
+    "toggle.setting2Title": "on",
+    "toggle.settingState2": "onUnlessPressed",
+    "workbench.editor.wrapTabs": true,
+    "workbench.editor.pinnedTabsOnSeparateRow": true,
+
+    "workbench.editor.tabActionLocation": "left",
+    "workbench.sideBar.location": "right",
+    "workbench.colorCustomizations": {
+      "editorInlayHint.background": "#00000000",
+      "editorInlayHint.foreground": "#666666FF",
+      "editorInlayHint.parameterBackground": "#00000000",
+      "editorInlayHint.parameterForeground": "#666666FF",
+      "editorInlayHint.typeBackground": "#00000000",
+      "editorInlayHint.typeForeground": "#666666FF",
+
+      "editorBracketPairGuide.background1": "#333333",
+      "editorBracketPairGuide.background2": "#333333",
+      "editorBracketPairGuide.background3": "#333333",
+      "editorBracketPairGuide.background4": "#333333",
+      "editorBracketPairGuide.background5": "#333333",
+      "editorBracketPairGuide.background6": "#333333",
+      "editorWhitespace.foreground": "#333333",
+      "[*Light*]": {
+        "editorBracketPairGuide.background1": "#cccccc",
+        "editorBracketPairGuide.background2": "#cccccc",
+        "editorBracketPairGuide.background3": "#cccccc",
+        "editorBracketPairGuide.background4": "#cccccc",
+        "editorBracketPairGuide.background5": "#cccccc",
+        "editorBracketPairGuide.background6": "#cccccc",
+        "editorWhitespace.foreground": "#cccccc",
+      },
+    },
+
+
+    "workbench.preferredLightColorTheme": "Quiet Light",
+    "workbench.preferredDarkColorTheme": "One Quiet Dark Pro",
+    "diffEditor.experimental.showMoves": true,
+    "[yaml]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    }
+}
+
