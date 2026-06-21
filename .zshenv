@@ -38,10 +38,6 @@ export PATH=${PATH}:${HOME}/go/bin
 export PATH="$PATH:$HOME/.config/emacs/bin"
 export DOOMDIR="$HOME/.config/doom"
 
-# Unity/Dotnet
-export DOTNET_ROOT="${HOME}/.dotnet"
-export PATH="${PATH}:$DOTNET_ROOT"
-
 # Ruby (user-installed)
 GEM_PATH="$HOME/.gem/ruby"
 if [ -d "$GEM_PATH" ]; then
