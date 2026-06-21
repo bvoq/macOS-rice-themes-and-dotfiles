@@ -133,12 +133,6 @@ CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
 
 
 
-# Package shell fragments
-for zshrc_file in "${ZDOTDIR:-$HOME}"/.zshrc.d/*.zsh(N); do
-  source "$zshrc_file"
-done
-unset zshrc_file
-
 # ==============
 # macOS specific 
 # ==============
@@ -389,6 +383,12 @@ fi
 FPATH=$HOME/.zsh/completions:$FPATH
 autoload -Uz compinit
 compinit -u 2>/dev/null || compinit -C
+
+# Package shell fragments
+for zshrc_file in "${ZDOTDIR:-$HOME}"/.zshrc.d/*.zsh(N); do
+  source "$zshrc_file"
+done
+unset zshrc_file
 
 # Initialize antidote plugin manager
 CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
