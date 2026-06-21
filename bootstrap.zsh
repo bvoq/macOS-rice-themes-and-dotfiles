@@ -6,7 +6,6 @@ CRYPTO=0
 FORMALMETHODS=0
 GENERICTOOLS=1
 GENERICCASKTOOLS=1
-EMACSTOOLS=1
 DEVOPSTOOLS=0
 MOBILETOOLS=0
 UNITYTOOLS=0
@@ -22,7 +21,9 @@ bootstrap_folders=(
   # ai
   # crypto
   # devops
-  # emacs
+  vim
+  nvim
+  emacs
   # formal
   # generic
   # generic-cask
@@ -80,16 +81,6 @@ if isadmin; then
   if [ $GENERICTOOLS = 1 ]; then
     install_brewfile brew/Brewfile.generic_crossplatform
     install_brewfile brew/Brewfile.generic_macos
-  fi
-
-  if [ $EMACSTOOLS = 1 ]; then
-    install_brewfile brew/Brewfile.emacs
-    # tdlib is needed for telegram for emacs
-    # tdlib --HEAD needs ccache to be installed and have super shims set up.
-    brew install ccache
-    ln -s /opt/homebrew/bin/ccache /opt/homebrew/Library/Homebrew/shims/mac/super/ccache
-    brew install tdlib --HEAD || true # even if this fails, we need to remove ccache link
-    rm -f /opt/homebrew/Library/Homebrew/shims/mac/super/ccache
   fi
 
   if [ $MOBILETOOLS = 1 ]; then
@@ -302,42 +293,7 @@ source ~/.zshrc  # Source the new zshrc with antidote
 # Section 4: Installing user-level tools that require the dotfiles to be in place. #
 ####################################################################################
 
-
-echo "Installing Vim and Neovim configurations and plugins"
-
 run_bootstrap_phase 4_post_dotfiles
-
-# Install vim and neovim
-# install vundle for vim
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-# install vundle for nvim
-sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
-       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-
-link_dotfile ".config/nvim/init.vim" "$HOME/.config/nvim/init.vim"
-link_dotfile ".vimrc" "$HOME/.vimrc"
-if command -v nvim > /dev/null; then
-  nvim +'PlugInstall --sync' +qa
-  nvim +'PlugClean --sync' +qa
-fi
-\vim +'PlugInstall --sync' +qa
-\vim +'PlugClean --sync' +qa
-
-if [ $EMACSTOOLS = 1 ]; then
-    # doom emacs
-    if [ ! -f ~/.config/emacs/bin/doom ]; then
-      git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
-      ~/.config/emacs/bin/doom install --env
-    fi
-
-    mkdir -p ~/.config/doom
-    ~/.config/emacs/bin/doom upgrade
-    link_dotfile ".config/doom/config.org" "$HOME/.config/doom/config.org"
-    link_dotfile ".config/doom/init.el" "$HOME/.config/doom/init.el"
-    link_dotfile ".config/doom/packages.el" "$HOME/.config/doom/packages.el"
-    ~/.config/emacs/bin/doom sync
-fi
 
 echo "Installing VSCode extensions"
 waitconfirm

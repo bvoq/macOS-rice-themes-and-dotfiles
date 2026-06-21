@@ -55,7 +55,7 @@ Remove-Variable profileDir
 Copy-Item -Path ./.gitconfig -Destination $HOME/.gitconfig
 Copy-Item -Path ./.gitattributes_global -Destination $HOME/.gitattributes_global
 Copy-Item -Path ./vscode/.vscode-settings.json -Destination $env:APPDATA\Code\User\settings.json
-Copy-Item -Path ./.vimrc -Destination $HOME/.vimrc
+Copy-Item -Path ./vim/.vimrc -Destination $HOME/.vimrc
 
 # Create .config directory and copy starship config
 New-Item -Path $HOME/.config -ItemType Directory -Force -ErrorAction SilentlyContinue
