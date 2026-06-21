@@ -1,0 +1,4 @@
+brew "eprover"
+brew "spin"
+
+cask "tla-plus-toolbox"

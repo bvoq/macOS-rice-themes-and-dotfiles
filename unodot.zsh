@@ -1,12 +1,8 @@
 #!/bin/zsh
 
 # enable what you want to install here
-AITOOLS=0
-CRYPTO=0
-FORMALMETHODS=0
 GENERICTOOLS=1
 GENERICCASKTOOLS=1
-MOBILETOOLS=0
 UNITYTOOLS=0
 LOWLEVELTOOLS=0
 TEXLIGHT=0
@@ -82,35 +78,8 @@ if isadmin; then
     install_brewfile brew/Brewfile.generic_macos
   fi
 
-  if [ $MOBILETOOLS = 1 ]; then
-    install_brewfile brew/Brewfile.mobile
-
-    # special: dcm requires its own tap
-    brew tap CQLabs/dcm
-    brew install dcm
-  fi
-
   if [ $LOWLEVELTOOLS = 1 ]; then
     install_brewfile brew/Brewfile.lowlevel
-  fi
-
-  ### Formal methods
-  if [ $FORMALMETHODS = 1 ]; then
-    install_brewfile brew/Brewfile.formal
-
-    # special: PsiSolver lives on a custom tap
-    brew tap bvoq/bvoq
-    brew install psisolver
-    # Kframework
-    #brew tap kframework/k
-    #brew install kframework
-    ## Agda
-    # brew install stack
-    # stack install Agda # installs GHC automatically
-    # # install emacs from mituharu: https://github.com/railwaycat/homebrew-emacsmacport
-    # brew tap railwaycat/emacsmacport
-    # brew install --cask emacs-mac
-    # agda-mode setup
   fi
 
   #if [ $SECURITYTOOLS = 1 ]; then
@@ -140,36 +109,6 @@ if isadmin; then
     install_brewfile brew/Brewfile.tex-full
   fi
 
-  if [ $AITOOLS = 1 ]; then
-    install_brewfile brew/Brewfile.ai
-  fi
-
-  if [ $CRYPTO = 1 ]; then
-    echo "Next: Installing monero."
-    waitconfirm
-    if [ ! -d ~/monero ]; then
-      git clone --recursive https://github.com/monero-project/monero ~/monero
-    fi
-    {
-      cd ~/monero
-      chmod -R u+rw ~/monero
-      git fetch --all
-      BRANCH=$(git ls-remote --heads origin | grep 'release-' | awk -F'/' '{print $3}' | sort -V | tail -n 1)
-      echo "Using monero branch: ${BRANCH}"
-      git checkout --recurse-submodules ${BRANCH}
-      git submodule init
-      git submodule update
-      brew update
-      brew bundle --verbose --file=contrib/brew/Brewfile || true # this command can fail due to empty brew taps.
-      chmod -R u+rw ~/monero
-      make USE_SINGLE_BUILDDIR=0 # makes sure that only a single build dir is used.
-      # a few notes
-      # ledger is stored in $HOME/.bitmonero. Copy for faster sync.
-      # keys are stored next to monero-wallet-cli.
-      # to recover use: monero-wallet-cli --restore-deterministic-wallet
-    }
-  fi
-
 else
   echo "Skipping brew and other admin-privileged installs."
 fi
@@ -194,15 +133,6 @@ if [ $GENERICTOOLS = 1 ]; then
   curl -L https://iterm2.com/shell_integration/zsh -o ~/.iterm2_shell_integration.zsh
 fi
 
-if [ $MOBILETOOLS = 1 ]; then
-  if [ ! -d ~/Developer/flutter ]; then
-    git clone -b main https://github.com/flutter/flutter.git ~/Developer/flutter
-  fi
-
-  # maestro for testing
-  [ ! -d ~/.maestro/bin ] && curl -Ls "https://get.maestro.mobile.dev" | bash
-fi
-
 if [ $LOWLEVELTOOLS = 1 ]; then
   # Install rust, use --profile complete for everything.
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile default --no-modify-path -y
@@ -223,12 +153,6 @@ if [ $UNITYTOOLS = 1 ]; then
   fi
 fi
 
-if [ $AITOOLS = 1 ]; then
-  # Claude CLI
-  export CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
-  curl -fsSL claude.ai/install.sh | zsh -s -- stable --force
-fi
-
 #########################################################
 # Section 3: Dotfiles (user-level) install and sourcing #
 #########################################################
@@ -237,8 +161,6 @@ echo "Linking dotfiles after installation, because some install script like to a
 
 run_bootstrap_phase 3_dotfiles
 
-link_dotfile ".claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
-link_dotfile ".claude/settings.json" "$HOME/.claude/settings.json"
 link_dotfile ".inputrc" "$HOME/.inputrc"
 link_dotfile ".gitconfig" "$HOME/.gitconfig"
 link_dotfile ".gitignore_global" "$HOME/.gitignore_global"
@@ -293,34 +215,9 @@ code --install-extension ifahrentholz.one-quiet-dark-pro
 # Generic linters
 code --install-extension redhat.vscode-yaml
 code --install-extension DavidAnson.vscode-markdownlint
-if [ $AITOOLS = 1 ]; then
-    curl "https://persistent.oaistatic.com/pair-with-ai/openai-chatgpt-latest.vsix" > openai-chatgpt-latest.vsix
-    code --install-extension openai-chatgpt-latest.vsix
-    rm openai-chatgpt-latest.vsix
-  fi
-
 if [ $UNITYTOOLS = 1 ]; then
   # Note this also installs its own dotnet runtime, but not dotnet sdk!
   code --install-extension visualstudiotoolsforunity.vstuc
-fi
-
-if [ $FORMALMETHODS = 1 ]; then
-  code --install-extension banacorn.agda-mode
-  code --install-extension gpoore.codebraid-preview
-fi
-
-if [ $MOBILETOOLS = 1 ]; then
-  # General:
-  code --install-extension mariomatheu.syntax-project-pbxproj
-  # Dart/Flutter related:
-  code --install-extension Dart-Code.dart-code
-  code --install-extension Dart-Code.flutter
-  code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
-  code --install-extension qlevar.pub-manager
-  code --install-extension dcmdev.dcm-vscode-extension
-  # Flutter test coverage:
-  code --install-extension ryanluker.vscode-coverage-gutters
-  code --install-extension flutterando.flutter-coverage
 fi
 
 ####################################################################

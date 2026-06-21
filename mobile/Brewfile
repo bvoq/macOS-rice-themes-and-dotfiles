@@ -1,5 +1,3 @@
-# MOBILETOOLS=1
-
 brew "android-platform-tools"
 brew "ccache"
 

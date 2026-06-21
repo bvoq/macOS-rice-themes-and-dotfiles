@@ -1,5 +1,3 @@
-# AITOOLS=1
-
 cask "claude"
 cask "copilot-cli"
 cask "ollama"

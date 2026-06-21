@@ -75,20 +75,6 @@ alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(obj
 # rm -Rf .git/refs/original
 # git gc --aggressive --prune=now
 
-# AI
-alias localai="ollama run gemma3n:e4b 'You are run in a unix zsh CLI, stay concise.'"
-alias claude="~/.local/bin/claude"
-CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
-
-# Hardening secure commands.
-# Prevent internet access and logging to Console.app
-alias nonet='sandbox-exec -p "(version 1)(allow default)(deny network*)(allow network-outbound (to unix-socket))(allow network-inbound (from unix-socket))(allow mach-lookup (global-name \"com.apple.cfprefsd.*\"))(allow mach-lookup (global-name \"com.apple.system.notification_center\"))(debug deny)"'
-alias gpg='nonet gpg'
-alias gpg-agent='nonet gpg-agent'
-alias oathtool='nonet oathtool'
-alias ripsecrets='nonet ripsecrets'
-alias ssh-keygen='nonet ssh-keygen'
-
 # Search for files:
 alias rgd='rg --hidden --files --no-ignore --sort-files . 2> /dev/null | xargs -0 dirname | uniq | rg'
 alias rgf='rg --hidden --files --no-ignore --sort-files . 2> /dev/null | rg'
@@ -170,25 +156,6 @@ alias dup='fdupes -d'
 # Finally, clear download history from quarantine. https://mths.be/bum
 alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
 
-# Open ios simulator
-alias ios="open /Applications/Xcode.app/Contents/Developer/Applications/Simulator.app"
-# Open xcode project properly using just x.
-function x() {
-  dir="${1:-.}"
-  matches=("xcworkspace" "xcodeproj" "playground")
-  for ext in "${matches[@]}"; do
-    for file in "$dir"/*."$ext"(N); do
-      if [[ -e "$file" ]]; then
-        xed "$file"
-        return
-      fi
-    done
-  done
-  echo "No .xcworkspace, .xcodeproj, or .playground found in '$dir'."
-}
-export -f x > /dev/null
-#alias x='matches=("xcworkspace" "xcodeproj" "playground"); for i in "${matches[@]}"; do if [ -d *.${i} ]; then open -a Xcode *.${i}; break; fi; done'
-
 # Defines: GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS:
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
     alias "${method}"="lwp-request -m '${method}'"
@@ -235,8 +202,6 @@ alias rclone="rclone -v -P"
 # mkdir -p ~/wasabi-kdkdk
 # rclone mount -q wasabi-kdkdk:kdkdk/ ~/wasabi-kdkdk/ &
 
-alias dca='dart run dart_code_linter:metrics analyze lib --fatal-style --fatal-performance --fatal-warnings;dart run dart_code_linter:metrics check-unused-files lib --fatal-unused'
-
 # fix my keys on macOS
 # look for usage id key macos:
 # https://developer.apple.com/library/archive/technotes/tn2450/_index.html
@@ -248,8 +213,6 @@ nofixkeys() {
 }
 export -f fixkeys > /dev/null
 export -f nofixkeys > /dev/null
-
-simulatordata() { cd ~/Library/Developer/CoreSimulator/Devices/"${1}"/data/Containers/Data/Application ; ls -lt ; pwd}
 
 ################
 # 10_guard.zsh #
