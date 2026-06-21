@@ -1,0 +1,2 @@
+brew "fluxcd/tap/flux"
+brew "kubernetes-cli"

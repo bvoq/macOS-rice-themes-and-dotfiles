@@ -40,8 +40,6 @@ export PATH=${PATH}:${HOME}/go/bin
 export PATH=${PATH}:${HOME}/.local/bin
 # Crypto
 export PATH="$PATH:$HOME/monero/build/release/bin"
-# Devops
-export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 # Emacs
 export PATH="$PATH:$XDG_CONFIG_HOME/emacs/bin"
 export DOOMDIR="$XDG_CONFIG_HOME/doom"
@@ -59,3 +57,8 @@ if [ -d "$GEM_PATH" ]; then
         export PATH="$GEM_PATH/$LARGEST_VERSION/bin:$PATH"
     fi
 fi
+
+for zshenv_file in "${ZDOTDIR:-$HOME}"/.zshenv.d/*.zsh(N); do
+  source "$zshenv_file"
+done
+unset zshenv_file

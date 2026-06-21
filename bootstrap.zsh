@@ -6,7 +6,6 @@ CRYPTO=0
 FORMALMETHODS=0
 GENERICTOOLS=1
 GENERICCASKTOOLS=1
-DEVOPSTOOLS=0
 MOBILETOOLS=0
 UNITYTOOLS=0
 LOWLEVELTOOLS=0
@@ -93,13 +92,6 @@ if isadmin; then
 
   if [ $LOWLEVELTOOLS = 1 ]; then
     install_brewfile brew/Brewfile.lowlevel
-  fi
-
-  if [ $DEVOPSTOOLS = 1 ]; then
-    install_brewfile brew/Brewfile.devops
-
-    # special: kubetail lives on a custom tap
-    brew tap johanhaleby/kubetail && brew install kubetail
   fi
 
   ### Formal methods
@@ -229,19 +221,6 @@ if [ $UNITYTOOLS = 1 ]; then
       tar -xzvf "$HOME/dotnet.tar.gz" -C "$HOME/.dotnet"
       rm "$HOME/dotnet.tar.gz"
   fi
-fi
-
-if [ $DEVOPSTOOLS = 1 ]; then
-  # special: krew (kubectl plugin manager) is shipped as a curl-installer
-  (
-    set -x; cd "$(mktemp -d)" &&
-    OS="$(uname | tr '[:upper:]' '[:lower:]')" &&
-    ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" &&
-    KREW="krew-${OS}_${ARCH}" &&
-    curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" &&
-    tar zxvf "${KREW}.tar.gz" &&
-    ./"${KREW}" install krew
-  )
 fi
 
 if [ $AITOOLS = 1 ]; then
