@@ -1,33 +1,12 @@
 #!/bin/zsh
 
-####################
-# General zsh uses #
-####################
+######################
+# 00_safe_config.zsh #
+######################
+# aliases, functions, helper sources, variables safe to define even in limited/dumb contexts
+
 source ~/.unofunctions.zsh
 source ~/.zshfunctions
-
-# store all cd directory pushes
-setopt AUTO_PUSHD
-
-# make sure that enter key works: https://askubuntu.com/questions/441744/pressing-enter-produces-m-instead-of-a-newline
-stty sane
-
-################
-# Source stuff #
-################
-
-[ -f ~/.zshrc_private ] && source ~/.zshrc_private
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
-# command -v rbenv >/dev/null 2>&1 && ( eval "$(rbenv init - zsh)" || true )
-command -v fnm >/dev/null 2>&1 && eval "$(fnm env --use-on-cd --shell zsh)"
-command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
-export PATH="$(gem env gemdir)/bin:$PATH"
-
-###########
-# Aliases #
-###########
 
 # Enable aliases to be sudo’ed
 alias sudo='sudo '
@@ -75,7 +54,6 @@ alias egrep='egrep --color=auto'
 # find . -name .gitattributes | map dirname
 alias map="xargs -n1"
 
-
 # Merge PDF files, preserving hyperlinks
 # Usage: `mergepdf input{1,2,3}.pdf`
 alias mergepdf='gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=_merged.pdf'
@@ -97,23 +75,10 @@ alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(obj
 # rm -Rf .git/refs/original
 # git gc --aggressive --prune=now
 
-
-# =============
 # AI
-# =============
 alias localai="ollama run gemma3n:e4b 'You are run in a unix zsh CLI, stay concise.'"
 alias claude="~/.local/bin/claude"
 CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
-
-# shell integration for vscode for better copilot support
-# https://code.visualstudio.com/docs/terminal/shell-integration
-[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
-
-
-
-# ==============
-# macOS specific 
-# ==============
 
 # Hardening secure commands.
 # Prevent internet access and logging to Console.app
@@ -123,14 +88,6 @@ alias gpg-agent='nonet gpg-agent'
 alias oathtool='nonet oathtool'
 alias ripsecrets='nonet ripsecrets'
 alias ssh-keygen='nonet ssh-keygen'
-
-
-if type fzf &>/dev/null; then
-  eval "$(fzf --zsh)"
-fi
-if type zoxide &>/dev/null; then
-  eval "$(zoxide init zsh)"
-fi
 
 # Search for files:
 alias rgd='rg --hidden --files --no-ignore --sort-files . 2> /dev/null | xargs -0 dirname | uniq | rg'
@@ -161,13 +118,11 @@ rgempty() {
 }
 export -f rgempty > /dev/null
 
-
 # Use as follows: rgfzf '*_bloc.dart' to recursively find all files ending with _bloc.dart and then use fzf to find a string.
 rgfzf() {
   rg --no-heading --hidden --sort-files --line-number --color=always --glob "$1" "" | fzf --ansi --nth=3..
 }
 export -f rgfzf > /dev/null
-
 
 # Fast exact text search using Spotlight
 rgspotlight() {
@@ -175,10 +130,6 @@ rgspotlight() {
   mdfind "kMDItemTextContent = "'"'"$1"'"'
 }
 export -f rgspotlight > /dev/null
-
-# for those old people who still use bash? bash completion support
-# [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
-
 
 # Flush Directory Service cache
 alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder"
@@ -238,7 +189,6 @@ function x() {
 export -f x > /dev/null
 #alias x='matches=("xcworkspace" "xcodeproj" "playground"); for i in "${matches[@]}"; do if [ -d *.${i} ]; then open -a Xcode *.${i}; break; fi; done'
 
-
 # Defines: GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS:
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
     alias "${method}"="lwp-request -m '${method}'"
@@ -255,23 +205,11 @@ alias cpwd='pwd | pbcopy'
 # [C] explained: http://www.commandlinefu.com/commands/view/402/exclude-grep-from-your-grepped-output-of-ps-alias-included-in-description
 alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
 
-# iTerm2 or other terminals, make sure that the last two folders of PWD is shownh in the tab bar.
-# if [ $ITERM_SESSION_ID ]; then
-# precmd() {
-#   echo -ne "\033]0;${PWD#*${PWD%*/*/*}}\007"
-# }
-# fi
-
 # play files by "added by date":
 alias mplaylist='mdfind -onlyin . "kMDItemContentTypeTree == \"public.audio\"" | while read -r file; do echo "$(mdls -name kMDItemDateAdded -raw "$file") $file"; done | sort | cut -d" " -f4- | xargs -I {} mpg123 "{}"'
 alias vplaylist='mdfind -onlyin . "kMDItemContentTypeTree == \"public.movie\"" | while read -r file; do echo "$(mdls -name kMDItemDateAdded -raw "$file") $file"; done | sort | cut -d" " -f4- > playlist.m3u && open -a VLC playlist.m3u'
 
-
-
-# ========
 # Homebrew
-# ========
-
 alias brewleaves='brew deps --installed | grep -E "$(paste -sd "|" <(brew leaves))"'
 
 # takes a long while but sorts packages by their size and states their leaf dependencies.
@@ -288,14 +226,11 @@ alias brewmemsimple="brew list --formula | xargs -n1 -P8 -I {} sh -c \"brew info
 # brew deps --installed --tree <package>
 
 # Usage: pdfjoings merged.pdf file1.pdf file2.pdf ... fileN.pdf
-pdfjoings () { 
+pdfjoings () {
   gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile="$1" "${@:2}"
 }
 
-# =======================
 # specific for my machine
-# =======================
-
 alias rclone="rclone -v -P"
 # mkdir -p ~/wasabi-kdkdk
 # rclone mount -q wasabi-kdkdk:kdkdk/ ~/wasabi-kdkdk/ &
@@ -314,10 +249,54 @@ nofixkeys() {
 export -f fixkeys > /dev/null
 export -f nofixkeys > /dev/null
 
-
-# Private secrets/auth moved to ~/.zshrc_private
-
 simulatordata() { cd ~/Library/Developer/CoreSimulator/Devices/"${1}"/data/Containers/Data/Application ; ls -lt ; pwd}
+
+#####################################
+# Remaining .zshrc phases TODO      #
+#####################################
+
+# store all cd directory pushes
+setopt AUTO_PUSHD
+
+# make sure that enter key works: https://askubuntu.com/questions/441744/pressing-enter-produces-m-instead-of-a-newline
+stty sane
+
+################
+# Source stuff #
+################
+
+[ -f ~/.zshrc_private ] && source ~/.zshrc_private
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
+# command -v rbenv >/dev/null 2>&1 && ( eval "$(rbenv init - zsh)" || true )
+command -v fnm >/dev/null 2>&1 && eval "$(fnm env --use-on-cd --shell zsh)"
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
+export PATH="$(gem env gemdir)/bin:$PATH"
+
+# shell integration for vscode for better copilot support
+# https://code.visualstudio.com/docs/terminal/shell-integration
+[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
+
+
+
+if type fzf &>/dev/null; then
+  eval "$(fzf --zsh)"
+fi
+if type zoxide &>/dev/null; then
+  eval "$(zoxide init zsh)"
+fi
+
+# for those old people who still use bash? bash completion support
+# [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
+
+
+# iTerm2 or other terminals, make sure that the last two folders of PWD is shownh in the tab bar.
+# if [ $ITERM_SESSION_ID ]; then
+# precmd() {
+#   echo -ne "\033]0;${PWD#*${PWD%*/*/*}}\007"
+# }
+# fi
 
 # external hard drive not mounting https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
 # ps aux | grep fsck
