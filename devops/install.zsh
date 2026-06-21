@@ -19,6 +19,7 @@ phase_2_user_installs() {
 }
 
 phase_3_dotfiles() {
-  link_dotfile "devops/.zshrc.d/devops.zsh" "$HOME/.zshrc.d/devops.zsh"
+  link_dotfile "devops/.zshrc.d/00_devops_safe_config.zsh" "$HOME/.zshrc.d/00_devops_safe_config.zsh"
+  link_dotfile "devops/.zshrc.d/50_devops_ishell_setup.zsh" "$HOME/.zshrc.d/50_devops_ishell_setup.zsh"
   link_dotfile "devops/.zshenv.d/devops.zsh" "$HOME/.zshenv.d/devops.zsh"
 }
