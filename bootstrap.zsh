@@ -15,7 +15,7 @@ LOWLEVELTOOLS=0
 TEXLIGHT=0
 TEXFULL=0
 
-source .zshfunctions
+source unofunctions.zsh
 set_error_handler
 
 git submodule update --init --recursive
@@ -319,6 +319,7 @@ link_dotfile ".gitattributes_global" "$HOME/.gitattributes_global"
 link_dotfile ".tmux.conf" "$HOME/.tmux.conf"
 link_dotfile ".zshrc" "$HOME/.zshrc"
 link_dotfile ".zshenv" "$HOME/.zshenv"
+link_dotfile "unofunctions.zsh" "$HOME/.unofunctions.zsh"
 link_dotfile ".zshfunctions" "$HOME/.zshfunctions"
 link_dotfile ".zsh_plugins.txt" "$HOME/.zsh_plugins.txt"
 link_dotfile "starship.toml" "$HOME/.config/starship.toml"

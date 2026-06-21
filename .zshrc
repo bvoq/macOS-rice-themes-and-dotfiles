@@ -3,6 +3,7 @@
 ####################
 # General zsh uses #
 ####################
+source ~/.unofunctions.zsh
 source ~/.zshfunctions
 
 # make sure utf-8 is used
