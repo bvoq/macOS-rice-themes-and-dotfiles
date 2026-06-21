@@ -6,7 +6,6 @@ CRYPTO=0
 FORMALMETHODS=0
 GENERICTOOLS=1
 GENERICCASKTOOLS=1
-LIBREWOLF=1
 EMACSTOOLS=1
 DEVOPSTOOLS=0
 MOBILETOOLS=0
@@ -15,8 +14,45 @@ LOWLEVELTOOLS=0
 TEXLIGHT=0
 TEXFULL=0
 
+cd "${0:A:h}"
+
+# Enable package folders here. Comment out folders you do not want to bootstrap.
+bootstrap_folders=(
+  librewolf
+  # ai
+  # crypto
+  # devops
+  # emacs
+  # formal
+  # generic
+  # generic-cask
+  # lowlevel
+  # mobile
+  # tex-light
+  # tex-full
+  # unity
+)
+
 source unofunctions.zsh
 set_error_handler
+
+run_bootstrap_phase() {
+  local phase="$1"
+  local phase_function="phase_$phase"
+  local folder bootstrap_file
+
+  for folder in "${bootstrap_folders[@]}"; do
+    bootstrap_file="$folder/bootstrap.zsh"
+    [[ -f "$bootstrap_file" ]] || { echo "Bootstrap file missing: $bootstrap_file"; return 1; }
+
+    (
+      source "$bootstrap_file"
+      if (( $+functions[$phase_function] )); then
+        "$phase_function"
+      fi
+    )
+  done
+}
 
 git submodule update --init --recursive
 
@@ -30,87 +66,13 @@ assure_userlevel_zsh
 check_not_rosetta
 mkdir -p ~/Developer
 
-install_librewolf() {
-  local url latest_version installed_version tmp_dir dmg_path mount_point expected_sha256 actual_sha256
-
-  url="$(curl -fsSL https://librewolf.net/installation/macos/ | grep -Eo 'https://dl\.librewolf\.net/librewolf/[^"]*macos-arm64-package\.dmg' | head -n 1)"
-  [[ -n "$url" ]] || { echo "Could not find latest LibreWolf arm64 DMG."; return 1; }
-  latest_version="${${${url:t}#librewolf-}%-macos-arm64-package.dmg}"
-
-  if [[ -x /Applications/LibreWolf.app/Contents/MacOS/librewolf ]]; then
-    installed_version="$(/Applications/LibreWolf.app/Contents/MacOS/librewolf --version | awk '{print $NF}')"
-    [[ "$installed_version" == "$latest_version" ]] && return 0
-  fi
-
-  tmp_dir="$(mktemp -d)"
-  dmg_path="$tmp_dir/LibreWolf.dmg"
-  mount_point="$tmp_dir/mount"
-  mkdir -p "$mount_point"
-
-  curl -fL "$url" -o "$dmg_path"
-  expected_sha256="$(curl -fsSL "$url.sha256sum" | awk '{print $1}')"
-  actual_sha256="$(shasum -a 256 "$dmg_path" | awk '{print $1}')"
-  if [[ "$expected_sha256" != "$actual_sha256" ]]; then
-    echo "WARNING: LibreWolf checksum mismatch (expected: $expected_sha256, actual: $actual_sha256)" >&2
-    rm -rf "$tmp_dir"
-    return 1
-  fi
-
-  hdiutil attach -nobrowse -readonly -mountpoint "$mount_point" "$dmg_path"
-  rm -rf /Applications/LibreWolf.app
-  ditto "$mount_point/LibreWolf.app" /Applications/LibreWolf.app
-  hdiutil detach "$mount_point"
-  xattr -dr com.apple.quarantine /Applications/LibreWolf.app
-  rm -rf "$tmp_dir"
-}
-
-install_librewolf_arkenfox() {
-  local librewolf_bin="/Applications/LibreWolf.app/Contents/MacOS/librewolf"
-  local support_dir="$HOME/Library/Application Support/librewolf"
-  local profiles_ini="$support_dir/profiles.ini"
-  local tmp_dir updater_path profile_path profile_key
-  local -a profile_candidates
-  typeset -A seen_profiles
-
-  [[ -x "$librewolf_bin" ]] || { echo "LibreWolf must be installed before arkenfox."; return 1; }
-
-  # LibreWolf creates the initial profile on first launch.
-  # if ! grep -q '^Path=' "$profiles_ini" 2>/dev/null; then
-  #   "$librewolf_bin" -CreateProfile default-release
-  # fi
-
-  while IFS= read -r profile_path; do
-    profile_candidates+=("$support_dir/${profile_path#Path=}")
-  done < <(grep '^Path=' "$profiles_ini" 2>/dev/null || true)
-
-  [[ ${#profile_candidates[@]} -eq 0 ]] && return 0
-
-  tmp_dir="$(mktemp -d)"
-  updater_path="$tmp_dir/updater.sh"
-  curl -fsSL https://raw.githubusercontent.com/arkenfox/user.js/master/updater.sh -o "$updater_path"
-  chmod u+x "$updater_path"
-
-  for profile_path in "${profile_candidates[@]}"; do
-    [[ -d "$profile_path" ]] || continue
-    profile_key="${profile_path:A}"
-    [[ -n "${seen_profiles[$profile_key]}" ]] && continue
-    seen_profiles[$profile_key]=1
-
-    if [[ -f "$profile_path/user-overrides.js" ]]; then
-      "$updater_path" -d -s -b -p "$profile_path"
-    else
-      "$updater_path" -d -s -b -n -p "$profile_path"
-    fi
-  done
-
-  rm -rf "$tmp_dir"
-}
-
 #############################################################
 # Section 1: Brew tools and other admin-privileged installs #
 #############################################################
 
 if isadmin; then
+  run_bootstrap_phase 1_admin_installs
+
   # clean up brew
   brew autoremove
   brew cleanup
@@ -182,11 +144,6 @@ if isadmin; then
     #brew install daisydisk --cask
   fi
 
-  if [ $LIBREWOLF = 1 ]; then
-    install_librewolf
-    link_dotfile "librewolf/policies.json" "/Applications/LibreWolf.app/Contents/Resources/distribution/policies.json"
-  fi
-
   if [ $TEXLIGHT = 1 ]; then
     # reminder to self: you own a license to use texifier:
     install_brewfile brew/Brewfile.tex-light
@@ -241,9 +198,7 @@ fi
 
 echo "Installing other user-level tools."
 
-if [ $LIBREWOLF = 1 ]; then
-  install_librewolf_arkenfox
-fi
+run_bootstrap_phase 2_user_installs
 
 if [ $GENERICTOOLS = 1 ]; then
   # zsh - antidote
@@ -310,6 +265,8 @@ fi
 
 echo "Linking dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)."
 
+run_bootstrap_phase 3_dotfiles
+
 link_dotfile ".claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
 link_dotfile ".claude/settings.json" "$HOME/.claude/settings.json"
 link_dotfile ".inputrc" "$HOME/.inputrc"
@@ -347,6 +304,8 @@ source ~/.zshrc  # Source the new zshrc with antidote
 
 
 echo "Installing Vim and Neovim configurations and plugins"
+
+run_bootstrap_phase 4_post_dotfiles
 
 # Install vim and neovim
 # install vundle for vim
@@ -435,6 +394,8 @@ fi
 
 # System changes for macOS
 if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
+  run_bootstrap_phase 5_system_changes
+
   echo "Next: Installing system-wide macOS defaults (sudo required)."
   waitconfirm
   bash .macos
