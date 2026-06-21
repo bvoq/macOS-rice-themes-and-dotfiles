@@ -39,14 +39,14 @@ set_error_handler
 run_bootstrap_phase() {
   local phase="$1"
   local phase_function="phase_$phase"
-  local folder bootstrap_file
+  local folder install_file
 
   for folder in "${bootstrap_folders[@]}"; do
-    bootstrap_file="$folder/bootstrap.zsh"
-    [[ -f "$bootstrap_file" ]] || { echo "Bootstrap file missing: $bootstrap_file"; return 1; }
+    install_file="$folder/install.zsh"
+    [[ -f "$install_file" ]] || { echo "Install file missing: $install_file"; return 1; }
 
     (
-      source "$bootstrap_file"
+      source "$install_file"
       if (( $+functions[$phase_function] )); then
         "$phase_function"
       fi

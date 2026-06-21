@@ -2,7 +2,7 @@
 # Cross-platform tools (also installed via winget on Windows) live in
 # Brewfile.generic_crossplatform and are installed alongside this file.
 # Special installs (rbenv ruby version, antidote, iterm2 shell integration,
-# claude) remain inline in bootstrap.zsh.
+# claude) remain inline in unodot.zsh.
 
 brew "direnv"
 brew "fdupes"

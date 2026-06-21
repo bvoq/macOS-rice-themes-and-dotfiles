@@ -6,28 +6,6 @@
 source ~/.unofunctions.zsh
 source ~/.zshfunctions
 
-# make sure utf-8 is used
-export LANG=en_US.UTF-8
-export LANGUAGE=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-
-export MANPATH="/usr/local/man:$MANPATH"
-export ARCHFLAGS="-arch $(uname -m)"
-
-# Preferred editor for local and remote sessions
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='vim'
-else
-  export EDITOR='nvim'
-fi
-
-# Pager settings for less
-export PAGER='less'
-export LESS='-R'
-
-# Bat theme
-export BAT_THEME='zenburn'
-
 # store all cd directory pushes
 setopt AUTO_PUSHD
 

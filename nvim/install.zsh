@@ -8,7 +8,7 @@ phase_3_dotfiles() {
 }
 
 phase_4_post_dotfiles() {
-  sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
+  sh -c 'curl -fLo "$HOME/.local/share"/nvim/site/autoload/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
   if command -v nvim > /dev/null; then

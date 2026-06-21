@@ -1,7 +1,24 @@
 #!/bin/zsh
 
 # General
-export XDG_CONFIG_HOME="$HOME/.config"
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export ARCHFLAGS="-arch $(uname -m)"
+
+# Preferred editor for local and remote sessions
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR='vim'
+else
+  export EDITOR='nvim'
+fi
+
+# Pager settings for less
+export PAGER='less'
+export LESS='-R'
+
+# Bat theme
+export BAT_THEME='zenburn'
 
 # ccache
 export PATH="/opt/homebrew/opt/ccache/libexec:$PATH"
@@ -41,8 +58,8 @@ export PATH=${PATH}:${HOME}/.local/bin
 # Crypto
 export PATH="$PATH:$HOME/monero/build/release/bin"
 # Emacs
-export PATH="$PATH:$XDG_CONFIG_HOME/emacs/bin"
-export DOOMDIR="$XDG_CONFIG_HOME/doom"
+export PATH="$PATH:$HOME/.config/emacs/bin"
+export DOOMDIR="$HOME/.config/doom"
 
 # Unity/Dotnet
 export DOTNET_ROOT="${HOME}/.dotnet"
