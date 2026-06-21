@@ -251,52 +251,29 @@ export -f nofixkeys > /dev/null
 
 simulatordata() { cd ~/Library/Developer/CoreSimulator/Devices/"${1}"/data/Containers/Data/Application ; ls -lt ; pwd}
 
-#####################################
-# Remaining .zshrc phases TODO      #
-#####################################
+################
+# 10_guard.zsh #
+################
+# return early for non-interactive/dumb/non-tty cases; terminal repair like stty sane
 
-# store all cd directory pushes
-setopt AUTO_PUSHD
+[[ -o interactive ]] || return
+[[ -t 0 ]] || return
+[[ "$TERM" == dumb ]] && return
 
 # make sure that enter key works: https://askubuntu.com/questions/441744/pressing-enter-produces-m-instead-of-a-newline
 stty sane
 
-################
-# Source stuff #
-################
+#######################
+# 20_ishell_config.zsh #
+#######################
+# interactive shell behavior: setopt, bindkey basics, history options
+
+# store all cd directory pushes
+setopt AUTO_PUSHD
 
 [ -f ~/.zshrc_private ] && source ~/.zshrc_private
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
-# command -v rbenv >/dev/null 2>&1 && ( eval "$(rbenv init - zsh)" || true )
-command -v fnm >/dev/null 2>&1 && eval "$(fnm env --use-on-cd --shell zsh)"
-command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 export PATH="$(gem env gemdir)/bin:$PATH"
-
-# shell integration for vscode for better copilot support
-# https://code.visualstudio.com/docs/terminal/shell-integration
-[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
-
-
-
-if type fzf &>/dev/null; then
-  eval "$(fzf --zsh)"
-fi
-if type zoxide &>/dev/null; then
-  eval "$(zoxide init zsh)"
-fi
-
-# for those old people who still use bash? bash completion support
-# [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
-
-
-# iTerm2 or other terminals, make sure that the last two folders of PWD is shownh in the tab bar.
-# if [ $ITERM_SESSION_ID ]; then
-# precmd() {
-#   echo -ne "\033]0;${PWD#*${PWD%*/*/*}}\007"
-# }
-# fi
 
 # external hard drive not mounting https://apple.stackexchange.com/questions/268998/external-hard-drive-wont-mount
 # ps aux | grep fsck
@@ -328,18 +305,60 @@ fi
 # SOURCEDIR=${SOURCEDIR#*/}  # get first part of path
 # SOURCEDIR=${${SOURCEDIR%/*}%/*} # go up two folders
 
-# ===============================
-# ZSH Completion System & Plugins
-# ===============================
+##############################
+# 30_pre_compinit_setup.zsh #
+##############################
+# fpath/FPATH additions, completion zstyles, plugins that only provide completion sources
 
-# Initialize completion system
 if type brew &>/dev/null; then
   BREW_PREFIX=$(brew --prefix)
   FPATH=$BREW_PREFIX/share/zsh/site-functions:$BREW_PREFIX/share/zsh-completions:$FPATH
 fi
 FPATH=$HOME/.zsh/completions:$FPATH
+
+# for those old people who still use bash? bash completion support
+# [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
+
+##################
+# 40_compinit.zsh #
+##################
+# autoload -Uz compinit
+# compinit
+
 autoload -Uz compinit
 compinit -u 2>/dev/null || compinit -C
+
+#######################
+# 50_ishell_setup.zsh #
+#######################
+# tool initialization after shell/completion base is ready:
+# fzf, zoxide, direnv, starship, compdef, current antidote load
+
+# shell integration for vscode for better copilot support
+# https://code.visualstudio.com/docs/terminal/shell-integration
+[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+if type fzf &>/dev/null; then
+  eval "$(fzf --zsh)"
+fi
+
+command -v fnm >/dev/null 2>&1 && eval "$(fnm env --use-on-cd --shell zsh)"
+
+if type zoxide &>/dev/null; then
+  eval "$(zoxide init zsh)"
+fi
+
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
+command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
+# command -v rbenv >/dev/null 2>&1 && ( eval "$(rbenv init - zsh)" || true )
+
+# iTerm2 or other terminals, make sure that the last two folders of PWD is shownh in the tab bar.
+# if [ $ITERM_SESSION_ID ]; then
+# precmd() {
+#   echo -ne "\033]0;${PWD#*${PWD%*/*/*}}\007"
+# }
+# fi
 
 # Package shell fragments
 for zshrc_file in "${ZDOTDIR:-$HOME}"/.zshrc.d/*.zsh(N); do
@@ -348,7 +367,6 @@ done
 unset zshrc_file
 
 # Initialize antidote plugin manager
-CLAUDE_CODE_DISABLE_TERMINAL_TITLE=1
 DISABLE_AUTO_TITLE="true"
 #ENABLE_CORRECTION="true"
 
