@@ -15,7 +15,9 @@ phase_3_dotfiles() {
 }
 
 phase_4_post_dotfiles() {
-  curl "https://persistent.oaistatic.com/pair-with-ai/openai-chatgpt-latest.vsix" > openai-chatgpt-latest.vsix
-  code --install-extension openai-chatgpt-latest.vsix
-  rm openai-chatgpt-latest.vsix
+  local chatgpt_extension="openai-chatgpt-latest.vsix"
+
+  curl -fL "https://persistent.oaistatic.com/pair-with-ai/openai-chatgpt-latest.vsix" -o "$chatgpt_extension"
+  code --install-extension "$chatgpt_extension"
+  rm "$chatgpt_extension"
 }
