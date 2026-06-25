@@ -12,6 +12,7 @@ cd "${0:A:h}"
 # Enable package folders here. Comment out folders you do not want to bootstrap.
 bootstrap_folders=(
   librewolf
+  rclone
   # ai
   # crypto
   # devops

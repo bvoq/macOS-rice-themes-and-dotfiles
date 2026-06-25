@@ -197,11 +197,6 @@ pdfjoings () {
   gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile="$1" "${@:2}"
 }
 
-# specific for my machine
-alias rclone="rclone -v -P"
-# mkdir -p ~/wasabi-kdkdk
-# rclone mount -q wasabi-kdkdk:kdkdk/ ~/wasabi-kdkdk/ &
-
 # fix my keys on macOS
 # look for usage id key macos:
 # https://developer.apple.com/library/archive/technotes/tn2450/_index.html

@@ -1,11 +1,12 @@
 #!/bin/sh
-apk add curl git gnupg openssh pass vim zoxide
+apk add curl git gnupg openssh pass rclone vim zoxide
 apk add bat ncdu oath-toolkit oath-toolkit-oathtool
 
 # install ashrc properly
 echo "ENV=$HOME/.ashrc; export ENV" > ~/.profile
 echo ". $ENV" >> ~/.profile
 cp .ashrc ~/.ashrc
+mkdir -p ~/.config/rclone && cp rclone/bsync.sh ~/.config/rclone/bsync.sh
 
 cp .gitconfig ~/.gitconfig
 cp .gitignore_global ~/.gitignore_global
