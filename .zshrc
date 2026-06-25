@@ -214,9 +214,9 @@ export -f nofixkeys > /dev/null
 ################
 # return early for non-interactive/dumb/non-tty cases; terminal repair like stty sane
 
-[[ -o interactive ]] || return
-[[ -t 0 ]] || return
-[[ "$TERM" == dumb ]] && return
+[[ -o interactive ]] || return 0
+[[ -t 0 ]] || return 0
+[[ "$TERM" == dumb ]] && return 0
 
 # make sure that enter key works: https://askubuntu.com/questions/441744/pressing-enter-produces-m-instead-of-a-newline
 stty sane
