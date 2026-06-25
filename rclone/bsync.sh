@@ -150,4 +150,81 @@ bsync() {
   fi
 }
 
+_rclone_remote_dir_name() {
+  _rclone_remote_dir_name_result=${1%/}
+  _rclone_remote_dir_name_result=${_rclone_remote_dir_name_result##*/}
+  [ -n "$_rclone_remote_dir_name_result" ] || _rclone_remote_dir_name_result=remote
+}
+
+_rclone_copy_remote_dir_to_tmp() {
+  _rclone_remote_dir_local="$1"
+  _rclone_remote_dir_remote="$2"
+  _rclone_remote_dir_tmp_prefix="$3"
+
+  if [ ! -d "$_rclone_remote_dir_local" ]; then
+    printf '%s\n' "Local path missing: $_rclone_remote_dir_local" >&2
+    return 1
+  fi
+
+  command -v rclone >/dev/null 2>&1 || { printf '%s\n' "rclone not found" >&2; return 1; }
+  _rclone_remote_dir_name "$_rclone_remote_dir_local"
+  _rclone_remote_dir_tmp=$(mktemp -d "${TMPDIR:-/tmp}/${_rclone_remote_dir_tmp_prefix}.XXXXXX") || return 1
+  _rclone_remote_dir_copy="$_rclone_remote_dir_tmp/$_rclone_remote_dir_name_result"
+  mkdir -p "$_rclone_remote_dir_copy" || { rm -rf "$_rclone_remote_dir_tmp"; return 1; }
+
+  if command rclone copy "$_rclone_remote_dir_remote" "$_rclone_remote_dir_copy"; then
+    :
+  else
+    _rclone_remote_dir_status=$?
+    rm -rf "$_rclone_remote_dir_tmp"
+    return "$_rclone_remote_dir_status"
+  fi
+
+  return 0
+}
+
+rclonedirdiff() {
+  if [ "$#" -ne 2 ]; then
+    printf '%s\n' "Usage: rclonedirdiff <local-path> <remote:path>"
+    return 1
+  fi
+
+  command -v diff >/dev/null 2>&1 || { printf '%s\n' "diff not found" >&2; return 1; }
+  _rclone_copy_remote_dir_to_tmp "$1" "$2" rclone-dirdiff || return $?
+
+  if command diff -ruN "$1" "$_rclone_remote_dir_copy"; then
+    _rclone_dirdiff_status=0
+  else
+    _rclone_dirdiff_status=$?
+  fi
+
+  rm -rf "$_rclone_remote_dir_tmp"
+  return "$_rclone_dirdiff_status"
+}
+
+_rclone_vim_single_quote() {
+  printf '%s' "$1" | sed "s/'/''/g"
+}
+
+rclonevimdirdiff() {
+  if [ "$#" -ne 2 ]; then
+    printf '%s\n' "Usage: rclonevimdirdiff <local-path> <remote:path>"
+    return 1
+  fi
+
+  command -v vim >/dev/null 2>&1 || { printf '%s\n' "vim not found" >&2; return 1; }
+  _rclone_copy_remote_dir_to_tmp "$1" "$2" rclone-vimdirdiff || return $?
+
+  _rclone_vimdirdiff_local=$(_rclone_vim_single_quote "$1")
+  _rclone_vimdirdiff_remote=$(_rclone_vim_single_quote "$_rclone_remote_dir_copy")
+  if command vim -c "execute 'DirDiff ' . fnameescape('$_rclone_vimdirdiff_local') . ' ' . fnameescape('$_rclone_vimdirdiff_remote')"; then
+    _rclone_vimdirdiff_status=0
+  else
+    _rclone_vimdirdiff_status=$?
+  fi
+
+  rm -rf "$_rclone_remote_dir_tmp"
+  return "$_rclone_vimdirdiff_status"
+}
+
 alias rclone='rclone -v -P'
