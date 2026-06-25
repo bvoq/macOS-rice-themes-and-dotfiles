@@ -1,5 +1,5 @@
 #!/bin/sh
-apk add curl git gnupg openssh pass rclone vim zoxide
+apk add curl git gnupg openssh gopass rclone vim zoxide
 apk add bat ncdu oath-toolkit oath-toolkit-oathtool
 
 # install ashrc properly
