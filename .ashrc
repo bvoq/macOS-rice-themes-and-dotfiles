@@ -2,6 +2,10 @@
 alias pbcopy="cat > /dev/clipboard"
 alias pbpaste="cat /dev/clipboard"
 
+mountios() {
+  mkdir -p /mnt && mount -t ios . /mnt
+}
+
 totp() { code=$(oathtool --totp -b "$(cat ~/.totp_${1})"); echo "$code"; echo "$code" > /dev/clipboard; }
 
 eval "$(zoxide init posix --hook prompt)"
