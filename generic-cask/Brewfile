@@ -1,4 +1,4 @@
-# GENERICCASKTOOLS=1
+# Generic macOS cask applications.
 # GUI apps. Real footprint lives under /Applications/, not /opt/homebrew/Caskroom.
 
 cask "appcleaner"

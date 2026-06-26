@@ -1,7 +1,6 @@
 #!/bin/zsh
 
 # enable what you want to install here
-GENERICCASKTOOLS=1
 LOWLEVELTOOLS=0
 
 cd "${0:A:h}"
@@ -14,11 +13,11 @@ bootstrap_folders=(
   # ai
   # crypto
   # devops
+  generic-cask
   vim
   nvim
   emacs
   # formal
-  # generic-cask
   # lowlevel
   # mobile
   # tex
@@ -77,16 +76,6 @@ if isadmin; then
   #  # https://github.com/joxeankoret/diaphora
   #  # frida
   #fi
-  if [ $GENERICCASKTOOLS = 1 ]; then
-    install_brewfile brew/Brewfile.generic-cask
-    # manually install regex for safari: https://apps.apple.com/ch/app/regex-for-safari/id1597580456?l=en-GB
-    # manually install shortery: https://apps.apple.com/us/app/shortery/id1594183810?mt=12
-    # or use visual-studio-code@insiders instead of visual-studio-code
-
-    # reminder to self: you own a license to use this:
-    #brew install daisydisk --cask
-  fi
-
 else
   echo "Skipping brew and other admin-privileged installs."
 fi
