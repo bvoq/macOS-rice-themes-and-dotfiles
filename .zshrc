@@ -16,18 +16,11 @@ alias ....="cd ../../.."
 alias .....="cd ../../../.."
 
 # List all files colorized in long format, excluding . and ..
-alias la="ls -lAF ${colorflag}"
+alias la="ls -lAF"
 # List only directories
-alias lsd="ls -lF ${colorflag} | grep --color=never '^d'"
+alias lsd="ls -lF"
 
 alias which="which -a"
-
-# IP addresses
-alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
-alias localips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
-
-# Show active network interfaces
-alias ifactive="ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active'"
 
 # Always enable colored `grep` output by default
 # Note: `GREP_OPTIONS="--color=auto"` is deprecated, hence the alias usage.
@@ -39,33 +32,6 @@ alias egrep='egrep --color=auto'
 # For example, to list all directories that contain a certain file:
 # find . -name .gitattributes | map dirname
 alias map="xargs -n1"
-
-# Merge PDF files, preserving hyperlinks
-# Usage: `mergepdf input{1,2,3}.pdf`
-alias mergepdf='gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=_merged.pdf'
-alias mergepdf2='pdfjoin --rotateoversize false'
-
-alias grabsite='wget -r -np --wait=1 -k --execute="robots = off" --mirror --random-wait --user-agent="Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0"'
-
-alias sqloptimize='sqlite3 "$1" "VACUUM;" && sqlite3 "$1" "REINDEX;"'
-
-# Recursively delete `.DS_Store` files
-alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
-
-# Defines: GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS:
-for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
-    alias "${method}"="lwp-request -m '${method}'"
-done
-
-#NGET, NHEAD, etc. for uncertified requests and most likely headers.
-for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
-    alias "N${method}"="PERL_LWP_SSL_VERIFY_HOSTNAME=0 lwp-request -m '${method}' -H 'Content-type: application/json' -H 'Accept: application/json'"
-done
-
-# Usage: pdfjoings merged.pdf file1.pdf file2.pdf ... fileN.pdf
-pdfjoings () {
-  gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile="$1" "${@:2}"
-}
 
 ################
 # 10_guard.zsh #

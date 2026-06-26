@@ -1,6 +1,8 @@
 # List all files colorized in long format
 alias l="eza"
 
+alias grabsite='wget -r -np --wait=1 -k --execute="robots = off" --mirror --random-wait --user-agent="Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0"'
+
 # Find and interactively delete duplicate files
 alias dup='fdupes -d'
 

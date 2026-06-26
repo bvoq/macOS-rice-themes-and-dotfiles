@@ -173,7 +173,7 @@ prune_unbundled_brew_packages() {
 
   if read -q "choice?Uninstall these packages now? [y/n] "; then
     echo
-    brew bundle cleanup --file="$UNODOT_BREW_BUNDLE_ACCUMULATOR" --formula --cask --force
+    brew bundle cleanup --file="$UNODOT_BREW_BUNDLE_ACCUMULATOR" --formula --cask --zap --force
   else
     echo "\nKeeping all installed packages."
   fi
