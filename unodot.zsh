@@ -1,8 +1,6 @@
 #!/bin/zsh
 
 # enable what you want to install here
-LOWLEVELTOOLS=0
-
 cd "${0:A:h}"
 
 # Enable package folders here. Comment out folders you do not want to bootstrap.
@@ -68,10 +66,6 @@ if isadmin; then
   brew autoremove
   brew cleanup
 
-  if [ $LOWLEVELTOOLS = 1 ]; then
-    install_brewfile brew/Brewfile.lowlevel
-  fi
-
   #if [ $SECURITYTOOLS = 1 ]; then
   #  # https://github.com/joxeankoret/diaphora
   #  # frida
@@ -88,11 +82,6 @@ fi
 echo "Installing other user-level tools."
 
 run_bootstrap_phase 2_user_installs
-
-if [ $LOWLEVELTOOLS = 1 ]; then
-  # Install rust, use --profile complete for everything.
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile default --no-modify-path -y
-fi
 
 #########################################################
 # Section 3: Dotfiles (user-level) install and sourcing #
