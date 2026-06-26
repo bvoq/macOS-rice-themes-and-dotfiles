@@ -227,7 +227,7 @@ compinit -u 2>/dev/null || compinit -C
 # 50_ishell_setup.zsh #
 #######################
 # tool initialization after shell/completion base is ready:
-# fzf, zoxide, direnv, starship, compdef, current antidote load
+# fzf, zoxide, direnv, starship, compdef
 
 # shell integration for vscode for better copilot support
 # https://code.visualstudio.com/docs/terminal/shell-integration
@@ -260,10 +260,3 @@ for zshrc_file in "${ZDOTDIR:-$HOME}"/.zshrc.d/*.zsh(N); do
   source "$zshrc_file"
 done
 unset zshrc_file
-
-# Initialize antidote plugin manager
-DISABLE_AUTO_TITLE="true"
-#ENABLE_CORRECTION="true"
-
-source ${ZDOTDIR:-~}/.antidote/antidote.zsh
-antidote load
