@@ -1,4 +1,4 @@
-# TEXFULL=1
+# TEX_VARIANT=FULL
 # Warning: mactex is the largest single install in this repo (~5.9 GB).
 
 cask "mactex"

@@ -4,8 +4,6 @@
 GENERICTOOLS=1
 GENERICCASKTOOLS=1
 LOWLEVELTOOLS=0
-TEXLIGHT=0
-TEXFULL=0
 
 cd "${0:A:h}"
 
@@ -24,8 +22,7 @@ bootstrap_folders=(
   # generic-cask
   # lowlevel
   # mobile
-  # tex-light
-  # tex-full
+  # tex
   # csharp
 )
 
@@ -94,19 +91,6 @@ if isadmin; then
 
     # reminder to self: you own a license to use this:
     #brew install daisydisk --cask
-  fi
-
-  if [ $TEXLIGHT = 1 ]; then
-    # reminder to self: you own a license to use texifier:
-    install_brewfile brew/Brewfile.tex-light
-    ## tex light version CLI alternatives:
-    # brew install --cask basictex
-    # brew install --cask tex-live-utility
-  fi
-
-  if [ $TEXFULL = 1 ]; then
-    # reminder to self: you own a license to use texifier:
-    install_brewfile brew/Brewfile.tex-full
   fi
 
 else
