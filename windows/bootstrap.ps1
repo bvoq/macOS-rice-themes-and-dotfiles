@@ -1,8 +1,11 @@
 # Source shared functions
 . $PSScriptRoot\functions.ps1
 
+$repoRoot = Split-Path -Parent $PSScriptRoot
+
 Write-Host "PowerShell $($PSVersionTable.PSVersion)" -ForegroundColor Cyan
 Write-Host "PSScriptRoot $PSScriptRoot" -ForegroundColor Cyan
+Write-Host "repoRoot $repoRoot" -ForegroundColor Cyan
 
 # Detect and fix PSModulePath cross-contamination (pwsh 7 paths leaking into PS 5.1 or vice versa)
 # See https://github.com/PowerShell/PowerShell/issues/18530
@@ -44,7 +47,7 @@ $componentDir = Join-Path $profileDir "components"
 New-Item $profileDir -ItemType Directory -Force -ErrorAction SilentlyContinue
 New-Item $componentDir -ItemType Directory -Force -ErrorAction SilentlyContinue
 
-Copy-Item -Path ./*.ps1 -Destination $profileDir -Exclude "bootstrap.ps1"
+Copy-Item -Path (Join-Path $PSScriptRoot "*.ps1") -Destination $profileDir -Exclude "bootstrap.ps1"
 # Copy-Item -Path ./components/** -Destination $componentDir -Include **
 # Copy-Item -Path ./home/** -Destination $home -Include **
 
@@ -52,14 +55,14 @@ Remove-Variable componentDir
 Remove-Variable profileDir
 
 ### copy config files 
-Copy-Item -Path ./.gitconfig -Destination $HOME/.gitconfig
-Copy-Item -Path ./.gitattributes_global -Destination $HOME/.gitattributes_global
-Copy-Item -Path ./vscode/.vscode-settings.json -Destination $env:APPDATA\Code\User\settings.json
-Copy-Item -Path ./vim/.vimrc -Destination $HOME/.vimrc
+Copy-Item -Path (Join-Path $repoRoot ".gitconfig") -Destination $HOME/.gitconfig
+Copy-Item -Path (Join-Path $repoRoot ".gitattributes_global") -Destination $HOME/.gitattributes_global
+Copy-Item -Path (Join-Path $repoRoot "vscode/.vscode-settings.json") -Destination $env:APPDATA\Code\User\settings.json
+Copy-Item -Path (Join-Path $repoRoot "vim/.vimrc") -Destination $HOME/.vimrc
 
 # Create .config directory and copy starship config
 New-Item -Path $HOME/.config -ItemType Directory -Force -ErrorAction SilentlyContinue
-Copy-Item -Path ./starship.toml -Destination $HOME/.config/starship.toml
+Copy-Item -Path (Join-Path $repoRoot "starship.toml") -Destination $HOME/.config/starship.toml
 
 # Powershell packages
 # Bootstrap NuGet provider if available (may fail on PS 5.1 with corrupted PSModulePath from PS 7)
