@@ -13,6 +13,7 @@ bootstrap_folders=(
   generic
   generic-cask
   git
+  iterm
   librewolf
   # lowlevel
   macos
