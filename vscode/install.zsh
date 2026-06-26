@@ -8,9 +8,6 @@ phase_3_dotfiles() {
 }
 
 phase_4_post_dotfiles() {
-  echo "Installing VSCode extensions"
-  waitconfirm
-
   code --install-extension aaron-bond.better-comments
   code --install-extension johnpapa.vscode-peacock
   code --install-extension usernamehw.errorlens
