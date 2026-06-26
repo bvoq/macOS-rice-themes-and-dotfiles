@@ -5,31 +5,31 @@ cd "${0:A:h}"
 
 # Enable package folders here. Comment out folders you do not want to bootstrap.
 bootstrap_folders=(
-  librewolf
-  rclone
-  brew
-  generic
-  ripgrep
-  git
-  tmux
-  readline
-  macos
-  antidote
-  starship
   # ai
+  antidote
+  brew
   # crypto
+  # csharp
   # devops
-  generic-cask
-  vscode
-  xcode
-  vim
-  nvim
   emacs
   # formal
+  generic
+  generic-cask
+  git
+  librewolf
   # lowlevel
+  macos
   # mobile
+  nvim
+  rclone
+  readline
+  ripgrep
+  starship
   # tex
-  # csharp
+  tmux
+  vim
+  vscode
+  xcode
 )
 
 install_scripts=(${^bootstrap_folders}/install.zsh)
@@ -118,8 +118,7 @@ done
 # Section 5: Heavy system changes, requires admin and reboot #
 ##############################################################
 
-# System changes for macOS
-if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
+if isadmin; then
   for install_script in "${install_scripts[@]}"; do
     phase_5_system_changes() { :; }
     source "$install_script"
