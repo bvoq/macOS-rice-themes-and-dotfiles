@@ -15,6 +15,7 @@ bootstrap_folders=(
   # devops
   generic-cask
   vscode
+  xcode
   vim
   nvim
   emacs
@@ -101,14 +102,6 @@ link_dotfile "unofunctions.zsh" "$HOME/.unofunctions.zsh"
 link_dotfile ".zshfunctions" "$HOME/.zshfunctions"
 link_dotfile ".zsh_plugins.txt" "$HOME/.zsh_plugins.txt"
 link_dotfile "starship.toml" "$HOME/.config/starship.toml"
-
-# macOS specific dotfile changes.
-if [[ $OSTYPE == 'darwin'* ]]; then
-  link_dotfile "xcode/Zenburn.xccolortheme" "$HOME/Library/Developer/Xcode/UserData/FontAndColorThemes/Zenburn.xccolortheme"
-  echo "You will need to manually select the Zenburn theme under Xcode > Preferences > Themes."
-  echo "Further, you will need to manually install the Zenburn themes for Terminal.app and iTerm2.app"
-
-fi
 
 source ~/.zshrc  # Source the new zshrc with antidote
 

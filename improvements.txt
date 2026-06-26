@@ -1,2 +1,3 @@
 vscode/install.zsh: fix typo `code --install-extesion github.vscode-github-actions` to `--install-extension` after migration-only pass.
 Move old `gitissues` and `gitdiscussions` helpers from .zshfunctions into an appropriate GitHub/API tooling plugin, fixing the GraphQL query while doing so.
+Move the old Terminal.app/iTerm2 manual theme selection reminder into terminal/ and iterm2/ plugins when those folders are migrated.
