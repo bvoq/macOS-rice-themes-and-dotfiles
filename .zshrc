@@ -50,13 +50,10 @@ stty sane
 #######################
 # 20_pre_compinit.zsh #
 #######################
-# interactive shell behavior (setopt, bindkey, history) plus pre-compinit setup:
-# fpath/FPATH additions, completion zstyles, plugins that only provide completion sources
+# setopt history, fpath/FPATH additions, completion zstyles, plugins that only provide completion sources
 
 # store all cd directory pushes
 setopt AUTO_PUSHD
-
-[ -f ~/.zshrc_private ] && source ~/.zshrc_private
 
 FPATH=$HOME/.zsh/completions:$FPATH
 
