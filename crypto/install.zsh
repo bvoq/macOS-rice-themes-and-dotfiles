@@ -28,6 +28,6 @@ phase_1_admin_installs() {
 }
 
 phase_3_dotfiles() {
-  link_dotfile "crypto/.zshenv.d/crypto.zsh" "$HOME/.zshenv.d/crypto.zsh"
+  link_dotfile "crypto/.zshenv" "$HOME/.zshenv.d/.zshenv_crypto"
   link_dotfile "crypto/.zshrc.d/00_crypto_safe_config.zsh" "$HOME/.zshrc.d/00_crypto_safe_config.zsh"
 }

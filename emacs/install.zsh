@@ -9,6 +9,10 @@ phase_1_admin_installs() {
   rm -f /opt/homebrew/Library/Homebrew/shims/mac/super/ccache
 }
 
+phase_3_dotfiles() {
+  link_dotfile "emacs/.zshenv" "$HOME/.zshenv.d/.zshenv_emacs"
+}
+
 phase_4_post_dotfiles() {
   if [ ! -f ~/.config/emacs/bin/doom ]; then
     git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs

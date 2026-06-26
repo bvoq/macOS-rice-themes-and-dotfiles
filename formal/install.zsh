@@ -17,7 +17,7 @@ phase_1_admin_installs() {
 }
 
 phase_3_dotfiles() {
-  link_dotfile "formal/.zshenv.d/formal.zsh" "$HOME/.zshenv.d/formal.zsh"
+  link_dotfile "formal/.zshenv" "$HOME/.zshenv.d/.zshenv_formal"
 }
 
 phase_4_post_dotfiles() {
