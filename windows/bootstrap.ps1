@@ -55,8 +55,8 @@ Remove-Variable componentDir
 Remove-Variable profileDir
 
 ### copy config files 
-Copy-Item -Path (Join-Path $repoRoot ".gitconfig") -Destination $HOME/.gitconfig
-Copy-Item -Path (Join-Path $repoRoot ".gitattributes_global") -Destination $HOME/.gitattributes_global
+Copy-Item -Path (Join-Path $repoRoot "git/.gitconfig") -Destination $HOME/.gitconfig
+Copy-Item -Path (Join-Path $repoRoot "git/.gitattributes_global") -Destination $HOME/.gitattributes_global
 Copy-Item -Path (Join-Path $repoRoot "vscode/.vscode-settings.json") -Destination $env:APPDATA\Code\User\settings.json
 Copy-Item -Path (Join-Path $repoRoot "vim/.vimrc") -Destination $HOME/.vimrc
 

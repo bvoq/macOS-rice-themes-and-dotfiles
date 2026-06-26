@@ -12,9 +12,9 @@ echo ". $ENV" >> ~/.profile
 cp "$SCRIPT_DIR/.ashrc" ~/.ashrc
 mkdir -p ~/.config/rclone && cp "$REPO_ROOT/rclone/bsync.sh" ~/.config/rclone/bsync.sh
 
-cp "$REPO_ROOT/.gitconfig" ~/.gitconfig
-cp "$REPO_ROOT/.gitignore_global" ~/.gitignore_global
-cp "$REPO_ROOT/.gitattributes_global" ~/.gitattributes_global
+cp "$REPO_ROOT/git/.gitconfig" ~/.gitconfig
+cp "$REPO_ROOT/git/.gitignore_global" ~/.gitignore_global
+cp "$REPO_ROOT/git/.gitattributes_global" ~/.gitattributes_global
 
 echo "Installing  Vim and Neovim configurations and plugins"
 

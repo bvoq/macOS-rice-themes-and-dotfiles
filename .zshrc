@@ -16,8 +16,6 @@ alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
 
-alias gitroot="cd \$(git rev-parse --show-toplevel)"
-
 # Detect which `ls` flavor is in use
 if ls --color > /dev/null 2>&1; then # GNU `ls`
     colorflag="--color"
@@ -67,13 +65,6 @@ alias ymp4='yt-dlp -fmp4 --write-sub --write-auto-sub --sub-lang "en.*" --cookie
 
 alias sqloptimize='sqlite3 "$1" "VACUUM;" && sqlite3 "$1" "REINDEX;"'
 alias gitzip="git archive HEAD -o ${PWD##*/}.zip"
-
-# find large git files in repo history.
-alias largegit="git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | awk '/^blob/ {print substr($""0,6)}' | sort --numeric-sort --key=2 | gnumfmt --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest"
-# then remove using
-# git obliterate ./path/to/large/file
-# rm -Rf .git/refs/original
-# git gc --aggressive --prune=now
 
 # Search for files:
 alias rgd='rg --hidden --files --no-ignore --sort-files . 2> /dev/null | xargs -0 dirname | uniq | rg'

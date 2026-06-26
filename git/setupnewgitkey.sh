@@ -11,7 +11,7 @@ fi
 
 ssh-keygen -t ed25519 -C "$1"
 eval "$(ssh-agent -s)"
-mkdir -p .ssh && cp .ssh/config ~/.ssh/config
+mkdir -p ~/.ssh && cp "${0%/*}/ssh_config" ~/.ssh/config
 
 unameOut="$(uname -s)"
 case "${unameOut}" in

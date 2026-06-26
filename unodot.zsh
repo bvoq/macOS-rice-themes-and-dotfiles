@@ -8,6 +8,7 @@ bootstrap_folders=(
   librewolf
   rclone
   generic
+  git
   # ai
   # crypto
   # devops
@@ -93,9 +94,6 @@ echo "Linking dotfiles after installation, because some install script like to a
 run_bootstrap_phase 3_dotfiles
 
 link_dotfile ".inputrc" "$HOME/.inputrc"
-link_dotfile ".gitconfig" "$HOME/.gitconfig"
-link_dotfile ".gitignore_global" "$HOME/.gitignore_global"
-link_dotfile ".gitattributes_global" "$HOME/.gitattributes_global"
 link_dotfile ".tmux.conf" "$HOME/.tmux.conf"
 link_dotfile ".zshrc" "$HOME/.zshrc"
 link_dotfile ".zshenv" "$HOME/.zshenv"
@@ -126,10 +124,10 @@ run_bootstrap_phase 4_post_dotfiles
 
 # System changes for macOS
 if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
-  run_bootstrap_phase 5_system_changes
-
   echo "Next: Installing system-wide macOS defaults (sudo required)."
   waitconfirm
+  run_bootstrap_phase 5_system_changes
+
   bash .macos
   echo "Done. A full restart is required for all settings to take effect."
 fi
