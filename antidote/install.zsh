@@ -1,5 +1,7 @@
 phase_2_user_installs() {
-  [ ! -d "${ZDOTDIR:-$HOME}/.antidote" ] && git clone --depth=1 https://github.com/mattmc3/antidote.git "${ZDOTDIR:-$HOME}/.antidote"
+  if [[ ! -d "${ZDOTDIR:-$HOME}/.antidote" ]]; then
+    git clone --depth=1 https://github.com/mattmc3/antidote.git "${ZDOTDIR:-$HOME}/.antidote"
+  fi
 }
 
 phase_3_dotfiles() {
