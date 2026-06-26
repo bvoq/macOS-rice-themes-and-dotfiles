@@ -19,5 +19,5 @@ phase_3_dotfiles() {
 
 phase_4_post_dotfiles() {
   # Note this also installs its own dotnet runtime, but not dotnet sdk!
-  code --install-extension visualstudiotoolsforunity.vstuc
+  command -v code >/dev/null 2>&1 && code --install-extension visualstudiotoolsforunity.vstuc
 }
