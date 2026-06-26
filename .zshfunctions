@@ -1,16 +1,6 @@
 #!/bin/zsh
 semver() { printf "%03d%03d%03d%03d" $(echo "$1" | tr '.' ' '); }
 
-instruments() {
-    [[ $# -gt 0 ]] || { echo "Usage: instruments <cmd> [args…]"; return 1 }
-    local cmd_path; cmd_path=$(command -v -- "$1") || { echo "Not found: $1"; return 1 }
-    shift
-    local output="/var/tmp/instruments-$(date '+%Y%m%d-%H%M%S').trace"
-    xcrun xctrace record --no-prompt --output "$output" --launch -- "$cmd_path" "$@"
-    echo "✅ Trace saved to $output"
-    open "$output" -a Instruments.app
-}
-
 report_brewfile_size() {
   local brew_file="$1"
   local brew_cellar brew_caskroom
@@ -330,17 +320,6 @@ compressvideo() {
         attempt=$((attempt + 1))
     done
     return 1
-}
-
-hopen() {
-    local dir="${1:-.}"
-    if [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
-        open "$dir" -a Terminal.app
-    elif [[ -d "/Applications/iTerm.app" ]]; then
-        open "$dir" -a iTerm.app
-    else
-        open "$dir" -a Terminal.app
-    fi
 }
 
 gifgen() {
