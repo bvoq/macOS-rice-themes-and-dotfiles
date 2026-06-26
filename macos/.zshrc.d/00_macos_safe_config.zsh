@@ -6,6 +6,8 @@ alias hide="defaults write com.apple.finder AppleShowAllFiles -bool false && kil
 alias hidedesktop="defaults write com.apple.finder CreateDesktop -bool false && killall Finder"
 alias showdesktop="defaults write com.apple.finder CreateDesktop -bool true && killall Finder"
 alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
+# Recursively delete `.DS_Store` files
+alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
 alias cpwd='pwd | pbcopy'
 alias chromekill="ps ux | grep '[C]hrome Helper --type=renderer' | grep -v extension-process | tr -s ' ' | cut -d ' ' -f2 | xargs kill"
 alias mplaylist='mdfind -onlyin . "kMDItemContentTypeTree == \"public.audio\"" | while read -r file; do echo "$(mdls -name kMDItemDateAdded -raw "$file") $file"; done | sort | cut -d" " -f4- | xargs -I {} mpg123 "{}"'

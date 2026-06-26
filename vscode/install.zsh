@@ -5,6 +5,7 @@ phase_3_dotfiles() {
   #link_dotfile "vscode/keybindings.json" "$HOME/Library/Application Support/Code/User/keybindings.json"
   #link_dotfile "vscode/keybindings.json" "$HOME/Library/Application Support/Code - Insiders/User/keybindings.json"
   link_dotfile "vscode/.zshrc.d/00_vscode_safe_config.zsh" "$HOME/.zshrc.d/00_vscode_safe_config.zsh"
+  link_dotfile "vscode/.zshrc.d/50_vscode_ishell_setup.zsh" "$HOME/.zshrc.d/50_vscode_ishell_setup.zsh"
   defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false
   defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false
 }

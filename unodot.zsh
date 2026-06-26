@@ -22,6 +22,7 @@ bootstrap_folders=(
   rclone
   readline
   ripgrep
+  ruby
   starship
   # tex
   tmux
