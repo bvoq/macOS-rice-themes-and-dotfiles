@@ -296,7 +296,6 @@ done
 
 link_dotfile ".zshrc" "$HOME/.zshrc"
 link_dotfile ".zshenv" "$HOME/.zshenv"
-link_dotfile ".zshfunctions" "$HOME/.zshfunctions"
 
 source ~/.zshrc  # Source the new zshrc with antidote
 

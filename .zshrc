@@ -5,8 +5,6 @@
 ######################
 # aliases, functions, helper sources, variables safe to define even in limited/dumb contexts
 
-source ~/.zshfunctions
-
 # Enable aliases to be sudo’ed
 alias sudo='sudo '
 
