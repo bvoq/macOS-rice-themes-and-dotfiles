@@ -9,10 +9,11 @@ rgvim() { # use :cn and :cp to navigate afterwards, :cl to list
       -c "grep ${1} ." .
 }
 export -f rgall > /dev/null
+_is_on() { [[ -o $1 ]] && return 0 || return 1 }
 rgdot() {
   local eg_was_on=1 gd_was_on=1
-  is_on extended_glob || eg_was_on=0
-  is_on glob_dots     || gd_was_on=0
+  _is_on extended_glob || eg_was_on=0
+  _is_on glob_dots     || gd_was_on=0
   setopt extended_glob glob_dots
   rg "$1" .*~.zsh_history(.)
   (( eg_was_on == 0 )) && unsetopt extended_glob

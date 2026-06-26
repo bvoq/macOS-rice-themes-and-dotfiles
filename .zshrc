@@ -5,7 +5,6 @@
 ######################
 # aliases, functions, helper sources, variables safe to define even in limited/dumb contexts
 
-source ~/.unofunctions.zsh
 source ~/.zshfunctions
 
 # Enable aliases to be sudo’ed
