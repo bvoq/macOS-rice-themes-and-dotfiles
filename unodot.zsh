@@ -14,6 +14,7 @@ bootstrap_folders=(
   readline
   macos
   antidote
+  starship
   # ai
   # crypto
   # devops
@@ -103,7 +104,6 @@ link_dotfile ".zshrc" "$HOME/.zshrc"
 link_dotfile ".zshenv" "$HOME/.zshenv"
 link_dotfile "unofunctions.zsh" "$HOME/.unofunctions.zsh"
 link_dotfile ".zshfunctions" "$HOME/.zshfunctions"
-link_dotfile "starship.toml" "$HOME/.config/starship.toml"
 
 source ~/.zshrc  # Source the new zshrc with antidote
 

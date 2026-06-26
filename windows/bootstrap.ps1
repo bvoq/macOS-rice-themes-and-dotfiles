@@ -62,7 +62,7 @@ Copy-Item -Path (Join-Path $repoRoot "vim/.vimrc") -Destination $HOME/.vimrc
 
 # Create .config directory and copy starship config
 New-Item -Path $HOME/.config -ItemType Directory -Force -ErrorAction SilentlyContinue
-Copy-Item -Path (Join-Path $repoRoot "starship.toml") -Destination $HOME/.config/starship.toml
+Copy-Item -Path (Join-Path $repoRoot "starship/starship.toml") -Destination $HOME/.config/starship.toml
 
 # Powershell packages
 # Bootstrap NuGet provider if available (may fail on PS 5.1 with corrupted PSModulePath from PS 7)

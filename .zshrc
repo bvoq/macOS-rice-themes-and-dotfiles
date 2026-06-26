@@ -228,7 +228,6 @@ if type zoxide &>/dev/null; then
   eval "$(zoxide init zsh)"
 fi
 
-command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 # command -v rbenv >/dev/null 2>&1 && ( eval "$(rbenv init - zsh)" || true )
 
