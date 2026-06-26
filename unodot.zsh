@@ -9,6 +9,7 @@ bootstrap_folders=(
   rclone
   brew
   generic
+  ripgrep
   git
   tmux
   readline
