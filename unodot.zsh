@@ -12,6 +12,7 @@ bootstrap_folders=(
   # crypto
   # devops
   generic-cask
+  vscode
   vim
   nvim
   emacs
@@ -105,13 +106,6 @@ link_dotfile "starship.toml" "$HOME/.config/starship.toml"
 
 # macOS specific dotfile changes.
 if [[ $OSTYPE == 'darwin'* ]]; then
-  link_dotfile "vscode/.vscode-settings.json" "$HOME/Library/Application Support/Code/User/settings.json" # VSCode
-  link_dotfile "vscode/.vscode-settings.json" "$HOME/Library/Application Support/Code - Insiders/User/settings.json" # VSCode Insiders
-  #link_dotfile "vscode/keybindings.json" "$HOME/Library/Application Support/Code/User/keybindings.json" # VSCode
-  #link_dotfile "vscode/keybindings.json" "$HOME/Library/Application Support/Code - Insiders/User/keybindings.json" # VSCode Insiders
-  defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false # VSCode
-  defaults write com.microsoft.VSCodeInsiders ApplePressAndHoldEnabled -bool false # VSCode Insiders
-  
   link_dotfile "xcode/Zenburn.xccolortheme" "$HOME/Library/Developer/Xcode/UserData/FontAndColorThemes/Zenburn.xccolortheme"
   echo "You will need to manually select the Zenburn theme under Xcode > Preferences > Themes."
   echo "Further, you will need to manually install the Zenburn themes for Terminal.app and iTerm2.app"
@@ -126,25 +120,6 @@ source ~/.zshrc  # Source the new zshrc with antidote
 
 run_bootstrap_phase 4_post_dotfiles
 
-echo "Installing VSCode extensions"
-waitconfirm
-# General
-code --install-extension aaron-bond.better-comments
-code --install-extension johnpapa.vscode-peacock
-code --install-extension usernamehw.errorlens
-code --install-extension PKief.material-icon-theme
-code --install-extension Ho-Wan.setting-toggle
-code --install-extension ctf0.close-tabs-to-the-left
-code --install-extension ms-vsliveshare.vsliveshare
-# Git related
-code --install-extension eamodio.gitlens
-code --install-extesion github.vscode-github-actions
-code --install-extension GitHub.vscode-pull-request-github
-# Theme
-code --install-extension ifahrentholz.one-quiet-dark-pro
-# Generic linters
-code --install-extension redhat.vscode-yaml
-code --install-extension DavidAnson.vscode-markdownlint
 ####################################################################
 # Section 5: Heavy macOS system changes, requires admin and reboot #
 ####################################################################

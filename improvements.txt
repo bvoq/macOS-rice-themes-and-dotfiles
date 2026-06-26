@@ -1,0 +1,1 @@
+vscode/install.zsh: fix typo `code --install-extesion github.vscode-github-actions` to `--install-extension` after migration-only pass.
