@@ -10,6 +10,7 @@ bootstrap_folders=(
   generic
   git
   tmux
+  readline
   # ai
   # crypto
   # devops
@@ -95,7 +96,6 @@ echo "Linking dotfiles after installation, because some install script like to a
 
 run_bootstrap_phase 3_dotfiles
 
-link_dotfile ".inputrc" "$HOME/.inputrc"
 link_dotfile ".zshrc" "$HOME/.zshrc"
 link_dotfile ".zshenv" "$HOME/.zshenv"
 link_dotfile "unofunctions.zsh" "$HOME/.unofunctions.zsh"
