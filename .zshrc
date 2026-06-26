@@ -125,22 +125,6 @@ for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
     alias "N${method}"="PERL_LWP_SSL_VERIFY_HOSTNAME=0 lwp-request -m '${method}' -H 'Content-type: application/json' -H 'Accept: application/json'"
 done
 
-# Homebrew
-alias brewleaves='brew deps --installed | grep -E "$(paste -sd "|" <(brew leaves))"'
-
-# takes a long while but sorts packages by their size and states their leaf dependencies.
-brewmem() {
-    brew list --formula | xargs -n1 -P8 -I {} sh -c "brew info {} | egrep '[0-9]* files, ' | sed 's/^.*[0-9]* files, \(.*\)).*$/{} \1/'" | sort -h -r -k2 - | xargs -L1 bash -c 'echo $0 $1 Leaves: $(brew uses --installed --recursive $0 | grep -E "( |^)$(paste -sd " " <(brew leaves) | sed "s/ /( |$)|( |^)/g")( |$)")'
-}
-export -f brewmem > /dev/null
-
-# List packages and sort them by memory, may take a while: https://stackoverflow.com/questions/40065188/get-size-of-each-installed-formula-in-homebrew
-alias brewmemsimple="brew list --formula | xargs -n1 -P8 -I {} sh -c \"brew info {} | egrep '[0-9]* files, ' | sed 's/^.*[0-9]* files, \(.*\)).*$/{} \1/'\" | sort -h -r -k2 - | column -t"
-
-# useful:
-# brew uses --installed --recursive <package>
-# brew deps --installed --tree <package>
-
 # Usage: pdfjoings merged.pdf file1.pdf file2.pdf ... fileN.pdf
 pdfjoings () {
   gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile="$1" "${@:2}"
@@ -205,10 +189,10 @@ export PATH="$(gem env gemdir)/bin:$PATH"
 ##############################
 # fpath/FPATH additions, completion zstyles, plugins that only provide completion sources
 
-if type brew &>/dev/null; then
-  BREW_PREFIX=$(brew --prefix)
-  FPATH=$BREW_PREFIX/share/zsh/site-functions:$BREW_PREFIX/share/zsh-completions:$FPATH
-fi
+for zshrc_file in "${ZDOTDIR:-$HOME}"/.zshrc.d/30_*.zsh(N); do
+  source "$zshrc_file"
+done
+unset zshrc_file
 FPATH=$HOME/.zsh/completions:$FPATH
 
 # for those old people who still use bash? bash completion support
@@ -257,6 +241,7 @@ command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
 
 # Package shell fragments
 for zshrc_file in "${ZDOTDIR:-$HOME}"/.zshrc.d/*.zsh(N); do
+  [[ "${zshrc_file:t}" == 30_* ]] && continue
   source "$zshrc_file"
 done
 unset zshrc_file

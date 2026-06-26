@@ -7,6 +7,7 @@ cd "${0:A:h}"
 bootstrap_folders=(
   librewolf
   rclone
+  brew
   generic
   git
   tmux
