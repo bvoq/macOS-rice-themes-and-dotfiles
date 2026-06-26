@@ -235,7 +235,7 @@ check_not_rosetta() {
 
 set_error_handler
 
-git submodule update --init --recursive
+git submodule update --init --recursive  # in case your repo has submodules.
 
 if ! [[ $OSTYPE == 'darwin'* ]]; then
   echo "This bootstrap script is only meant for macOS. Exiting."
@@ -295,8 +295,30 @@ for install_script in "${install_scripts[@]}"; do
   phase_3_dotfiles
 done
 
-link_dotfile ".zshrc" "$HOME/.zshrc"
-link_dotfile ".zshenv" "$HOME/.zshenv"
+# ~/.zshrc and ~/.zshenv are tiny loaders that just source the ~/.zshrc.d and
+# ~/.zshenv.d fragments linked by the plugin folders above.
+mkdir -p backups
+[[ -e "$HOME/.zshenv" ]] && mv "$HOME/.zshenv" backups/.zshenv
+[[ -e "$HOME/.zshrc" ]] && mv "$HOME/.zshrc" backups/.zshrc
+
+cat > "$HOME/.zshenv" <<'UNODOT_ZSHENV'
+#!/bin/zsh
+
+for zshenv_file in "${ZDOTDIR:-$HOME}"/.zshenv.d/.zshenv_*(N); do
+  source "$zshenv_file"
+done
+unset zshenv_file
+UNODOT_ZSHENV
+
+cat > "$HOME/.zshrc" <<'UNODOT_ZSHRC'
+#!/bin/zsh
+
+for zshrc_file in "${ZDOTDIR:-$HOME}"/.zshrc.d/*.zsh(N); do
+  source "$zshrc_file"
+  (( ${UNODOT_STOP:-0} )) && break
+done
+unset zshrc_file UNODOT_STOP
+UNODOT_ZSHRC
 
 source ~/.zshrc
 
