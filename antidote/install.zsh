@@ -4,5 +4,5 @@ phase_2_user_installs() {
 
 phase_3_dotfiles() {
   link_dotfile "antidote/.zsh_plugins.txt" "$HOME/.zsh_plugins.txt"
-  link_dotfile "antidote/.zshrc.d/99_antidote_setup.zsh" "$HOME/.zshrc.d/99_antidote_setup.zsh"
+  link_dotfile "antidote/.zshrc.d/50_antidote_setup.zsh" "$HOME/.zshrc.d/50_antidote_setup.zsh"
 }
