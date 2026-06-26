@@ -97,7 +97,7 @@ if ($answer -eq "n") {
 ### Install packages using winget
 # show dependencies of a package using: winget show -e --id <package-id>
 
-# Cross-platform tools — also present in brew/Brewfile.generic_crossplatform.
+# Cross-platform tools — also present in generic/Brewfile.crossplatform.
 $wingetPackagesCrossplatform = @(
     "ajeetdsouza.zoxide",
     "BurntSushi.ripgrep.MSVC",
