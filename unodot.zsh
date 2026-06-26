@@ -5,7 +5,6 @@ bootstrap_folders=(
   # ai
   antidote
   brew
-  core
   # crypto
   # csharp
   # devops
