@@ -36,22 +36,40 @@ bash_error_handler() {
     done
 }
 
+# A function that returns nonzero without tripping errexit in-context (e.g. the
+# left side of `a && b`, or an explicit `return 1`) unwinds its frame before the
+# ERR trap fires at the call site, so funcfiletrace no longer holds the failing
+# line. The DEBUG trap records each command's location before it runs, keeping
+# the true inner line available to the error handler even after the unwind.
+_unodot_record_command_location() {
+    UNODOT_LAST_LOCATION="${funcfiletrace[1]}"
+}
+
+_unodot_format_source_line() {
+    local file="$1" lineno="$2"
+    local content_on_line trimmed_line limited_line padded_line
+    content_on_line="$(awk "NR == $lineno" "$file" 2>/dev/null)"
+    trimmed_line=$(echo "$content_on_line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    if [[ ${#trimmed_line} -gt 50 ]]; then
+        limited_line="${trimmed_line:0:47}..."
+    else
+        limited_line="$trimmed_line"
+    fi
+    padded_line=$(printf "%-50s" "$limited_line")
+    echo "\t$padded_line  on line $lineno\t in file $file."
+}
+
 zsh_error_handler() {
     # Iterate over the stack trace to find the original error location
     echo "Encountered an error. Stacktrace:"
+    if [[ -n "$UNODOT_LAST_LOCATION" && "$UNODOT_LAST_LOCATION" != "${funcfiletrace[1]}" ]]; then
+        _unodot_format_source_line "${UNODOT_LAST_LOCATION%%:*}" "${UNODOT_LAST_LOCATION##*:}"
+    fi
     for (( i=${#funcfiletrace[@]}; i >= 1; i-- )); do
         fileandlineno=${funcfiletrace[i]}
         file=${fileandlineno%%:*}  # Get the first part before the first ':'
         lineno=${fileandlineno##*:}  # Get the last part after the last ':'
-        content_on_line="$(awk "NR == $lineno" "$file")"
-        trimmed_line=$(echo "$content_on_line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-        if [[ ${#trimmed_line} -gt 50 ]]; then
-            limited_line="${trimmed_line:0:47}..."
-        else
-            limited_line="$trimmed_line"
-        fi
-        padded_line=$(printf "%-50s" "$limited_line")
-        echo "\t$padded_line  on line $lineno\t in file $file."
+        _unodot_format_source_line "$file" "$lineno"
     done
 }
 
@@ -61,6 +79,7 @@ set_error_handler() {
         trap 'bash_error_handler ${BASH_SOURCE} ${BASH_COMMAND} ${BASH_ARGV[@]}' ERR
     elif [[ $SHELL == "/bin/zsh" ]]; then
         set -e
+        trap '_unodot_record_command_location' DEBUG
         trap 'zsh_error_handler' ERR
     else
         echo "No error handler for shell $SHELL"
