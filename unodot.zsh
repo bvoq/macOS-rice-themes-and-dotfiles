@@ -11,6 +11,7 @@ bootstrap_folders=(
   git
   tmux
   readline
+  macos
   # ai
   # crypto
   # devops
@@ -117,10 +118,5 @@ run_bootstrap_phase 4_post_dotfiles
 
 # System changes for macOS
 if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
-  echo "Next: Installing system-wide macOS defaults (sudo required)."
-  waitconfirm
   run_bootstrap_phase 5_system_changes
-
-  bash .macos
-  echo "Done. A full restart is required for all settings to take effect."
 fi
