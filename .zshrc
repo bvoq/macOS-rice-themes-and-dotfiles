@@ -48,27 +48,19 @@ done
 stty sane
 
 #######################
-# 20_ishell_config.zsh #
+# 20_pre_compinit.zsh #
 #######################
-# interactive shell behavior: setopt, bindkey basics, history options
+# interactive shell behavior (setopt, bindkey, history) plus pre-compinit setup:
+# fpath/FPATH additions, completion zstyles, plugins that only provide completion sources
 
 # store all cd directory pushes
 setopt AUTO_PUSHD
 
 [ -f ~/.zshrc_private ] && source ~/.zshrc_private
 
-for zshrc_file in "${ZDOTDIR:-$HOME}"/.zshrc.d/20_*.zsh(N); do
-  source "$zshrc_file"
-done
-
-##############################
-# 30_pre_compinit_setup.zsh #
-##############################
-# fpath/FPATH additions, completion zstyles, plugins that only provide completion sources
-
 FPATH=$HOME/.zsh/completions:$FPATH
 
-for zshrc_file in "${ZDOTDIR:-$HOME}"/.zshrc.d/30_*.zsh(N); do
+for zshrc_file in "${ZDOTDIR:-$HOME}"/.zshrc.d/20_*.zsh(N); do
   source "$zshrc_file"
 done
 unset zshrc_file
@@ -77,27 +69,27 @@ unset zshrc_file
 # for those old people who still use bash? bash completion support
 # [ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
 
-##################
-# 40_compinit.zsh #
-##################
+###################
+# 30_compinit.zsh #
+###################
 # autoload -Uz compinit
 # compinit
 
 autoload -Uz compinit
 compinit -u 2>/dev/null || compinit -C
 
-for zshrc_file in "${ZDOTDIR:-$HOME}"/.zshrc.d/40_*.zsh(N); do
+for zshrc_file in "${ZDOTDIR:-$HOME}"/.zshrc.d/30_*.zsh(N); do
   source "$zshrc_file"
 done
 unset zshrc_file
 
 #######################
-# 50_ishell_setup.zsh #
+# 40_ishell_setup.zsh #
 #######################
 # tool initialization after shell/completion base is ready:
 
 # Package shell fragments
-for zshrc_file in "${ZDOTDIR:-$HOME}"/.zshrc.d/50_*.zsh(N); do
+for zshrc_file in "${ZDOTDIR:-$HOME}"/.zshrc.d/40_*.zsh(N); do
   source "$zshrc_file"
 done
 unset zshrc_file

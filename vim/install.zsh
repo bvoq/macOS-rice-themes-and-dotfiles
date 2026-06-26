@@ -1,6 +1,6 @@
 phase_3_dotfiles() {
   link_dotfile "vim/.vimrc" "$HOME/.vimrc"
-  link_dotfile "vim/.zshrc.d/00_vim_safe_config.zsh" "$HOME/.zshrc.d/00_vim_safe_config.zsh"
+  link_dotfile "vim/.zshrc.d/00_safe_config.zsh" "$HOME/.zshrc.d/00_safe_config_vim.zsh"
 }
 
 phase_4_post_dotfiles() {

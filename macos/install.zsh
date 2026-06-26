@@ -1,6 +1,6 @@
 phase_3_dotfiles() {
   [[ $OSTYPE == 'darwin'* ]] || return 0
-  link_dotfile "macos/.zshrc.d/00_macos_safe_config.zsh" "$HOME/.zshrc.d/00_macos_safe_config.zsh"
+  link_dotfile "macos/.zshrc.d/00_safe_config.zsh" "$HOME/.zshrc.d/00_safe_config_macos.zsh"
 }
 
 phase_5_system_changes() {

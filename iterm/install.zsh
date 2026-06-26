@@ -10,5 +10,5 @@ phase_5_system_changes() {
 }
 
 phase_3_dotfiles() {
-  link_dotfile "iterm/.zshrc.d/50_iterm_ishell_setup.zsh" "$HOME/.zshrc.d/50_iterm_ishell_setup.zsh"
+  link_dotfile "iterm/.zshrc.d/40_ishell_setup.zsh" "$HOME/.zshrc.d/40_ishell_setup_iterm.zsh"
 }

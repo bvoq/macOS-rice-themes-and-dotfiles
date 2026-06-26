@@ -20,19 +20,20 @@ For example, my .zshrc.d/ files are ordered numerically by the following phases:
 10_guard.zsh
   return early for non-interactive/dumb/non-tty cases; terminal repair like stty sane
 
-20_ishell_config.zsh
-  interactive shell behavior: setopt, bindkey basics, history options
-
-30_pre_compinit_setup.zsh
+20_pre_compinit.zsh
+  interactive shell behavior (setopt, bindkey, history) plus pre-compinit setup:
   fpath/FPATH additions, completion zstyles, plugins that only provide completion sources
 
-40_compinit.zsh
+30_compinit.zsh
   autoload -Uz compinit
   compinit
 
-50_ishell_setup.zsh
+40_ishell_setup.zsh
   tool initialization after shell/completion base is ready:
   fzf, zoxide, direnv, starship, compdef, current antidote load
+
+Package folders provide their own fragments under the same names (e.g. git/.zshrc.d/00_safe_config.zsh),
+linked into ~/.zshrc.d/ with the folder name appended (e.g. 00_safe_config_git.zsh) so they sort by phase.
 
 You can define your own naming convention, all unodot does is link them and source them in order for you.
 

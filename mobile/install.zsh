@@ -13,7 +13,7 @@ phase_2_user_installs() {
 
 phase_3_dotfiles() {
   link_dotfile "mobile/.zshenv" "$HOME/.zshenv.d/.zshenv_mobile"
-  link_dotfile "mobile/.zshrc.d/00_mobile_safe_config.zsh" "$HOME/.zshrc.d/00_mobile_safe_config.zsh"
+  link_dotfile "mobile/.zshrc.d/00_safe_config.zsh" "$HOME/.zshrc.d/00_safe_config_mobile.zsh"
 }
 
 phase_4_post_dotfiles() {
