@@ -62,15 +62,19 @@ _unodot_format_source_line() {
 zsh_error_handler() {
     # Iterate over the stack trace to find the original error location
     echo "Encountered an error. Stacktrace:"
-    if [[ -n "$UNODOT_LAST_LOCATION" && "$UNODOT_LAST_LOCATION" != "${funcfiletrace[1]}" ]]; then
-        _unodot_format_source_line "${UNODOT_LAST_LOCATION%%:*}" "${UNODOT_LAST_LOCATION##*:}"
-    fi
     for (( i=${#funcfiletrace[@]}; i >= 1; i-- )); do
         fileandlineno=${funcfiletrace[i]}
         file=${fileandlineno%%:*}  # Get the first part before the first ':'
         lineno=${fileandlineno##*:}  # Get the last part after the last ':'
         _unodot_format_source_line "$file" "$lineno"
     done
+    # The walk is outermost-first, so the deepest live frame is last. When the
+    # failing frame already unwound (e.g. short-circuit left side, return 1) it
+    # is absent from funcfiletrace; append the DEBUG-recorded line so the true
+    # failure is still the last entry.
+    if [[ -n "$UNODOT_LAST_LOCATION" && "$UNODOT_LAST_LOCATION" != "${funcfiletrace[1]}" ]]; then
+        _unodot_format_source_line "${UNODOT_LAST_LOCATION%%:*}" "${UNODOT_LAST_LOCATION##*:}"
+    fi
 }
 
 set_error_handler() {
