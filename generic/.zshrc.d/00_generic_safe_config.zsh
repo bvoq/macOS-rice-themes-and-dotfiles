@@ -166,51 +166,6 @@ removesensitive() {
     done
 }
 
-
-aichatgit() {
-    git diff > __changes.txt
-    files=($({ { git diff --name-only; git ls-files --others --exclude-standard; } | sort -u | while IFS= read -r file; do
-        if [ -f "$file" ] && [ "$(wc -l < "$file")" -le 4000 ]; then
-            echo "$file"
-        fi
-    done; }))
-    echo "Reading piped input"
-    if ! [ -t 0 ]; then
-        while IFS= read -r line; do
-            files+=("$line")
-        done
-    fi
-    echo "Finished reading piped input"
-    files+=( "__changes.txt" )
-    tmp_files=()
-    args=()
-    echo "all files ${files[@]}"
-    for file in "${files[@]}"; do
-        echo "$file"
-        if [ ! -f "$file" ]; then
-            echo "File '$file' not found, skipping." >&2
-            continue
-        fi
-
-    # Copy the file into /tmp using its basename.
-    cp "$file" /tmp/ || { echo "Failed to copy $file to /tmp" >&2; continue; }
-    local tmp_file="/tmp/$(basename "$file")"
-    echo "running __removesensitive $tmp_file"
-    __removesensitive "$tmp_file"
-    tmp_files+=( "$tmp_file" )
-    args+=( -f "$tmp_file" )
-    echo "$tmp_file"
-done
-rm __changes.txt
-if [ "${#args[@]}" -gt 0 ]; then
-    echo "aichat ${args[@]} $@"
-    aichat "${args[@]}" "$@"
-    rm "${args[@]}"
-else
-    echo "No valid files to process." >&2
-fi
-}
-
 flatten_folder() {
     # Default values:
     local comment="#"
