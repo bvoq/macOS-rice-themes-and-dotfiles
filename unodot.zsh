@@ -297,7 +297,7 @@ done
 link_dotfile ".zshrc" "$HOME/.zshrc"
 link_dotfile ".zshenv" "$HOME/.zshenv"
 
-source ~/.zshrc  # Source the new zshrc with antidote
+source ~/.zshrc
 
 ####################################################################################
 # Section 4: Installing user-level tools that require the dotfiles to be in place. #
