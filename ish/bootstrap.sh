@@ -1,16 +1,20 @@
 #!/bin/sh
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd -P)
+
 apk add curl git gnupg openssh gopass rclone vim zoxide
 apk add bat ncdu oath-toolkit oath-toolkit-oathtool
 
 # install ashrc properly
 echo "ENV=$HOME/.ashrc; export ENV" > ~/.profile
 echo ". $ENV" >> ~/.profile
-cp .ashrc ~/.ashrc
-mkdir -p ~/.config/rclone && cp rclone/bsync.sh ~/.config/rclone/bsync.sh
+cp "$SCRIPT_DIR/.ashrc" ~/.ashrc
+mkdir -p ~/.config/rclone && cp "$REPO_ROOT/rclone/bsync.sh" ~/.config/rclone/bsync.sh
 
-cp .gitconfig ~/.gitconfig
-cp .gitignore_global ~/.gitignore_global
-cp .gitattributes_global ~/.gitattributes_global
+cp "$REPO_ROOT/.gitconfig" ~/.gitconfig
+cp "$REPO_ROOT/.gitignore_global" ~/.gitignore_global
+cp "$REPO_ROOT/.gitattributes_global" ~/.gitattributes_global
 
 echo "Installing  Vim and Neovim configurations and plugins"
 
@@ -23,8 +27,8 @@ sh -c 'curl -fLo "$HOME/.local/share"/nvim/site/autoload/plug.vim --create-dirs 
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
 # copy the vim config files
-mkdir -p ~/.config/nvim && cp nvim/.config/nvim/init.vim ~/.config/nvim/init.vim
-cp vim/.vimrc ~/.vimrc
+mkdir -p ~/.config/nvim && cp "$REPO_ROOT/nvim/.config/nvim/init.vim" ~/.config/nvim/init.vim
+cp "$REPO_ROOT/vim/.vimrc" ~/.vimrc
 if command -v nvim > /dev/null; then
   nvim +'PlugInstall --sync' +qa
   nvim +'PlugClean --sync' +qa
