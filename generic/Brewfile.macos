@@ -1,0 +1,19 @@
+# macOS-only generic tools. Cross-platform generic tools live in
+# generic/Brewfile.crossplatform and are installed alongside this file.
+# User-level generic setup lives in generic/install.zsh.
+
+brew "direnv"
+brew "fdupes"
+brew "ghostscript"
+brew "ipcalc"
+brew "mas"
+brew "ncdu"
+brew "oath-toolkit"
+brew "rbenv"
+brew "ripsecrets"
+brew "tmux"
+brew "trash"
+brew "tree"
+brew "watch"
+brew "xcodes"
+brew "zsh-completions"

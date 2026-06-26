@@ -1,7 +1,6 @@
 #!/bin/zsh
 
 # enable what you want to install here
-GENERICTOOLS=1
 GENERICCASKTOOLS=1
 LOWLEVELTOOLS=0
 
@@ -11,6 +10,7 @@ cd "${0:A:h}"
 bootstrap_folders=(
   librewolf
   rclone
+  generic
   # ai
   # crypto
   # devops
@@ -18,7 +18,6 @@ bootstrap_folders=(
   nvim
   emacs
   # formal
-  # generic
   # generic-cask
   # lowlevel
   # mobile
@@ -70,11 +69,6 @@ if isadmin; then
   brew autoremove
   brew cleanup
 
-  if [ $GENERICTOOLS = 1 ]; then
-    install_brewfile brew/Brewfile.generic_crossplatform
-    install_brewfile brew/Brewfile.generic_macos
-  fi
-
   if [ $LOWLEVELTOOLS = 1 ]; then
     install_brewfile brew/Brewfile.lowlevel
   fi
@@ -105,17 +99,6 @@ fi
 echo "Installing other user-level tools."
 
 run_bootstrap_phase 2_user_installs
-
-if [ $GENERICTOOLS = 1 ]; then
-  # zsh - antidote
-  [ ! -d "${ZDOTDIR:-$HOME}/.antidote" ] && git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-$HOME}/.antidote
-
-  # update ~/Library/Caches/tealdeer/
-  tldr --update
-
-  # iterm2 shell integration
-  curl -L https://iterm2.com/shell_integration/zsh -o ~/.iterm2_shell_integration.zsh
-fi
 
 if [ $LOWLEVELTOOLS = 1 ]; then
   # Install rust, use --profile complete for everything.

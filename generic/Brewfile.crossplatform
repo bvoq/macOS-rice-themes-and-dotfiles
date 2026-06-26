@@ -1,5 +1,4 @@
-# Cross-platform "generic" tools — also present in bootstrap.ps1 (winget).
-# Loaded together with Brewfile.generic when GENERICTOOLS=1.
+# Cross-platform generic tools, also present in windows/bootstrap.ps1 (winget).
 
 brew "bat"
 brew "eza"
