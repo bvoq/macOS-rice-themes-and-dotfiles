@@ -16,3 +16,19 @@ add_xcode_bookmark() {
   echo "Added Xcode bookmark: $label at $file:$line"
   echo "Used keystroke '^' with Control+Option+Command"
 }
+
+# Open xcode project properly using just x.
+function x() {
+  dir="${1:-.}"
+  matches=("xcworkspace" "xcodeproj" "playground")
+  for ext in "${matches[@]}"; do
+    for file in "$dir"/*."$ext"(N); do
+      if [[ -e "$file" ]]; then
+        xed "$file"
+        return
+      fi
+    done
+  done
+  echo "No .xcworkspace, .xcodeproj, or .playground found in '$dir'."
+}
+export -f x > /dev/null
