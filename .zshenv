@@ -17,9 +17,6 @@ fi
 export PAGER='less'
 export LESS='-R'
 
-# Bat theme
-export BAT_THEME='zenburn'
-
 for zshenv_file in "${ZDOTDIR:-$HOME}"/.zshenv.d/.zshenv_*(N); do
   source "$zshenv_file"
 done

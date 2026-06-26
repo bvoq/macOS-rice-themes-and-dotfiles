@@ -44,14 +44,3 @@ hopen() {
     open "$dir" -a Terminal.app
   fi
 }
-
-fixkeys() {
-  sudo hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000033,"HIDKeyboardModifierMappingDst":0x700000011},{"HIDKeyboardModifierMappingSrc":0x700000034,"HIDKeyboardModifierMappingDst":0x700000005}]}'
-}
-
-nofixkeys() {
-  sudo hidutil property --set '{"UserKeyMapping":[]}'
-}
-
-export -f fixkeys > /dev/null
-export -f nofixkeys > /dev/null

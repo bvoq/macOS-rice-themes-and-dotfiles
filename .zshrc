@@ -47,10 +47,6 @@ alias mergepdf2='pdfjoin --rotateoversize false'
 
 alias grabsite='wget -r -np --wait=1 -k --execute="robots = off" --mirror --random-wait --user-agent="Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0"'
 
-# make sure to use " around url when using ymp3, works for playlists and single videos.
-alias ymp3='yt-dlp -x --audio-format mp3 --add-metadata --embed-thumbnail --cookies-from-browser chrome'
-alias ymp4='yt-dlp -fmp4 --write-sub --write-auto-sub --sub-lang "en.*" --cookies-from-browser chrome'
-
 alias sqloptimize='sqlite3 "$1" "VACUUM;" && sqlite3 "$1" "REINDEX;"'
 
 # Recursively delete `.DS_Store` files

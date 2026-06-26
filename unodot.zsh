@@ -9,6 +9,7 @@ bootstrap_folders=(
   # csharp
   # devops
   emacs
+  ffmpeg_ytdlp
   # formal
   generic
   generic-cask
@@ -23,6 +24,7 @@ bootstrap_folders=(
   readline
   ripgrep
   ruby
+  ssdeep
   starship
   # tex
   tmux
