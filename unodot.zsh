@@ -261,11 +261,10 @@ if isadmin; then
     phase_1_admin_installs
   done
 
-  prune_unbundled_brew_packages
-
-  # clean up brew
   brew autoremove
   brew cleanup
+  prune_unbundled_brew_packages
+
 else
   echo "Skipping brew and other admin-privileged installs."
 fi
