@@ -1,12 +1,5 @@
 phase_1_admin_installs() {
   install_brewfile emacs/Brewfile
-
-  # tdlib is needed for telegram for emacs.
-  # tdlib --HEAD needs ccache to be installed and have super shims set up.
-  brew install ccache
-  ln -s /opt/homebrew/bin/ccache /opt/homebrew/Library/Homebrew/shims/mac/super/ccache
-  brew install tdlib --HEAD || true # even if this fails, we need to remove ccache link, so suppress with || true.
-  rm -f /opt/homebrew/Library/Homebrew/shims/mac/super/ccache
 }
 
 phase_3_dotfiles() {

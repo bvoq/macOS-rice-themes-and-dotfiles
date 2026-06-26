@@ -2,3 +2,7 @@ brew "android-platform-tools"
 brew "ccache"
 
 cask "android-file-transfer"
+
+# special: dcm requires its own tap; trust it so non-interactive bootstrap isn't blocked
+tap "CQLabs/dcm", trusted: true
+brew "dcm"

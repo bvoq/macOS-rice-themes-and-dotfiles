@@ -1,8 +1,5 @@
 phase_1_admin_installs() {
   install_brewfile devops/Brewfile
-
-  # special: kubetail lives on a custom tap
-  brew tap johanhaleby/kubetail && brew install kubetail
 }
 
 phase_2_user_installs() {

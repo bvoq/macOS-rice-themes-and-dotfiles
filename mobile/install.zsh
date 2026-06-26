@@ -1,9 +1,5 @@
 phase_1_admin_installs() {
   install_brewfile mobile/Brewfile
-
-  # special: dcm requires its own tap
-  brew tap CQLabs/dcm
-  brew install dcm
 }
 
 phase_2_user_installs() {

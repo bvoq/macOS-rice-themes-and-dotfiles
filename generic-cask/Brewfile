@@ -3,6 +3,7 @@
 
 cask "appcleaner"
 cask "baidunetdisk"
+cask "daisydisk"  # Note: I have a license for this.
 cask "devcleaner"
 cask "keka"
 cask "paintbrush"

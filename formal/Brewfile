@@ -2,3 +2,15 @@ brew "eprover"
 brew "spin"
 
 cask "tla-plus-toolbox"
+
+# special: psisolver requires its own tap; trust it so non-interactive bootstrap isn't blocked
+tap "bvoq/bvoq", trusted: true
+brew "psisolver"
+
+# special: kframework requires its own tap; trust it so non-interactive bootstrap isn't blocked
+# tap "runtimeverification/k", trusted: true
+# brew "kframework"
+
+# special: the Haskell Tool Stack (stack is an alias for haskell-stack); Agda itself is a
+# per-user install handled in formal/install.zsh phase_2_user_installs
+brew "haskell-stack"

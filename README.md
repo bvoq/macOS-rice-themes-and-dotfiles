@@ -5,7 +5,7 @@ Here you can get a good grasps of the 5 install phases:
 
 | Phase | Package hook | What it is for |
 | --- | --- | --- |
-| 1 | `phase_1_admin_installs` | Admin-privileged installs: Homebrew bundles, taps, casks, and system-level prerequisites. Skipped when the user is not an admin. |
+| 1 | `phase_1_admin_installs` | Admin-privileged installs like: Homebrew bundles/casks, AppStore apps and other system-level apps. Skipped when the user is not an admin. |
 | 2 | `phase_2_user_installs` | User-level installs that do not require dotfiles yet: cloned tools, per-user package managers, and curl-based installers. |
 | 3 | `phase_3_dotfiles` | Dotfile linking via `link_dotfile`, including package-owned config files and shell fragments. |
 | 4 | `phase_4_post_dotfiles` | User-level setup that requires dotfiles to already be linked: plugin installs, sync commands, and tool initialization. |

@@ -1,19 +1,13 @@
 phase_1_admin_installs() {
   install_brewfile formal/Brewfile
+}
 
-  # special: PsiSolver lives on a custom tap
-  brew tap bvoq/bvoq
-  brew install psisolver
-  # Kframework
-  #brew tap kframework/k
-  #brew install kframework
-  ## Agda
-  # brew install stack
-  # stack install Agda # installs GHC automatically
-  # # install emacs from mituharu: https://github.com/railwaycat/homebrew-emacsmacport
-  # brew tap railwaycat/emacsmacport
-  # brew install --cask emacs-mac
-  # agda-mode setup
+phase_2_user_installs() {
+  # Agda is per-user: stack installs it into ~/.local/bin and agda-mode setup edits the user's emacs.
+  if [ ! -x "$HOME/.local/bin/agda" ]; then
+    stack install Agda # installs GHC automatically
+    agda-mode setup
+  fi
 }
 
 phase_3_dotfiles() {
