@@ -5,6 +5,7 @@ phase_1_admin_installs() {
 phase_3_dotfiles() {
   link_dotfile "nvim/.config/nvim/init.vim" "$HOME/.config/nvim/init.vim"
   link_dotfile "nvim/.config/nvim/ycm_extra_conf.py" "$HOME/.config/nvim/ycm_extra_conf.py"
+  link_dotfile "nvim/.zshrc.d/00_nvim_safe_config.zsh" "$HOME/.zshrc.d/00_nvim_safe_config.zsh"
 }
 
 phase_4_post_dotfiles() {
