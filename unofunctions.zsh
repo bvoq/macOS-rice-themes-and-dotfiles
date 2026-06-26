@@ -41,11 +41,11 @@ bash_error_handler() {
 # ERR trap fires at the call site, so funcfiletrace no longer holds the failing
 # line. The DEBUG trap records each command's location before it runs, keeping
 # the true inner line available to the error handler even after the unwind.
-_unodot_record_command_location() {
-    UNODOT_LAST_LOCATION="${funcfiletrace[1]}"
+_zsh_error_handler_command_location() {
+    ZSH_ERROR_HANDLER_LAST_LOCATION="${funcfiletrace[1]}"
 }
 
-_unodot_format_source_line() {
+_zsh_error_handler_source_line() {
     local file="$1" lineno="$2"
     local content_on_line trimmed_line limited_line padded_line
     content_on_line="$(awk "NR == $lineno" "$file" 2>/dev/null)"
@@ -66,14 +66,14 @@ zsh_error_handler() {
         fileandlineno=${funcfiletrace[i]}
         file=${fileandlineno%%:*}  # Get the first part before the first ':'
         lineno=${fileandlineno##*:}  # Get the last part after the last ':'
-        _unodot_format_source_line "$file" "$lineno"
+        _zsh_error_handler_source_line "$file" "$lineno"
     done
     # The walk is outermost-first, so the deepest live frame is last. When the
     # failing frame already unwound (e.g. short-circuit left side, return 1) it
     # is absent from funcfiletrace; append the DEBUG-recorded line so the true
     # failure is still the last entry.
-    if [[ -n "$UNODOT_LAST_LOCATION" && "$UNODOT_LAST_LOCATION" != "${funcfiletrace[1]}" ]]; then
-        _unodot_format_source_line "${UNODOT_LAST_LOCATION%%:*}" "${UNODOT_LAST_LOCATION##*:}"
+    if [[ -n "$ZSH_ERROR_HANDLER_LAST_LOCATION" && "$ZSH_ERROR_HANDLER_LAST_LOCATION" != "${funcfiletrace[1]}" ]]; then
+        _zsh_error_handler_source_line "${ZSH_ERROR_HANDLER_LAST_LOCATION%%:*}" "${ZSH_ERROR_HANDLER_LAST_LOCATION##*:}"
     fi
 }
 
@@ -83,7 +83,7 @@ set_error_handler() {
         trap 'bash_error_handler ${BASH_SOURCE} ${BASH_COMMAND} ${BASH_ARGV[@]}' ERR
     elif [[ $SHELL == "/bin/zsh" ]]; then
         set -e
-        trap '_unodot_record_command_location' DEBUG
+        trap '_zsh_error_handler_command_location' DEBUG
         trap 'zsh_error_handler' ERR
     else
         echo "No error handler for shell $SHELL"
