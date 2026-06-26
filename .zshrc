@@ -63,7 +63,6 @@ alias ymp3='yt-dlp -x --audio-format mp3 --add-metadata --embed-thumbnail --cook
 alias ymp4='yt-dlp -fmp4 --write-sub --write-auto-sub --sub-lang "en.*" --cookies-from-browser chrome'
 
 alias sqloptimize='sqlite3 "$1" "VACUUM;" && sqlite3 "$1" "REINDEX;"'
-alias gitzip="git archive HEAD -o ${PWD##*/}.zip"
 
 # Canonical hex dump; some systems have this symlinked
 command -v hd > /dev/null || alias hd="hexdump -C"

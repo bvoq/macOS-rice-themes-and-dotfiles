@@ -8,7 +8,7 @@ export ARCHFLAGS="-arch $(uname -m)"
 
 # Preferred editor for local and remote sessions
 if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='vim'
+  export EDITOR='vi'
 else
   export EDITOR='nvim'
 fi
