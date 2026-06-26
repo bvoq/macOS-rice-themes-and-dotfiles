@@ -54,20 +54,20 @@ mkdir -p ~/Developer
 #############################################################
 
 if isadmin; then
+
+  reset_brew_bundle_accumulator
+
   for install_script in "${install_scripts[@]}"; do
     phase_1_admin_installs() { :; }
     source "$install_script"
     phase_1_admin_installs
   done
 
+  prune_unbundled_brew_packages
+
   # clean up brew
   brew autoremove
   brew cleanup
-
-  #if [ $SECURITYTOOLS = 1 ]; then
-  #  # https://github.com/joxeankoret/diaphora
-  #  # frida
-  #fi
 else
   echo "Skipping brew and other admin-privileged installs."
 fi
@@ -114,9 +114,9 @@ for install_script in "${install_scripts[@]}"; do
   phase_4_post_dotfiles
 done
 
-####################################################################
-# Section 5: Heavy macOS system changes, requires admin and reboot #
-####################################################################
+##############################################################
+# Section 5: Heavy system changes, requires admin and reboot #
+##############################################################
 
 # System changes for macOS
 if [[ $OSTYPE == 'darwin'* ]] && isadmin; then

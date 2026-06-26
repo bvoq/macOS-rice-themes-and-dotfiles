@@ -90,11 +90,57 @@ set_error_handler() {
     fi
 }
 
+# Phase 1 records every installed Brewfile here so that, once all plugins have
+# run, unodot can compare the set of declared packages against what is actually
+# installed and offer to prune the difference.
+reset_brew_bundle_accumulator() {
+  export UNODOT_BREW_BUNDLE_ACCUMULATOR="$(mktemp -d)/Brewfile"
+  : > "$UNODOT_BREW_BUNDLE_ACCUMULATOR"
+}
+
+_append_to_brew_bundle_accumulator() {
+  local brew_file="$1"
+  [[ -n "$UNODOT_BREW_BUNDLE_ACCUMULATOR" ]] || return 0
+  {
+    echo "# from $brew_file"
+    cat "$brew_file"
+    echo
+  } >> "$UNODOT_BREW_BUNDLE_ACCUMULATOR"
+}
+
 install_brewfile() {
   local brew_file="$1"
   [ -f "$brew_file" ] || { echo "Brewfile missing: $brew_file"; return 1; }
   echo "\n>>> brew bundle --file=$brew_file"
   brew bundle --verbose --file="$brew_file"
+  _append_to_brew_bundle_accumulator "$brew_file"
+}
+
+# Compares installed formulae/casks against the accumulated Brewfiles and, when
+# installed packages are not declared by any active plugin, lists them and asks
+# whether to uninstall. Scoped to formulae and casks: taps, VSCode extensions,
+# Mac App Store apps and the like are deliberately left untouched.
+prune_unbundled_brew_packages() {
+  [[ -n "$UNODOT_BREW_BUNDLE_ACCUMULATOR" && -s "$UNODOT_BREW_BUNDLE_ACCUMULATOR" ]] || return 0
+
+  local cleanup_preview
+  cleanup_preview="$(brew bundle cleanup --file="$UNODOT_BREW_BUNDLE_ACCUMULATOR" --formula --cask 2>&1 | grep -v '^Warning: Skipping ' || true)"
+  echo "$cleanup_preview" | grep -q '^Would uninstall' || return 0
+
+  echo "\nThe following installed packages are not in any active plugin Brewfile:"
+  echo "$cleanup_preview"
+
+  if [[ ! -t 0 ]]; then
+    echo "Not running interactively; leaving these packages installed."
+    return 0
+  fi
+
+  if read -q "choice?Uninstall these packages now? [y/n] "; then
+    echo
+    brew bundle cleanup --file="$UNODOT_BREW_BUNDLE_ACCUMULATOR" --formula --cask --force
+  else
+    echo "\nKeeping all installed packages."
+  fi
 }
 
 link_dotfile() {
