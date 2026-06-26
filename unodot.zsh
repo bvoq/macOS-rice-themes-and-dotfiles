@@ -31,26 +31,10 @@ bootstrap_folders=(
   # csharp
 )
 
+install_scripts=(${^bootstrap_folders}/install.zsh)
+
 source unofunctions.zsh
 set_error_handler
-
-run_bootstrap_phase() {
-  local phase="$1"
-  local phase_function="phase_$phase"
-  local folder install_file
-
-  for folder in "${bootstrap_folders[@]}"; do
-    install_file="$folder/install.zsh"
-    [[ -f "$install_file" ]] || { echo "Install file missing: $install_file"; return 1; }
-
-    (
-      source "$install_file"
-      if (( $+functions[$phase_function] )); then
-        "$phase_function"
-      fi
-    )
-  done
-}
 
 git submodule update --init --recursive
 
@@ -69,7 +53,11 @@ mkdir -p ~/Developer
 #############################################################
 
 if isadmin; then
-  run_bootstrap_phase 1_admin_installs
+  for install_script in "${install_scripts[@]}"; do
+    phase_1_admin_installs() { :; }
+    source "$install_script"
+    phase_1_admin_installs
+  done
 
   # clean up brew
   brew autoremove
@@ -90,7 +78,11 @@ fi
 
 echo "Installing other user-level tools."
 
-run_bootstrap_phase 2_user_installs
+for install_script in "${install_scripts[@]}"; do
+  phase_2_user_installs() { :; }
+  source "$install_script"
+  phase_2_user_installs
+done
 
 #########################################################
 # Section 3: Dotfiles (user-level) install and sourcing #
@@ -98,7 +90,11 @@ run_bootstrap_phase 2_user_installs
 
 echo "Linking dotfiles after installation, because some install script like to add stuff to .zshrc (evil right?!?)."
 
-run_bootstrap_phase 3_dotfiles
+for install_script in "${install_scripts[@]}"; do
+  phase_3_dotfiles() { :; }
+  source "$install_script"
+  phase_3_dotfiles
+done
 
 link_dotfile ".zshrc" "$HOME/.zshrc"
 link_dotfile ".zshenv" "$HOME/.zshenv"
@@ -111,7 +107,11 @@ source ~/.zshrc  # Source the new zshrc with antidote
 # Section 4: Installing user-level tools that require the dotfiles to be in place. #
 ####################################################################################
 
-run_bootstrap_phase 4_post_dotfiles
+for install_script in "${install_scripts[@]}"; do
+  phase_4_post_dotfiles() { :; }
+  source "$install_script"
+  phase_4_post_dotfiles
+done
 
 ####################################################################
 # Section 5: Heavy macOS system changes, requires admin and reboot #
@@ -119,5 +119,9 @@ run_bootstrap_phase 4_post_dotfiles
 
 # System changes for macOS
 if [[ $OSTYPE == 'darwin'* ]] && isadmin; then
-  run_bootstrap_phase 5_system_changes
+  for install_script in "${install_scripts[@]}"; do
+    phase_5_system_changes() { :; }
+    source "$install_script"
+    phase_5_system_changes
+  done
 fi
