@@ -36,6 +36,17 @@ bootstrap_folders=(
 
 cd "${0:A:h}"
 
+# Optional: `./unodot.zsh -install <folder>` runs only that single plugin folder (even for disabled folders).
+if [[ "$1" == "-install" ]]; then
+  folder="${2%/}"
+  if [[ ! -f "$folder/install.zsh" ]]; then
+    echo "Usage: ${0:t} -install <folder>  (no '$folder/install.zsh' found)"
+    exit 1
+  fi
+  bootstrap_folders=("$folder")
+  unset folder
+fi
+
 install_scripts=(${^bootstrap_folders}/install.zsh)
 
 isadmin() { id -G $1 | grep -q -w 80 ; }
