@@ -1,4 +1,4 @@
-brew "android-platform-tools"
+cask "android-platform-tools"
 brew "ccache"
 
 cask "android-file-transfer"

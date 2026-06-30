@@ -1,5 +1,9 @@
 {
   "policies": {
+    "HttpAllowlist": [
+      "http://135.181.93.152:8443",
+      "http://135.181.93.152:8444"
+    ],
     "ExtensionSettings": {
       "floccus@handmadeideas.org": {
         "installation_mode": "normal_installed",
