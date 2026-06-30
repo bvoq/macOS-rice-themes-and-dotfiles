@@ -19,7 +19,7 @@ bootstrap_folders=(
   librewolf
   # lowlevel
   macos
-  # mobile
+  mobile
   nvim
   rclone
   readline

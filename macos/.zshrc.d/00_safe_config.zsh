@@ -41,6 +41,9 @@ rgspotlight() {
 }
 export -f rgspotlight > /dev/null
 
+# javascript CLI
+alias jsc='/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc'
+
 instruments() {
   [[ $# -gt 0 ]] || { echo "Usage: instruments <cmd> [args…]"; return 1 }
   local cmd_path; cmd_path=$(command -v -- "$1") || { echo "Not found: $1"; return 1 }
