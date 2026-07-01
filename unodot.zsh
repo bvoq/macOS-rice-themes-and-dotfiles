@@ -275,8 +275,6 @@ if isadmin; then
 
   brew autoremove
   brew cleanup
-  # Skip pruning for --install: the accumulator only holds the single folder's
-  # Brewfile, so a prune would offer to uninstall every other installed package.
   (( ${single_folder_install:-0} )) || prune_unbundled_brew_packages
 
 else
@@ -311,8 +309,8 @@ done
 # ~/.zshrc and ~/.zshenv are tiny loaders that just source the ~/.zshrc.d and
 # ~/.zshenv.d fragments linked by the plugin folders above.
 mkdir -p backups
-[[ -e "$HOME/.zshenv" ]] && mv "$HOME/.zshenv" backups/.zshenv
-[[ -e "$HOME/.zshrc" ]] && mv "$HOME/.zshrc" backups/.zshrc
+{ [[ -e "$HOME/.zshenv" || -L "$HOME/.zshenv" ]] } && mv "$HOME/.zshenv" backups/.zshenv
+{ [[ -e "$HOME/.zshrc" || -L "$HOME/.zshrc" ]] } && mv "$HOME/.zshrc" backups/.zshrc
 
 cat > "$HOME/.zshenv" <<'UNODOT_ZSHENV'
 #!/bin/zsh
