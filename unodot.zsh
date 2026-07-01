@@ -34,7 +34,12 @@ bootstrap_folders=(
   xcode
 )
 
-cd "${0:A:h}"
+# Enable/Disable options here.
+UNODOT_AUTOUPDATE=1
+
+# Do not touch anything below here.
+
+cd "${0:a:h}"
 
 # Optional: `./unodot.zsh --install <folder>` runs only that single plugin folder (even for disabled folders).
 if [[ "$1" == "--install" ]]; then
