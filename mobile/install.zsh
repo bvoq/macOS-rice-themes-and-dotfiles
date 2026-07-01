@@ -8,7 +8,7 @@ phase_2_user_installs() {
   fi
 
   # maestro for testing
-  [ ! -d ~/.maestro/bin ] && curl -Ls "https://get.maestro.mobile.dev" | bash
+  # [ ! -d ~/.maestro/bin ] && curl -Ls "https://get.maestro.mobile.dev" | bash
 }
 
 phase_3_dotfiles() {
@@ -18,7 +18,7 @@ phase_3_dotfiles() {
 
 phase_4_post_dotfiles() {
   # General:
-  code --install-extension mariomatheu.syntax-project-pbxproj
+  # code --install-extension mariomatheu.syntax-project-pbxproj
   # Dart/Flutter related:
   code --install-extension Dart-Code.dart-code
   code --install-extension Dart-Code.flutter

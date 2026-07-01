@@ -45,6 +45,7 @@ if [[ "$1" == "--install" ]]; then
   fi
   bootstrap_folders=("$folder")
   unset folder
+  single_folder_install=1
 fi
 
 install_scripts=(${^bootstrap_folders}/install.zsh)
@@ -274,7 +275,9 @@ if isadmin; then
 
   brew autoremove
   brew cleanup
-  prune_unbundled_brew_packages
+  # Skip pruning for --install: the accumulator only holds the single folder's
+  # Brewfile, so a prune would offer to uninstall every other installed package.
+  (( ${single_folder_install:-0} )) || prune_unbundled_brew_packages
 
 else
   echo "Skipping brew and other admin-privileged installs."
