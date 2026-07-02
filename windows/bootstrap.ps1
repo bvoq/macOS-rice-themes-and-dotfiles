@@ -35,183 +35,240 @@ if ($contaminated.Count -gt 0) {
 # To run this script you might have to be Admin and run this before:
 # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 # Bootstrap Windows dotfiles for Powershell & Vim
+#
+# The work is grouped into the same five install phases as unodot.zsh so the two
+# bootstrappers stay conceptually in sync. The phases run in order, so packages
+# are installed before the dotfiles are copied (mirroring phase_3_dotfiles on
+# macOS, which links dotfiles only after the installs in phases 1 and 2).
+#   1 admin_installs  - winget/msstore apps, PowerShell, Flutter, Visual Studio
+#   2 user_installs   - per-user PowerShell modules (no dotfiles required yet)
+#   3 dotfiles        - copy profile.ps1 and config files into place
+#   4 post_dotfiles   - setup needing dotfiles/tools present (starship, vim-plug, VSCode)
+#   5 system_changes  - persistent PATH edits and system settings
 
-start ms-settings:developers
+###############################################################
+# Phase 1: winget/msstore apps and other admin-level installs #
+###############################################################
+function phase_1_admin_installs {
+    # Update Microsoft PowerShell first (before using it for other installations)
+    do {
+        $answer = Read-Host "Install/Update Microsoft PowerShell with privacy settings and context menus? (y/n)"
+    }
+    while("y","n" -notcontains $answer)
+    if ($answer -eq "y") {
+        Write-Host "Installing Microsoft PowerShell with privacy settings and context menus..." -ForegroundColor Cyan
+        $packageToInstall = winget list -e "Microsoft.PowerShell"
+        if ($packageToInstall -lt 4) {
+            winget install --id Microsoft.PowerShell -e --source winget --interactive --override 'USE_MU=0 ENABLE_MU=0 DISABLE_TELEMETRY=1 REGISTER_MANIFEST=1 ENABLE_PSREMOTING=0 ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=1 ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL=1 ADD_PATH=1'
+        }
+    }
 
-Invoke-Expression (&starship init powershell)
+    do {
+        $answer = Read-Host "Continue to install winget packages, Microsoft Store apps, Vim and Flutter? (y/n)"
+    }
+    while("y","n" -notcontains $answer)
+    if ($answer -eq "n") {
+        Write-Host "Skipping app installs; continuing with modules, dotfiles and configuration." -ForegroundColor Yellow
+        return
+    }
 
-### Move profile.ps1 into the main powershell location
-$profileDir = Split-Path -parent $profile
-$componentDir = Join-Path $profileDir "components"
+    ### Install packages using winget
+    # show dependencies of a package using: winget show -e --id <package-id>
 
-New-Item $profileDir -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item $componentDir -ItemType Directory -Force -ErrorAction SilentlyContinue
+    # Cross-platform tools — also present in generic/Brewfile.crossplatform.
+    $wingetPackagesCrossplatform = @(
+        "ajeetdsouza.zoxide",
+        "BurntSushi.ripgrep.MSVC",
+        "dbrgn.tealdeer",
+        "eza-community.eza",
+        "Git.Git",  # Make sure to select openssh and use recommendations. You can add ssh keys to $HOME/.ssh
+        "gopass.gopass",
+        "jqlang.jq",
+        "junegunn.fzf",
+        "MikeFarah.yq",
+        "Rclone.Rclone",
+        "Schniz.fnm",
+        "sharkdp.bat",
+        "Starship.Starship",
+        "yt-dlp.yt-dlp"  # also installs yt-dlp.fmpeg and DenoLand.Deno
+    )
 
-Copy-Item -Path (Join-Path $PSScriptRoot "*.ps1") -Destination $profileDir -Exclude "bootstrap.ps1"
-# Copy-Item -Path ./components/** -Destination $componentDir -Include **
-# Copy-Item -Path ./home/** -Destination $home -Include **
+    # Windows-only tools.
+    $wingetPackagesWindowsOnly = @(
+        "7zip.7zip",
+        # "baremetalsoft.baretail",
+        "dundee.gdu",  # gdu, similar to ncdu
+        "GitHub.Copilot",
+        "GnuPG.Gpg4win",
+        "Microsoft.NuGet",
+        "Microsoft.PowerToys",
+        "Microsoft.VisualStudioCode",
+        "NickeManarin.ScreenToGif",
+        # "PaperCutSoftware.GhostTrap", # aka GhostScript
+        "qarmin.czkawka.cli",
+        "vim.vim"  # Make sure to enable .bat scripts
+    )
 
-Remove-Variable componentDir
-Remove-Variable profileDir
+    $wingetPackages = $wingetPackagesCrossplatform + $wingetPackagesWindowsOnly
 
-### copy config files 
-Copy-Item -Path (Join-Path $repoRoot "git/.gitconfig") -Destination $HOME/.gitconfig
-Copy-Item -Path (Join-Path $repoRoot "git/.gitattributes_global") -Destination $HOME/.gitattributes_global
-Copy-Item -Path (Join-Path $repoRoot "vscode/.vscode-settings.json") -Destination $env:APPDATA\Code\User\settings.json
-Copy-Item -Path (Join-Path $repoRoot "vim/.vimrc") -Destination $HOME/.vimrc
+    foreach ($package in $wingetPackages) {
+        Write-Host "Installing package: $package" -ForegroundColor Cyan
+        $packageToInstall = winget list -e $package
+        if ($packageToInstall -lt 4) {
+            winget install --id $package -e --source winget --interactive
+        }
+    }
 
-# Create .config directory and copy starship config
-New-Item -Path $HOME/.config -ItemType Directory -Force -ErrorAction SilentlyContinue
-Copy-Item -Path (Join-Path $repoRoot "starship/starship.toml") -Destination $HOME/.config/starship.toml
-
-# Powershell packages
-# Bootstrap NuGet provider if available (may fail on PS 5.1 with corrupted PSModulePath from PS 7)
-try { Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser -ErrorAction Stop }
-catch { Write-Host "Skipping Install-PackageProvider (not available or already installed)" -ForegroundColor Yellow }
-Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-Install-Module -Name PowerShellGet -Force -AllowClobber -Scope CurrentUser -ErrorAction SilentlyContinue
-Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force
-
-# Update Microsoft PowerShell first (before using it for other installations)
-do {
-    $answer = Read-Host "Install/Update Microsoft PowerShell with privacy settings and context menus? (y/n)"
-}
-while("y","n" -notcontains $answer)
-if ($answer -eq "y") {
-    Write-Host "Installing Microsoft PowerShell with privacy settings and context menus..." -ForegroundColor Cyan
+    # Special handling: PowerShell with privacy settings
+    Write-Host "Installing Microsoft PowerShell with privacy settings..." -ForegroundColor Cyan
     $packageToInstall = winget list -e "Microsoft.PowerShell"
     if ($packageToInstall -lt 4) {
-        winget install --id Microsoft.PowerShell -e --source winget --interactive --override 'USE_MU=0 ENABLE_MU=0 DISABLE_TELEMETRY=1 REGISTER_MANIFEST=1 ENABLE_PSREMOTING=0 ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=1 ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL=1 ADD_PATH=1'
+        winget install --id Microsoft.PowerShell -e --source winget --interactive --override 'USE_MU=0 ENABLE_MU=0 DISABLE_TELEMETRY=1 REGISTER_MANIFEST=1 ENABLE_PSREMOTING=0'
     }
-}
 
-do {
-    $answer = Read-Host "Installed dotfiles and PowerShell, continue to install other winget packages and vim? (y/n)"
-}
-while("y","n" -notcontains $answer)
-if ($answer -eq "n") {
-    exit 0
-}
+    ### Install packages using msstore
+    $msstorePackages = @(
+        "Perplexity"
+    )
 
-
-### Install packages using winget
-# show dependencies of a package using: winget show -e --id <package-id>
-
-# Cross-platform tools — also present in generic/Brewfile.crossplatform.
-$wingetPackagesCrossplatform = @(
-    "ajeetdsouza.zoxide",
-    "BurntSushi.ripgrep.MSVC",
-    "dbrgn.tealdeer",
-    "eza-community.eza",
-    "Git.Git",  # Make sure to select openssh and use recommendations. You can add ssh keys to $HOME/.ssh
-    "gopass.gopass",
-    "jqlang.jq",
-    "junegunn.fzf",
-    "MikeFarah.yq",
-    "Rclone.Rclone",
-    "Schniz.fnm",
-    "sharkdp.bat",
-    "Starship.Starship",
-    "yt-dlp.yt-dlp"  # also installs yt-dlp.fmpeg and DenoLand.Deno
-)
-
-# Windows-only tools.
-$wingetPackagesWindowsOnly = @(
-    "7zip.7zip",
-    # "baremetalsoft.baretail",
-    "dundee.gdu",  # gdu, similar to ncdu
-    "GitHub.Copilot",
-    "GnuPG.Gpg4win",
-    "Microsoft.NuGet",
-    "Microsoft.PowerToys",
-    "Microsoft.VisualStudioCode",
-    "NickeManarin.ScreenToGif",
-    # "PaperCutSoftware.GhostTrap", # aka GhostScript
-    "qarmin.czkawka.cli",
-    "vim.vim"  # Make sure to enable .bat scripts
-)
-
-$wingetPackages = $wingetPackagesCrossplatform + $wingetPackagesWindowsOnly
-
-foreach ($package in $wingetPackages) {
-    Write-Host "Installing package: $package" -ForegroundColor Cyan
-    $packageToInstall = winget list -e $package
-    if ($packageToInstall -lt 4) {
-        winget install --id $package -e --source winget --interactive
+    foreach ($package in $msstorePackages) {
+        $packageToInstall = winget list $package
+        if ($packageToInstall -lt 4) {
+            winget install $package --source msstore
+        }
     }
-}
 
-# Special handling: PowerShell with privacy settings
-Write-Host "Installing Microsoft PowerShell with privacy settings..." -ForegroundColor Cyan
-$packageToInstall = winget list -e "Microsoft.PowerShell"
-if ($packageToInstall -lt 4) {
-    winget install --id Microsoft.PowerShell -e --source winget --interactive --override 'USE_MU=0 ENABLE_MU=0 DISABLE_TELEMETRY=1 REGISTER_MANIFEST=1 ENABLE_PSREMOTING=0'
-}
-
-### Install packages using msstore
-$msstorePackages = @(
-    "Perplexity"
-)
-
-foreach ($package in $msstorePackages) {
-    $packageToInstall = winget list $package
-    if ($packageToInstall -lt 4) {
-        winget install $package --source msstore
+    ### Install flutter
+    if (-not (Test-Path "C:\flutter")) {
+        git clone -b stable git@github.com:flutter/flutter.git C:\flutter
     }
-}
 
-# Installing vim plug
-iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim |`
-    ni $HOME/vimfiles/autoload/plug.vim -Force
-vim +'PlugInstall --sync' +qa
-vim +'PlugClean --sync' +qa
-
-### Installing VSCode plugins
-# General:
-code --install-extension aaron-bond.better-comments
-code --install-extension GitHub.copilot
-code --install-extension johnpapa.vscode-peacock
-code --install-extension usernamehw.errorlens
-code --install-extension eamodio.gitlens
-code --install-extension PKief.material-icon-theme
-code --install-extension Ho-Wan.setting-toggle
-code --install-extension ms-vscode.PowerShell
-
-# generic linters
-code --install-extension DavidAnson.vscode-markdownlint
-code --install-extension redhat.vscode-yaml
-
-# flutter
-code --install-extension Dart-Code.dart-code
-code --install-extension Dart-Code.flutter
-code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
-
-
-### Install flutter
-if (-not (Test-Path "C:\flutter")) {
-    git clone -b stable git@github.com:flutter/flutter.git C:\flutter
-}
-Set-PathVariable -AddPath "C:\flutter\bin" -Scope "User"
-Set-PathVariable -AddPath "$env:USERPROFILE\AppData\Local\Pub\Cache\bin" -Scope "User"
-Set-PathVariable -AddPath "$env:USERPROFILE\AppData\Local\gopass" -Scope "User"
-
-
-### Installing npm packages
-# npm install -g firebase-tools
-
-# Special instructions: Visual Studio
-do {
-    $answer = Read-Host "Install Microsoft Visual Studio Community? (y/n)"
-}
-while("y","n" -notcontains $answer)
+    # Special instructions: Visual Studio
+    do {
+        $answer = Read-Host "Install Microsoft Visual Studio Community? (y/n)"
+    }
+    while("y","n" -notcontains $answer)
     if ($answer -eq "y") {
-    # uninstall previous versions if there are issues using:
-    # cd "C:\Program Files (x86)\Microsoft Visual Studio\Installer"
-    # .\InstallCleanup.exe -i 17 # to cleanup 2022
-    # .\InstallCleanup.exe -i 18 # to cleanup 2026
-    # Make sure to enable: Desktop development with C++
-    $packageToInstall=winget list "Microsoft.VisualStudio.Community"
-    if ($packageToInstall -lt 4) {
-        winget install --id Microsoft.VisualStudio.Community -e --interactive
+        # uninstall previous versions if there are issues using:
+        # cd "C:\Program Files (x86)\Microsoft Visual Studio\Installer"
+        # .\InstallCleanup.exe -i 17 # to cleanup 2022
+        # .\InstallCleanup.exe -i 18 # to cleanup 2026
+        # Make sure to enable: Desktop development with C++
+        $packageToInstall = winget list "Microsoft.VisualStudio.Community"
+        if ($packageToInstall -lt 4) {
+            winget install --id Microsoft.VisualStudio.Community -e --interactive
+        }
     }
 }
+
+##################################
+# Phase 2: User-level installs   #
+##################################
+function phase_2_user_installs {
+    # Powershell packages
+    # Bootstrap NuGet provider if available (may fail on PS 5.1 with corrupted PSModulePath from PS 7)
+    try { Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser -ErrorAction Stop }
+    catch { Write-Host "Skipping Install-PackageProvider (not available or already installed)" -ForegroundColor Yellow }
+    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+    Install-Module -Name PowerShellGet -Force -AllowClobber -Scope CurrentUser -ErrorAction SilentlyContinue
+    Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force
+}
+
+#########################################################
+# Phase 3: Dotfiles (user-level), copied after installs #
+#########################################################
+function phase_3_dotfiles {
+    ### Move profile.ps1 into the main powershell location
+    $profileDir = Split-Path -parent $profile
+    $componentDir = Join-Path $profileDir "components"
+
+    New-Item $profileDir -ItemType Directory -Force -ErrorAction SilentlyContinue
+    New-Item $componentDir -ItemType Directory -Force -ErrorAction SilentlyContinue
+
+    Copy-Item -Path (Join-Path $PSScriptRoot "*.ps1") -Destination $profileDir -Exclude "bootstrap.ps1"
+    # Copy-Item -Path ./components/** -Destination $componentDir -Include **
+    # Copy-Item -Path ./home/** -Destination $home -Include **
+
+    ### copy config files
+    Copy-Item -Path (Join-Path $repoRoot "git/.gitconfig") -Destination $HOME/.gitconfig
+    Copy-Item -Path (Join-Path $repoRoot "git/.gitattributes_global") -Destination $HOME/.gitattributes_global
+    Copy-Item -Path (Join-Path $repoRoot "vscode/.vscode-settings.json") -Destination $env:APPDATA\Code\User\settings.json
+    Copy-Item -Path (Join-Path $repoRoot "vim/.vimrc") -Destination $HOME/.vimrc
+
+    # Create .config directory and copy starship config
+    New-Item -Path $HOME/.config -ItemType Directory -Force -ErrorAction SilentlyContinue
+    Copy-Item -Path (Join-Path $repoRoot "starship/starship.toml") -Destination $HOME/.config/starship.toml
+}
+
+####################################################################################
+# Phase 4: User-level setup that requires the dotfiles/tools to be in place.       #
+####################################################################################
+function phase_4_post_dotfiles {
+    # Initialise starship for the current session (profile.ps1 handles future ones)
+    if (Get-Command starship -ErrorAction SilentlyContinue) {
+        Invoke-Expression (&starship init powershell)
+    }
+
+    # Installing vim plug (needs vim from phase 1)
+    if (Get-Command vim -ErrorAction SilentlyContinue) {
+        iwr -useb https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim |`
+            ni $HOME/vimfiles/autoload/plug.vim -Force
+        vim +'PlugInstall --sync' +qa
+        vim +'PlugClean --sync' +qa
+    }
+
+    ### Installing VSCode plugins (needs code from phase 1)
+    if (Get-Command code -ErrorAction SilentlyContinue) {
+        # General:
+        code --install-extension aaron-bond.better-comments
+        code --install-extension GitHub.copilot
+        code --install-extension johnpapa.vscode-peacock
+        code --install-extension usernamehw.errorlens
+        code --install-extension eamodio.gitlens
+        code --install-extension PKief.material-icon-theme
+        code --install-extension Ho-Wan.setting-toggle
+        code --install-extension ms-vscode.PowerShell
+
+        # generic linters
+        code --install-extension DavidAnson.vscode-markdownlint
+        code --install-extension redhat.vscode-yaml
+
+        # flutter
+        code --install-extension Dart-Code.dart-code
+        code --install-extension Dart-Code.flutter
+        code --install-extension gmlewis-vscode.flutter-stylizer # nice button at bottom
+    }
+
+    ### Installing npm packages
+    # npm install -g firebase-tools
+}
+
+##############################################################
+# Phase 5: System changes (persistent PATH, dev settings).   #
+##############################################################
+function phase_5_system_changes {
+    Set-PathVariable -AddPath "C:\flutter\bin" -Scope "User"
+    Set-PathVariable -AddPath "$env:USERPROFILE\AppData\Local\Pub\Cache\bin" -Scope "User"
+    Set-PathVariable -AddPath "$env:USERPROFILE\AppData\Local\gopass" -Scope "User"
+
+    # Enable Developer Mode (needed by Flutter for Windows desktop symlink support).
+    # This writes the same machine-wide flag the Settings page toggles, so it
+    # requires admin. Equivalent manual route: start ms-settings:developers
+    $devModeKey = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock"
+    $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+    if ($principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+        if (-not (Test-Path $devModeKey)) { New-Item -Path $devModeKey -Force | Out-Null }
+        New-ItemProperty -Path $devModeKey -Name "AllowDevelopmentWithoutDevLicense" `
+            -PropertyType DWord -Value 1 -Force | Out-Null
+        Write-Host "Developer Mode enabled." -ForegroundColor Green
+    } else {
+        Write-Host "Skipping Developer Mode (needs admin). Enable it manually via: start ms-settings:developers" -ForegroundColor Yellow
+    }
+}
+
+# Run the phases in order (mirrors the section ordering in unodot.zsh).
+phase_1_admin_installs
+phase_2_user_installs
+phase_3_dotfiles
+phase_4_post_dotfiles
+phase_5_system_changes

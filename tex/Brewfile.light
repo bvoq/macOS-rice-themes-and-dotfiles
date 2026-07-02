@@ -1,5 +1,4 @@
 # TEX_VARIANT=LIGHT
 # Texifier ships with its own latex distribution, no mactex needed.
-# (License-owned cask, see comment in unodot.zsh.)
 
 cask "texifier"

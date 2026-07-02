@@ -1,0 +1,1 @@
+../razordot/razordot.zsh

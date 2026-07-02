@@ -1,5 +1,5 @@
-# dotfiles :: unodot author's example
-Here are my dotfiles. They also serve as the main example of the unodot-file manager.
+# dotfiles :: razordot author's example
+Here are my dotfiles. They also serve as the main example of the razordot-file manager.
 
 Here you can get a good grasps of the 5 install phases:
 
@@ -35,21 +35,21 @@ For example, my .zshrc.d/ files are ordered numerically by the following phases:
 Package folders provide their own fragments under the same names (e.g. git/.zshrc.d/00_safe_config.zsh),
 linked into ~/.zshrc.d/ with the folder name appended (e.g. 00_safe_config_git.zsh) so they sort by phase.
 
-You can define your own naming convention, all unodot does is link them and source them in order for you.
+You can define your own naming convention, all razordot does is link them and source them in order for you.
 
-To get started with your own unodot powered repository, just copy the self-updating unodot.zsh / unodot.ps to your repository and create your own folders.
+To get started with your own razordot powered repository, just copy the self-updating razordot.zsh / razordot.ps to your repository and create your own folders.
 
 If you like to load different folders for different machines, just copy them and enable/disable different folders.
 
 Further, some of these folders can be used directly by you.
 
-If you are on macOS/unix check out `unodot.zsh`
+If you are on macOS/unix check out `razordot.zsh`
 
 If you are on Windows check out `bootstrap.ps1`
 
 Install using:
 ```
-zsh unodot.zsh
+zsh razordot.zsh
 ```
 
 ![Alt text](xcode/xcodetheme.png?raw=true "XCode Theme")
