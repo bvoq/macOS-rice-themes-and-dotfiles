@@ -1,0 +1,4 @@
+brew "antidote"
+# shfmt HEAD: the 3.13.1 release cannot parse zsh's ${^array} expansion used in
+# razordot.zsh; the zsh dialect only works on the post-3.13.1 HEAD build.
+brew "shfmt", args: ["HEAD"]

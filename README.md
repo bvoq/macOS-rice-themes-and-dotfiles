@@ -3,13 +3,13 @@ Here are my dotfiles. They also serve as the main example of the razordot-file m
 
 Here you can get a good grasps of the 5 install phases:
 
-| Phase | Package hook | What it is for |
-| --- | --- | --- |
-| 1 | `phase_1_admin_installs` | Admin-privileged installs like: Homebrew bundles/casks, AppStore apps and other system-level apps. Skipped when the user is not an admin. |
-| 2 | `phase_2_user_installs` | User-level installs that do not require dotfiles yet: cloned tools, per-user package managers, and curl-based installers. |
-| 3 | `phase_3_dotfiles` | Dotfile linking via `link_dotfile`, including package-owned config files and shell fragments. |
-| 4 | `phase_4_post_dotfiles` | User-level setup that requires dotfiles to already be linked: plugin installs, sync commands, and tool initialization. |
-| 5 | `phase_5_system_changes` | Heavy system changes that require admin privileges and may require a restart, such as macOS defaults or system-wide configuration. |
+| Phase | Package hook | Run with non-admin user | What it is for |
+| --- | --- | --- | --- |
+| 1 | `phase_1_admin_installs` | ❌ | Admin-privileged installs like: Homebrew bundles/casks, AppStore apps and other system-level apps. Skipped when the user is not an admin. |
+| 2 | `phase_2_user_installs` | ✅ | User-level installs that do not require dotfiles yet: cloned tools, per-user package managers, and curl-based installers. |
+| 3 | `phase_3_dotfiles` | ✅ | Dotfile linking via `link_dotfile`, including package-owned config files and shell fragments. |
+| 4 | `phase_4_post_dotfiles` | ✅ | User-level setup that requires dotfiles to already be linked: plugin installs, sync commands, and tool initialization. |
+| 5 | `phase_5_system_changes` | ❌ | Heavy system changes that require admin privileges and may require a restart, such as macOS defaults or system-wide configuration. |
 
 Further, you can see the numerical ordering in action.
 For example, my .zshrc.d/ files are ordered numerically by the following phases:
