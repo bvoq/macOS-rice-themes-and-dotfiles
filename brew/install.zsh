@@ -4,12 +4,16 @@
 
 phase_0_bootstrap() {
   # Install Homebrew if missing (phase_0 only runs for admins; the installer escalates via sudo).
+  # brew may already be installed but not on PATH (script shells don't read ~/.zprofile),
+  # so source our fragment first to pick up an existing install before deciding to install.
+  source "brew/.zprofile"
+
   if ! command -v brew >/dev/null 2>&1; then
     echo "Homebrew not found; installing it."
     waitconfirm
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    # The installer doesn't touch PATH; source our fragment so brew is on PATH for
-    # the rest of this run (script shells don't read ~/.zprofile).
+    # The installer doesn't touch PATH; source our fragment again so the freshly
+    # installed brew is on PATH for the rest of this run.
     source "brew/.zprofile"
   fi
 }
