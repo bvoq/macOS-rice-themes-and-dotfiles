@@ -7,9 +7,9 @@
 
 # Add your install folders here.
 install_folders=(
+    brew
     # ai
     zsh
-    brew
     core
     # crypto
     # csharp
@@ -24,7 +24,7 @@ install_folders=(
     librewolf
     # lowlevel
     macos
-    mobile
+    #mobile
     nvim
     rclone
     readline
@@ -42,9 +42,6 @@ install_folders=(
 
 # Disable updates by commenting/removing the below line.
 RAZORDOT_UPDATE_LOCATION="https://raw.githubusercontent.com/razordot/razordot/refs/heads/main/razordot.zsh"
-
-# Auto-purge brew packages not in any active Brewfile (0 = never, 1 = always). Leave commented to be asked.
-# ZAP_BREW_AFTER_INSTALL=1
 
 # Preset every waitconfirm prompt (0 = stop, 1 = keep going). Leave commented to be asked.
 # WAITCONFIRM_DECISION=1
@@ -167,62 +164,6 @@ set_error_handler() {
     trap '_zsh_error_handler_trap' ERR
 }
 
-_reset_brew_bundle_accumulator() {
-    export RAZORDOT_BREW_BUNDLE_ACCUMULATOR="$(mktemp -d)/Brewfile"
-    : >"$RAZORDOT_BREW_BUNDLE_ACCUMULATOR"
-}
-
-_append_to_brew_bundle_accumulator() {
-    local brew_file="$1"
-    [[ -n "$RAZORDOT_BREW_BUNDLE_ACCUMULATOR" ]] || return 0
-    {
-        echo "# from $brew_file"
-        cat "$brew_file"
-        echo
-    } >>"$RAZORDOT_BREW_BUNDLE_ACCUMULATOR"
-}
-
-install_brewfile() {
-    local brew_file="$1"
-    [ -f "$brew_file" ] || {
-        echo "Brewfile missing: $brew_file"
-        return 1
-    }
-    echo "\n>>> brew bundle --file=$brew_file"
-    brew bundle --verbose --file="$brew_file"
-    _append_to_brew_bundle_accumulator "$brew_file"
-}
-
-# zap unmentioned casks, formulae and mas.
-_zap_unbundled_brew_packages() {
-    [[ -n "$RAZORDOT_BREW_BUNDLE_ACCUMULATOR" && -s "$RAZORDOT_BREW_BUNDLE_ACCUMULATOR" ]] || return 0
-
-    local cleanup_preview
-    cleanup_preview="$(brew bundle cleanup --file="$RAZORDOT_BREW_BUNDLE_ACCUMULATOR" --formula --cask 2>&1 | grep -v '^Warning: Skipping ' || true)"
-    echo "$cleanup_preview" | grep -q '^Would uninstall' || return 0
-
-    echo "\nThe following installed packages are not in any active plugin Brewfile:"
-    echo "$cleanup_preview"
-
-    local do_zap
-    if [[ -n "${ZAP_BREW_AFTER_INSTALL:-}" ]]; then
-        do_zap="$ZAP_BREW_AFTER_INSTALL"
-    elif [[ ! -t 0 ]]; then
-        echo "Not running interactively; leaving these packages installed."
-        return 0
-    elif read -q "choice?Uninstall these packages now? [y/n] "; then
-        echo
-        do_zap=1
-    else
-        echo "\nKeeping all installed packages."
-        do_zap=0
-    fi
-
-    if [[ "$do_zap" == 1 ]]; then
-        brew bundle cleanup --file="$RAZORDOT_BREW_BUNDLE_ACCUMULATOR" --formula --cask --zap --force
-    fi
-}
-
 link_dotfile() {
     local source_path="${1:a}"
     local target_path="${2:a}"
@@ -316,30 +257,33 @@ if [[ "$1" == "--install" ]]; then
     fi
     install_folders=("$folder")
     unset folder
-    single_folder_install=1
+    RAZORDOT_SINGLE_FOLDER=1
 fi
 
 install_scripts=(${^install_folders}/install.zsh)
+
+######################################################
+# Section 0: Bootstrap before admin-capable installs #
+######################################################
+
+if isadminuser; then
+    for install_script in "${install_scripts[@]}"; do
+        phase_0_bootstrap() { :; }
+        source "$install_script"
+        phase_0_bootstrap
+    done
+fi
 
 ##################################################################
 # Section 1: Brew installs and other admin-capable user installs #
 ##################################################################
 
 if isadminuser; then
-    _reset_brew_bundle_accumulator
-
     for install_script in "${install_scripts[@]}"; do
         phase_1_admin_installs() { :; }
         source "$install_script"
         phase_1_admin_installs
     done
-
-    if command -v brew >/dev/null 2>&1; then
-        brew autoremove
-        brew cleanup
-        ((${single_folder_install:-0})) || _zap_unbundled_brew_packages
-    fi
-
 else
     echo "Skipping admin-capable user installs."
 fi
@@ -370,12 +314,13 @@ done
 
 # Drop any dotfile links we used to create but no longer do (e.g. renamed or
 # removed plugin folders), so the loaders below don't try to source dead links.
-prune_broken_dotfile_links "$HOME/.zshrc.d" "$HOME/.zshenv.d"
+prune_broken_dotfile_links "$HOME/.zshrc.d" "$HOME/.zshenv.d" "$HOME/.zprofile.d"
 
-# ~/.zshrc and ~/.zshenv are tiny loaders that just source the ~/.zshrc.d and
-# ~/.zshenv.d fragments linked by the plugin folders above.
+# ~/.zshenv, ~/.zprofile and ~/.zshrc are tiny loaders that just source the
+# ~/.zshenv.d, ~/.zprofile.d and ~/.zshrc.d fragments linked by the plugin folders above.
 mkdir -p backups
 { [[ -e "$HOME/.zshenv" || -L "$HOME/.zshenv" ]]; } && mv "$HOME/.zshenv" backups/.zshenv
+{ [[ -e "$HOME/.zprofile" || -L "$HOME/.zprofile" ]]; } && mv "$HOME/.zprofile" backups/.zprofile
 { [[ -e "$HOME/.zshrc" || -L "$HOME/.zshrc" ]]; } && mv "$HOME/.zshrc" backups/.zshrc
 
 cat >"$HOME/.zshenv" <<'RAZORDOT_ZSHENV'
@@ -386,6 +331,15 @@ for zshenv_file in "${ZDOTDIR:-$HOME}"/.zshenv.d/.zshenv_*(N); do
 done
 unset zshenv_file
 RAZORDOT_ZSHENV
+
+cat >"$HOME/.zprofile" <<'RAZORDOT_ZPROFILE'
+#!/bin/zsh
+
+for zprofile_file in "${ZDOTDIR:-$HOME}"/.zprofile.d/.zprofile_*(N); do
+  source "$zprofile_file"
+done
+unset zprofile_file
+RAZORDOT_ZPROFILE
 
 cat >"$HOME/.zshrc" <<'RAZORDOT_ZSHRC'
 #!/bin/zsh
