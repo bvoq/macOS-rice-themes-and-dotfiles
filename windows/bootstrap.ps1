@@ -79,6 +79,7 @@ function phase_1_admin_installs {
     $wingetPackagesCrossplatform = @(
         "ajeetdsouza.zoxide",
         "BurntSushi.ripgrep.MSVC",
+        "dandavison.delta",
         "dbrgn.tealdeer",
         "eza-community.eza",
         "Git.Git",  # Make sure to select openssh and use recommendations. You can add ssh keys to $HOME/.ssh
