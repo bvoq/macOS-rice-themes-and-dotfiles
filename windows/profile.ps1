@@ -13,18 +13,6 @@ new-alias -Name ncdu -Value gdu
 new-alias -Name dup -Value windows_czkawka_cli 
 new-alias -Name pass -Value gopass
 
-# Github GNU tools aliases
-new-alias -Name awk -Value "C:\Program Files\Git\usr\bin\awk.exe"
-new-alias -Name bzip2 -Value "C:\Program Files\Git\usr\bin\bzip2.exe"
-new-alias -Name cut -Value "C:\Program Files\Git\usr\bin\cut.exe"
-new-alias -Name grep -Value "C:\Program Files\Git\usr\bin\grep.exe"
-new-alias -Name gzip -Value "C:\Program Files\Git\usr\bin\gzip.exe"
-new-alias -Name less -Value "C:\Program Files\Git\usr\bin\less.exe"
-new-alias -Name sed -Value "C:\Program Files\Git\usr\bin\sed.exe"
-new-alias -Name touch -Value "C:\Program Files\Git\usr\bin\touch.exe"
-new-alias -Name uniq -Value "C:\Program Files\Git\usr\bin\uniq.exe"
-new-alias -Name xargs -Value "C:\Program Files\Git\usr\bin\xargs.exe"
-
 # Use analyzer using: Invoke-ScriptAnalyzer .\your-script.ps1
 # Auto-install PSScriptAnalyzer if not present
 if (-not (Get-Module -ListAvailable -Name PSScriptAnalyzer)) {
@@ -56,9 +44,13 @@ Clear-Host
 # zoxide
 Invoke-Expression (& { (zoxide init powershell | Out-String) })
 
-# Starship
-Invoke-Expression (& 'C:\Program Files\starship\bin\starship.exe' init powershell)
-Enable-TransientPrompt
+# Per-folder setup scripts can install persistent profile fragments here.
+$profileFragmentsDir = Join-Path $PSScriptRoot "profiles.d"
+if (Test-Path -LiteralPath $profileFragmentsDir -PathType Container) {
+    Get-ChildItem -LiteralPath $profileFragmentsDir -Filter "*.ps1" -File |
+        Sort-Object Name |
+        ForEach-Object { . $_.FullName }
+}
 
 # fnm (Fast Node Manager)
 fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression

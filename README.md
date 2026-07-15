@@ -5,7 +5,7 @@ Here you can get a good grasps of the 5 install phases:
 
 | Phase | Package hook | Run with non-admin user | What it is for |
 | --- | --- | --- | --- |
-| 1 | `phase_1_admin_installs` | ❌ | Admin-privileged installs like: Homebrew bundles/casks, AppStore apps and other system-level apps. Skipped when the user is not an admin. |
+| 1 | `phase_1_machine_installs` | ❌ | Machine-scoped installs such as Homebrew bundles/casks, AppStore apps, WinGet packages, and other system-level apps. |
 | 2 | `phase_2_user_installs` | ✅ | User-level installs that do not require dotfiles yet: cloned tools, per-user package managers, and curl-based installers. |
 | 3 | `phase_3_dotfiles` | ✅ | Dotfile linking via `link_dotfile`, including package-owned config files and shell fragments. |
 | 4 | `phase_4_post_dotfiles` | ✅ | User-level setup that requires dotfiles to already be linked: plugin installs, sync commands, and tool initialization. |
@@ -37,7 +37,7 @@ linked into ~/.zshrc.d/ with the folder name appended (e.g. 00_safe_config_git.z
 
 You can define your own naming convention, all razordot does is link them and source them in order for you.
 
-To get started with your own razordot powered repository, just copy the self-updating razordot.zsh / razordot.ps to your repository and create your own folders.
+To get started with your own razordot powered repository, just copy the self-updating razordot.zsh / razordot.ps1 to your repository and create your own folders.
 
 If you like to load different folders for different machines, just copy them and enable/disable different folders.
 
@@ -45,12 +45,25 @@ Further, some of these folders can be used directly by you.
 
 If you are on macOS/unix check out `razordot.zsh`
 
-If you are on Windows check out `bootstrap.ps1`
+If you are on Windows check out `razordot.ps1`
 
 Install using:
 ```
 zsh razordot.zsh
 ```
+
+On Windows, run `razordot.ps1`. It dispatches the enabled feature folders in
+phase order, sourcing each folder's `install.ps1` and calling the corresponding
+phase function. Run it from an elevated PowerShell session when you want
+machine-scoped installs. Windows-specific implementation remains under
+`windows/`, just like any other feature folder. The active WinGet package
+manifests and optional cleanup behavior are documented in
+`windows/winget/README.md`.
+
+The Windows feature folders mirror the macOS layout: `git/`, `vim/`, `vscode/`,
+and `starship/` each own an `install.ps1` and a `profile.ps1`. Their profile
+fragments are linked into the current user's PowerShell `profiles.d/` directory
+and loaded by `windows/profile.ps1`.
 
 ![Alt text](xcode/xcodetheme.png?raw=true "XCode Theme")
 ![Alt text](terminal/terminaltheme.png?raw=true "Terminal Theme")
