@@ -65,5 +65,15 @@ and `starship/` each own an `install.ps1` and a `profile.ps1`. Their profile
 fragments are linked into the current user's PowerShell `profiles.d/` directory
 and loaded by `windows/profile.ps1`.
 
+Like `razordot.zsh`, the Windows orchestrator also accepts remote install-folder
+entries containing a slash, such as `razordot/example`. By default these are
+shallow-cloned into gitignored folders and pinned to the commit recorded beside
+the ignore entry in `.gitignore`. Set `$RAZORDOT_DOWNLOAD_TYPE` to
+`"GITSUBMODULE"` to acquire them as recursive Git submodules instead. When the
+mode changes, or a managed remote folder is removed from `$installFolders`, the
+corresponding managed download or submodule is removed on the next full run.
+Use `--install <folder>` for a single-folder run when you do not want the full
+managed-folder cleanup.
+
 ![Alt text](xcode/xcodetheme.png?raw=true "XCode Theme")
 ![Alt text](terminal/terminaltheme.png?raw=true "Terminal Theme")
