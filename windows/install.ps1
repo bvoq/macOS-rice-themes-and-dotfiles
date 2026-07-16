@@ -48,7 +48,7 @@ function phase_1_machine_installs {
     }
 
     Write-Host "Importing machine-scoped WinGet packages..." -ForegroundColor Cyan
-    install_wingetfile -Path (Join-Path $PSScriptRoot "winget/packages.json") -OnlyScope machine `
+    install_wingetfile -Path (Join-Path $PSScriptRoot "winget_package.json") -OnlyScope machine `
         -ExcludePackageIdentifier $excludedMachinePackageIdentifiers -IgnoreVersions | Out-Null
     ### Install flutter
     if (-not (Test-Path "C:\flutter")) {
@@ -63,7 +63,7 @@ function phase_1_machine_installs {
 ##################################
 function phase_2_user_installs {
     Write-Host "Importing user-scoped WinGet packages..." -ForegroundColor Cyan
-    install_wingetfile -Path (Join-Path $PSScriptRoot "winget/packages.json") -OnlyScope user -IgnoreVersions | Out-Null
+    install_wingetfile -Path (Join-Path $PSScriptRoot "winget_package.json") -OnlyScope user -IgnoreVersions | Out-Null
 
     # Powershell packages
     # Bootstrap NuGet provider if available (may fail on PS 5.1 with corrupted PSModulePath from PS 7)

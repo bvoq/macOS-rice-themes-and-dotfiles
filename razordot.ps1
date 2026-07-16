@@ -3,16 +3,137 @@
 # functions. The selected installer is sourced once per phase, then that phase
 # function is called, matching the macOS installer model.
 
+######################
+# MODIFIABLE SECTION #
+######################
+# Add/Source any of your own custom functions here, that should be available to
+# the install scripts. This dotfiles repository sources its Windows helpers so
+# feature folders can call them directly. The shared WinGet implementation is
+# acquired as the razordot/winget feature folder below, so its install_wingetfile
+# command is available to every folder listed after it.
+. (Join-Path $PSScriptRoot "windows/functions.ps1")
+
+# Enable or disable feature folders here, analogous to install_folders in
+# razordot.zsh. Each enabled folder must contain an install.ps1. An entry
+# containing a slash (for example "owner/repository" or a git URL) is fetched
+# as a repo. razordot/winget is listed first so its shared install_wingetfile
+# command is defined before later folders call it.
+$installFolders = @(
+    "razordot/winget"
+    "core"
+    "generic"
+    "windows"
+    "git"
+    "starship"
+    "ffmpeg_ytdlp"
+    "rclone"
+    "ripgrep"
+    "vim"
+    "vscode"
+    # "owner/repository"
+)
+# OPTIONS:
+
+# Disable updates by removing this line.
+$RAZORDOT_UPDATE_LOCATION = "https://raw.githubusercontent.com/razordot/razordot/refs/heads/main/razordot.ps1"
+
+# How install_folders entries that name a git repo (they contain a "/") are acquired:
+#   DOWNLOAD_GITIGNORED = shallow clone into a gitignored folder, auto-pinned via a .gitignore comment (default)
+#   GITSUBMODULE        = track as a recursive git submodule
+$RAZORDOT_DOWNLOAD_TYPE = "DOWNLOAD_GITIGNORED"
+
+# Preset every waitconfirm prompt (0 = exit on waitconfirm, 1 = keep going). Leave commented to be asked.
+# $WAITCONFIRM_DECISION = 1
+
+########################
+# UNMODIFIABLE SECTION #
+########################
+# This section is managed by the RAZORDOT_UPDATE_LOCATION and is under the Apache License, Version 2.0.
+# Do not modify below here, unless you fork it with a different name, as "RAZORDOT" is reserved for this project.
+
 $repoRoot = $PSScriptRoot
 Set-Location -LiteralPath $repoRoot
 $profileFragmentsDir = Join-Path (Split-Path -Parent $PROFILE.CurrentUserAllHosts) "profiles.d"
 New-Item -Path $profileFragmentsDir -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
-. (Join-Path $repoRoot "windows/functions.ps1")
 $global:RAZORDOT_RUN_ID = [guid]::NewGuid().ToString()
-# Source the shared WinGet implementation once, before feature installers are
-# sourced. Feature folders can then call install_wingetfile directly, just as
-# macOS install scripts call install_brewfile from the shared brew installer.
-. (Join-Path $repoRoot "windows/winget/install.ps1")
+
+function razordot_self_update {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$ScriptLocation,
+        [Parameter(Mandatory = $true)]
+        [string]$InvokeLocation,
+        [string[]]$ScriptArgs = @()
+    )
+
+    if ([string]::IsNullOrWhiteSpace($RAZORDOT_UPDATE_LOCATION)) { return }  # disabled when unset
+    if ([Console]::IsInputRedirected) { return }                            # only when interactive (we prompt below)
+
+    $marker = '# UNMODIFIABLE SECTION #'
+    $localLines = @(Get-Content -LiteralPath $ScriptLocation)
+    $localMarkerIndex = -1
+    for ($i = 0; $i -lt $localLines.Count; $i++) {
+        if ($localLines[$i] -ceq $marker) { $localMarkerIndex = $i; break }
+    }
+    if ($localMarkerIndex -lt 0) { return }  # only if the marker exists
+
+    try {
+        $remote = (Invoke-WebRequest -Uri $RAZORDOT_UPDATE_LOCATION -UseBasicParsing -ErrorAction Stop).Content
+    } catch {
+        return  # network or tooling failure: continue without updating
+    }
+
+    $remoteLines = $remote -split "\r?\n"
+    $remoteMarkerIndex = -1
+    for ($i = 0; $i -lt $remoteLines.Count; $i++) {
+        if ($remoteLines[$i] -ceq $marker) { $remoteMarkerIndex = $i; break }
+    }
+    if ($remoteMarkerIndex -lt 0) { return }
+
+    # The managed section is the marker line (first exact match) through EOF.
+    $localSection = ($localLines[$localMarkerIndex..($localLines.Count - 1)]) -join "`n"
+    $remoteSection = (($remoteLines[$remoteMarkerIndex..($remoteLines.Count - 1)]) -join "`n").TrimEnd("`r", "`n")
+
+    if ([string]::IsNullOrWhiteSpace($remoteSection)) { return }
+    if ($localSection -ceq $remoteSection) {
+        Write-Host "razordot is up to date."
+        return
+    }
+
+    Write-Host "razordot: the managed section differs from the canonical copy (< current, > update):"
+    $comparison = Compare-Object -ReferenceObject ($localSection -split "`n") -DifferenceObject ($remoteSection -split "`n")
+    foreach ($change in $comparison) {
+        $sign = if ($change.SideIndicator -eq "<=") { "<" } else { ">" }
+        Write-Host "$sign $($change.InputObject)"
+    }
+
+    Write-Host "razordot: update the unmodifiable section and re-run? (remove RAZORDOT_UPDATE_LOCATION to disable update downloads)"
+    if (-not (Wait-RazordotConfirm)) {
+        exit 0
+    }
+    Write-Host "razordot: updating the unmodifiable section and re-running."
+
+    $topLines = @()
+    if ($localMarkerIndex -gt 0) {
+        $topLines = @($localLines[0..($localMarkerIndex - 1)])
+    }
+    $updated = ((@($topLines) + ($remoteSection -split "`n")) -join "`n") + "`n"
+
+    $tempFile = [IO.Path]::GetTempFileName()
+    try {
+        Set-Content -LiteralPath $tempFile -Value $updated -Encoding UTF8 -NoNewline
+        Copy-Item -LiteralPath $tempFile -Destination $ScriptLocation -Force
+    } catch {
+        Write-Host "razordot: could not write $ScriptLocation; continuing without updating."
+        Remove-Item -LiteralPath $tempFile -Force -ErrorAction SilentlyContinue
+        return
+    }
+    Remove-Item -LiteralPath $tempFile -Force -ErrorAction SilentlyContinue
+
+    $executable = (Get-Process -Id $PID).Path
+    & $executable -File $InvokeLocation @ScriptArgs
+    exit $LASTEXITCODE
+}
 
 function link_file {
     param(
@@ -435,29 +556,10 @@ function Resolve-RazordotInstallRepositories {
     return $resolvedFolders
 }
 
-######################
-# MODIFIABLE SECTION #
-######################
-# Enable or disable feature folders here, analogous to install_folders in
-# razordot.zsh. Each enabled folder must contain an install.ps1.
-$installFolders = @(
-    "windows"
-    "git"
-    "starship"
-    "vim"
-    "vscode"
-    # "owner/repository"
-)
-
-# How entries containing a slash are acquired:
-#   DOWNLOAD_GITIGNORED = shallow clone into a gitignored folder, pinned by a
-#                         comment in .gitignore (default).
-#   GITSUBMODULE        = track the folder as a recursive git submodule.
-# $RAZORDOT_DOWNLOAD_TYPE = "DOWNLOAD_GITIGNORED"
-
-# Preset every remote-folder confirmation (0 = stop, 1 = continue). Leave
-# unset to be asked on first use.
-# $WAITCONFIRM_DECISION = 1
+################
+# SELF-UPDATE  #
+################
+razordot_self_update -ScriptLocation $PSCommandPath -InvokeLocation $PSCommandPath -ScriptArgs $args
 
 ########################
 # WINDOWS PREFLIGHT    #

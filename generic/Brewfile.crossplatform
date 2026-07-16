@@ -1,4 +1,4 @@
-# Cross-platform generic tools, also present in windows/winget (WinGet).
+# Cross-platform generic tools.
 
 brew "bat"
 brew "eza"

@@ -56,9 +56,9 @@ On Windows, run `razordot.ps1`. It dispatches the enabled feature folders in
 phase order, sourcing each folder's `install.ps1` and calling the corresponding
 phase function. Run it from an elevated PowerShell session when you want
 machine-scoped installs. Windows-specific implementation remains under
-`windows/`, just like any other feature folder. The active WinGet package
-manifests and optional cleanup behavior are documented in
-`windows/winget/README.md`.
+`windows/`, just like any other feature folder. The shared WinGet helper is
+acquired as the `razordot/winget` feature folder; its manifest import and
+optional cleanup behavior are documented in that repository's `README.md`.
 
 The Windows feature folders mirror the macOS layout: `git/`, `vim/`, `vscode/`,
 and `starship/` each own an `install.ps1` and a `profile.ps1`. Their profile

@@ -1,5 +1,24 @@
-# Source shared functions
-. $PSScriptRoot\functions.ps1
+function hopen() { start powershell } # start powershell in same directory, with the same user and elevation
+
+function caffeinate() {
+    # Usage: caffeinate (indefinitely), caffeinate --time-limit 3600 (1 hour), caffeinate --display-on true
+    $awakeExe = "C:\Program Files\PowerToys\PowerToys.Awake.exe"
+    if (Test-Path $awakeExe) {
+        & $awakeExe $args
+    } else {
+        Write-Host "PowerToys Awake not found. Install PowerToys first." -ForegroundColor Red
+    }
+}
+
+function Update-System() {
+    Install-WindowsUpdate -IgnoreUserInput -IgnoreReboot -AcceptAll
+    Update-Module
+    Update-Help -Force
+    gem update --system
+    gem update
+    npm install npm -g
+    npm update -g
+}
 
 # PowerShell privacy and update settings
 $env:POWERSHELL_TELEMETRY_OPTOUT = "1"
@@ -19,9 +38,6 @@ if (-not (Get-Module -ListAvailable -Name PSScriptAnalyzer)) {
     Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force -ErrorAction SilentlyContinue
 }
 Import-Module PSScriptAnalyzer -ErrorAction SilentlyContinue
-
-function ymp3 { yt-dlp -x --audio-format mp3 --add-metadata --embed-thumbnail --cookies-from-browser chrome $args }
-function ymp4 { yt-dlp -fmp4 --write-sub --write-auto-sub --sub-lang "en.*" --cookies-from-browser chrome $args }
 
 # Set autocomplete similar to bash with a menu showing the options.
 # Also check out -Function MenuComplete.

@@ -1,5 +1,15 @@
 # Windows counterpart to vim/install.zsh.
 
+function phase_1_machine_installs {
+    if (-not (Verify-Elevated)) {
+        Write-Host "Skipping vim machine install: this PowerShell process is not elevated." -ForegroundColor Yellow
+        return
+    }
+
+    install_wingetfile -Path (Join-Path $PSScriptRoot "winget_package.json") `
+        -OnlyScope machine -IgnoreVersions | Out-Null
+}
+
 function phase_3_dotfiles {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot ".vimrc") `
         -Destination (Join-Path $HOME ".vimrc") -Force

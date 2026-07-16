@@ -1,0 +1,25 @@
+{
+  "$schema": "https://aka.ms/winget-packages.schema.2.0.json",
+  "Sources": [
+    {
+      "SourceDetails": {
+        "Argument": "https://cdn.winget.microsoft.com/cache",
+        "Identifier": "Microsoft.Winget.Source_8wekyb3d8bbwe",
+        "Name": "winget",
+        "Type": "Microsoft.PreIndexed.Package"
+      },
+      "Packages": [
+        { "PackageIdentifier": "ajeetdsouza.zoxide", "Scope": "machine" },
+        { "PackageIdentifier": "dbrgn.tealdeer", "Scope": "machine" },
+        { "PackageIdentifier": "eza-community.eza", "Scope": "machine" },
+        { "PackageIdentifier": "Git.Git", "Scope": "machine" },
+        { "PackageIdentifier": "gopass.gopass", "Scope": "machine" },
+        { "PackageIdentifier": "jqlang.jq", "Scope": "machine" },
+        { "PackageIdentifier": "junegunn.fzf", "Scope": "machine" },
+        { "PackageIdentifier": "MikeFarah.yq", "Scope": "machine" },
+        { "PackageIdentifier": "Schniz.fnm", "Scope": "machine" },
+        { "PackageIdentifier": "sharkdp.bat", "Scope": "machine" }
+      ]
+    }
+  ]
+}
