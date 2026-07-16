@@ -22,7 +22,6 @@
         { "PackageIdentifier": "Rclone.Rclone", "Scope": "machine" },
         { "PackageIdentifier": "Schniz.fnm", "Scope": "machine" },
         { "PackageIdentifier": "sharkdp.bat", "Scope": "machine" },
-        { "PackageIdentifier": "Starship.Starship", "Scope": "machine" },
         { "PackageIdentifier": "DenoLand.Deno", "Scope": "machine" },
         { "PackageIdentifier": "yt-dlp.FFmpeg", "Scope": "machine" },
         { "PackageIdentifier": "yt-dlp.yt-dlp", "Scope": "machine" },

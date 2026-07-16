@@ -1,12 +1,3 @@
-# Source the WinGet feature installer so install_wingetfile and its accumulator
-# are available to every folder installer in the shared razordot scope.
-. (Join-Path $PSScriptRoot "winget/install.ps1")
-
-# This single schema contains both user- and machine-scoped packages. The
-# install command filters it by scope because `winget import` has no --scope
-# command-line option; Scope is expressed on each package entry instead.
-$wingetManifestPath = Join-Path $PSScriptRoot "winget/packages.json"
-
 # To run this script you might have to be Admin and run this before:
 # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 # Windows feature installer for PowerShell, Flutter and Visual Studio.
@@ -57,7 +48,7 @@ function phase_1_machine_installs {
     }
 
     Write-Host "Importing machine-scoped WinGet packages..." -ForegroundColor Cyan
-    install_wingetfile -Path $wingetManifestPath -Scope machine `
+    install_wingetfile -Path (Join-Path $PSScriptRoot "winget/packages.json") -OnlyScope machine `
         -ExcludePackageIdentifier $excludedMachinePackageIdentifiers -IgnoreVersions | Out-Null
     ### Install flutter
     if (-not (Test-Path "C:\flutter")) {
@@ -72,7 +63,7 @@ function phase_1_machine_installs {
 ##################################
 function phase_2_user_installs {
     Write-Host "Importing user-scoped WinGet packages..." -ForegroundColor Cyan
-    install_wingetfile -Path $wingetManifestPath -Scope user -IgnoreVersions | Out-Null
+    install_wingetfile -Path (Join-Path $PSScriptRoot "winget/packages.json") -OnlyScope user -IgnoreVersions | Out-Null
 
     # Powershell packages
     # Bootstrap NuGet provider if available (may fail on PS 5.1 with corrupted PSModulePath from PS 7)
@@ -81,10 +72,6 @@ function phase_2_user_installs {
     Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
     Install-Module -Name PowerShellGet -Force -AllowClobber -Scope CurrentUser -ErrorAction SilentlyContinue
     Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force
-    # This is intentionally deferred until phase 2, after every folder's
-    # phase_1 has had a chance to contribute a machine manifest. Machine
-    # cleanup still requires the current process to be elevated.
-    cleanup_wingetfiles
 }
 
 #########################################################

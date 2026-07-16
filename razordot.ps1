@@ -9,6 +9,10 @@ $profileFragmentsDir = Join-Path (Split-Path -Parent $PROFILE.CurrentUserAllHost
 New-Item -Path $profileFragmentsDir -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
 . (Join-Path $repoRoot "windows/functions.ps1")
 $global:RAZORDOT_RUN_ID = [guid]::NewGuid().ToString()
+# Source the shared WinGet implementation once, before feature installers are
+# sourced. Feature folders can then call install_wingetfile directly, just as
+# macOS install scripts call install_brewfile from the shared brew installer.
+. (Join-Path $repoRoot "windows/winget/install.ps1")
 
 function link_file {
     param(
@@ -549,6 +553,13 @@ foreach ($installScript in $installScripts) {
     function phase_2_user_installs {}
     . $installScript
     phase_2_user_installs
+}
+
+# Reconcile every WinGet manifest after all feature folders have contributed
+# their packages. Running this at the phase boundary prevents the first folder
+# from cleaning up packages declared by folders that have not run yet.
+if (Get-Command cleanup_wingetfiles -ErrorAction SilentlyContinue) {
+    cleanup_wingetfiles
 }
 
 # Phase 3: user dotfiles.

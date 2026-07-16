@@ -1,28 +1,35 @@
-# WinGet package manifest
+# WinGet package manifests
 
-[`packages.json`](packages.json) is the Windows equivalent of the repository's
-multiple Homebrew files. It uses WinGet's packages JSON schema 2.0 and contains
-both user- and machine-scoped package entries.
+Each feature folder owns the WinGet manifest for its packages, just as each
+macOS feature folder owns its `Brewfile`. For example,
+[`starship/winget_package.json`](../../starship/winget_package.json) declares
+Starship and is imported by [`starship/install.ps1`](../../starship/install.ps1)
+through the shared `install_wingetfile` command.
 
-The active manifest path is configured near the top of
-[`../install.ps1`](../install.ps1). `install_wingetfile` filters this one file
-by scope before importing it. Phase 1 imports the machine subset only when the
-PowerShell process is elevated; phase 2 imports the user subset in every run.
-This is necessary because `winget import` has no `--scope` command-line option.
-Scope is represented by each package's `Scope` property in the JSON schema.
+The Windows-specific packages remain in [`packages.json`](packages.json). Other
+feature folders can add their own `winget_package.json` later without changing
+the shared installer. The root [`razordot.ps1`](../../razordot.ps1) sources
+[`install.ps1`](install.ps1) once before feature installers run, so every
+feature can call `install_wingetfile` directly.
 
-The command also copies each filtered manifest into a run-specific temporary
-accumulator for cleanup after phase 2.
+`install_wingetfile` can optionally filter a manifest by `-OnlyScope` before
+importing it because `winget import` has no `--scope` command-line option. When
+`-OnlyScope` is omitted, every package in the manifest is imported. Each
+feature's `install.ps1` decides whether a phase should pass `-OnlyScope
+machine`, `-OnlyScope user`, or no filter. The `Scope` property remains
+controlled by each package entry, and there is no silent fallback to another
+scope when an installer does not support the requested one.
+
+Every imported, filtered manifest is copied into a run-specific temporary
+accumulator. Cleanup runs once after every folder has completed phase 2, so the
+desired package set is the union of all enabled feature manifests.
+
 Feature-specific Windows setup lives beside the corresponding cross-platform
 folder, for example [`starship/install.ps1`](../../starship/install.ps1),
 [`git/install.ps1`](../../git/install.ps1), [`vim/install.ps1`](../../vim/install.ps1),
 and [`vscode/install.ps1`](../../vscode/install.ps1). Each feature can also
 provide a `profile.ps1`; those fragments are installed into the user's
 PowerShell `profiles.d/` directory.
-
-The `Scope` property is part of the schema 2.0 format. A package whose selected
-installer does not support that scope will be reported by WinGet as unavailable;
-the orchestrator does not silently fall back to the other scope.
 
 ## Cleanup
 

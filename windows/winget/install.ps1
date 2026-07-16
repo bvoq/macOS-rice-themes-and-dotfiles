@@ -1,6 +1,6 @@
 # WinGet helpers.
-# This is sourced by windows/install.ps1 so the command and accumulator are
-# shared with every folder installer in the razordot.ps1 process.
+# This is sourced by razordot.ps1 so the command and accumulator are shared
+# with every feature-folder installer in the razordot.ps1 process.
 
 if (-not $global:RAZORDOT_RUN_ID) {
     $global:RAZORDOT_RUN_ID = [guid]::NewGuid().ToString()
@@ -38,7 +38,7 @@ function install_wingetfile {
         [Parameter(Mandatory = $true)]
         [string]$Path,
         [ValidateSet("user", "machine")]
-        [string]$Scope,
+        [string]$OnlyScope,
         [string[]]$ExcludePackageIdentifier = @(),
         [switch]$IgnoreVersions
     )
@@ -53,7 +53,7 @@ function install_wingetfile {
     $manifestForImport = $manifestPath
     $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
 
-    if (-not [string]::IsNullOrWhiteSpace($Scope) -or $ExcludePackageIdentifier.Count -gt 0) {
+    if (-not [string]::IsNullOrWhiteSpace($OnlyScope) -or $ExcludePackageIdentifier.Count -gt 0) {
         foreach ($source in @($manifest.Sources)) {
             $source.Packages = @($source.Packages | Where-Object {
                 $packageIdentifier = [string]$_.PackageIdentifier
@@ -66,7 +66,7 @@ function install_wingetfile {
                     $packageScope = "user"
                 }
 
-                ($Scope -eq $null -or $packageScope -eq $Scope) -and
+                ([string]::IsNullOrWhiteSpace($OnlyScope) -or $packageScope -eq $OnlyScope) -and
                     $packageIdentifier -notin $ExcludePackageIdentifier
             })
         }
@@ -75,7 +75,11 @@ function install_wingetfile {
         })
 
         if (@($manifest.Sources).Count -eq 0) {
-            Write-Host "No $Scope-scoped WinGet packages remain in $manifestPath." -ForegroundColor Yellow
+            if ([string]::IsNullOrWhiteSpace($OnlyScope)) {
+                Write-Host "No WinGet packages remain in $manifestPath." -ForegroundColor Yellow
+            } else {
+                Write-Host "No $OnlyScope-scoped WinGet packages remain in $manifestPath." -ForegroundColor Yellow
+            }
             return $true
         }
 
