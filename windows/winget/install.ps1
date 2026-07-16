@@ -1,4 +1,4 @@
-# WinGet helpers and active manifest lists.
+# WinGet helpers.
 # This is sourced by windows/install.ps1 so the command and accumulator are
 # shared with every folder installer in the razordot.ps1 process.
 
@@ -37,6 +37,9 @@ function install_wingetfile {
     param(
         [Parameter(Mandatory = $true)]
         [string]$Path,
+        [ValidateSet("user", "machine")]
+        [string]$Scope,
+        [string[]]$ExcludePackageIdentifier = @(),
         [switch]$IgnoreVersions
     )
 
@@ -47,22 +50,58 @@ function install_wingetfile {
     }
 
     $manifestPath = (Resolve-Path -LiteralPath $Path).Path
+    $manifestForImport = $manifestPath
+    $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+
+    if (-not [string]::IsNullOrWhiteSpace($Scope) -or $ExcludePackageIdentifier.Count -gt 0) {
+        foreach ($source in @($manifest.Sources)) {
+            $source.Packages = @($source.Packages | Where-Object {
+                $packageIdentifier = [string]$_.PackageIdentifier
+                if ([string]::IsNullOrWhiteSpace($packageIdentifier)) {
+                    $packageIdentifier = [string]$_.Id
+                }
+
+                $packageScope = [string]$_.Scope
+                if ([string]::IsNullOrWhiteSpace($packageScope)) {
+                    $packageScope = "user"
+                }
+
+                ($Scope -eq $null -or $packageScope -eq $Scope) -and
+                    $packageIdentifier -notin $ExcludePackageIdentifier
+            })
+        }
+        $manifest.Sources = @($manifest.Sources | Where-Object {
+            @($_.Packages).Count -gt 0
+        })
+
+        if (@($manifest.Sources).Count -eq 0) {
+            Write-Host "No $Scope-scoped WinGet packages remain in $manifestPath." -ForegroundColor Yellow
+            return $true
+        }
+
+        $scopedManifestPath = Join-Path (Get-WingetManifestAccumulatorDirectory) (
+            "import_{0}.json" -f [guid]::NewGuid()
+        )
+        $manifest | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $scopedManifestPath -Encoding UTF8
+        $manifestForImport = $scopedManifestPath
+    }
+
     $accumulatorDirectory = Get-WingetManifestAccumulatorDirectory
     $manifestIndex = @($global:RAZORDOT_WINGET_MANIFEST_PATHS).Count
     $accumulatorPath = Join-Path $accumulatorDirectory (
-        "{0:D4}_{1}" -f $manifestIndex, [IO.Path]::GetFileName($manifestPath)
+        "{0:D4}_{1}" -f $manifestIndex, [IO.Path]::GetFileName($manifestForImport)
     )
 
     # Keep each manifest as a separate file, mirroring the Brewfile accumulator
     # while retaining the original WinGet JSON structure for cleanup later.
-    Copy-Item -LiteralPath $manifestPath -Destination $accumulatorPath -Force
+    Copy-Item -LiteralPath $manifestForImport -Destination $accumulatorPath -Force
     $global:RAZORDOT_WINGET_MANIFEST_PATHS += $accumulatorPath
 
-    Write-Host "`n>>> winget import --import-file $manifestPath" -ForegroundColor Cyan
+    Write-Host "`n>>> winget import --import-file $manifestForImport" -ForegroundColor Cyan
     if ($IgnoreVersions) {
-        $imported = Invoke-WingetManifestImport -Path @($manifestPath) -IgnoreVersions
+        $imported = Invoke-WingetManifestImport -Path @($manifestForImport) -IgnoreVersions
     } else {
-        $imported = Invoke-WingetManifestImport -Path @($manifestPath)
+        $imported = Invoke-WingetManifestImport -Path @($manifestForImport)
     }
 
     if (-not $imported) {

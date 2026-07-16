@@ -2,18 +2,10 @@
 # are available to every folder installer in the shared razordot scope.
 . (Join-Path $PSScriptRoot "winget/install.ps1")
 
-# Enable or disable Windows package groups here, analogous to the Brewfiles
-# selected by each macOS feature installer. Each manifest is imported through
-# install_wingetfile and copied to the run accumulator for cleanup in phase 2.
-$wingetMachineManifestPaths = @(
-    (Join-Path $PSScriptRoot "winget/machine/generic-crossplatform.json")
-    (Join-Path $PSScriptRoot "winget/machine/windows-tools.json")
-    (Join-Path $PSScriptRoot "winget/machine/powershell.json")
-    (Join-Path $PSScriptRoot "winget/machine/visual-studio.json")
-)
-$wingetUserManifestPaths = @(
-    (Join-Path $PSScriptRoot "winget/user/microsoft-store.json")
-)
+# This single schema contains both user- and machine-scoped packages. The
+# install command filters it by scope because `winget import` has no --scope
+# command-line option; Scope is expressed on each package entry instead.
+$wingetManifestPath = Join-Path $PSScriptRoot "winget/packages.json"
 
 # To run this script you might have to be Admin and run this before:
 # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
@@ -47,17 +39,13 @@ function phase_1_machine_installs {
         return
     }
 
-    $activeMachineManifestPaths = @($wingetMachineManifestPaths)
     do {
         $answer = Read-Host "Install/Update Microsoft PowerShell with privacy settings and context menus? (y/n)"
     }
     while("y","n" -notcontains $answer)
+    $excludedMachinePackageIdentifiers = @()
     if ($answer -eq "n") {
-        $activeMachineManifestPaths = @(
-            $activeMachineManifestPaths | Where-Object {
-                [IO.Path]::GetFileName($_) -ne "powershell.json"
-            }
-        )
+        $excludedMachinePackageIdentifiers += "Microsoft.PowerShell"
     }
 
     do {
@@ -65,17 +53,12 @@ function phase_1_machine_installs {
     }
     while("y","n" -notcontains $answer)
     if ($answer -eq "n") {
-        $activeMachineManifestPaths = @(
-            $activeMachineManifestPaths | Where-Object {
-                [IO.Path]::GetFileName($_) -ne "visual-studio.json"
-            }
-        )
+        $excludedMachinePackageIdentifiers += "Microsoft.VisualStudio.Community"
     }
 
-    Write-Host "Importing machine-scoped WinGet manifests..." -ForegroundColor Cyan
-    foreach ($manifestPath in $activeMachineManifestPaths) {
-        install_wingetfile -Path $manifestPath -IgnoreVersions | Out-Null
-    }
+    Write-Host "Importing machine-scoped WinGet packages..." -ForegroundColor Cyan
+    install_wingetfile -Path $wingetManifestPath -Scope machine `
+        -ExcludePackageIdentifier $excludedMachinePackageIdentifiers -IgnoreVersions | Out-Null
     ### Install flutter
     if (-not (Test-Path "C:\flutter")) {
         git clone -b stable git@github.com:flutter/flutter.git C:\flutter
@@ -88,10 +71,8 @@ function phase_1_machine_installs {
 # Phase 2: User-level installs   #
 ##################################
 function phase_2_user_installs {
-    Write-Host "Importing user-scoped WinGet manifests..." -ForegroundColor Cyan
-    foreach ($manifestPath in $wingetUserManifestPaths) {
-        install_wingetfile -Path $manifestPath -IgnoreVersions | Out-Null
-    }
+    Write-Host "Importing user-scoped WinGet packages..." -ForegroundColor Cyan
+    install_wingetfile -Path $wingetManifestPath -Scope user -IgnoreVersions | Out-Null
 
     # Powershell packages
     # Bootstrap NuGet provider if available (may fail on PS 5.1 with corrupted PSModulePath from PS 7)

@@ -1,16 +1,18 @@
-# WinGet package manifests
+# WinGet package manifest
 
-These files are the Windows equivalent of the repository's multiple Homebrew
-files. They use WinGet's packages JSON schema 2.0 and are grouped by target
-scope:
+[`packages.json`](packages.json) is the Windows equivalent of the repository's
+multiple Homebrew files. It uses WinGet's packages JSON schema 2.0 and contains
+both user- and machine-scoped package entries.
 
-- `machine/` contains packages imported with `Scope: machine`.
-- `user/` contains packages imported with `Scope: user`.
+The active manifest path is configured near the top of
+[`../install.ps1`](../install.ps1). `install_wingetfile` filters this one file
+by scope before importing it. Phase 1 imports the machine subset only when the
+PowerShell process is elevated; phase 2 imports the user subset in every run.
+This is necessary because `winget import` has no `--scope` command-line option.
+Scope is represented by each package's `Scope` property in the JSON schema.
 
-The active lists are configured near the top of [`../install.ps1`](../install.ps1).
-The `install_wingetfile` command imports each selected file and copies it into a
-run-specific temporary accumulator. Duplicate packages are still harmless because
-WinGet recognizes package identifiers during each import.
+The command also copies each filtered manifest into a run-specific temporary
+accumulator for cleanup after phase 2.
 Feature-specific Windows setup lives beside the corresponding cross-platform
 folder, for example [`starship/install.ps1`](../../starship/install.ps1),
 [`git/install.ps1`](../../git/install.ps1), [`vim/install.ps1`](../../vim/install.ps1),
