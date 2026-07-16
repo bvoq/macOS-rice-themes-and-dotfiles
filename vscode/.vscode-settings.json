@@ -114,7 +114,6 @@
     "redhat.telemetry.enabled": false,
     "http.proxyAuthorization": null,
     "json.schemaDownload.enable": true,
-    "security.workspace.trust.untrustedFiles": "open",
     "terminal.integrated.scrollback": 1000000,
     "debug.console.maximumLines":     1000000,
 

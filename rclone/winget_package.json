@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/microsoft/winget-cli/refs/heads/master/schemas/JSON/packages/packages.schema.2.0.json",
+  "$schema": "../vscode/winget-packages.schema.2.0.json",
   "Sources": [
     {
       "SourceDetails": {

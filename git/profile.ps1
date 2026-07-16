@@ -3,6 +3,8 @@
 # GNU tools shipped with Git for Windows.
 $gitUnixBin = "C:\Program Files\Git\usr\bin"
 if (Test-Path -LiteralPath $gitUnixBin -PathType Container) {
+    # The tool list deliberately omits names that would shadow Windows built-ins
+    # or PowerShell aliases (e.g. find, sort); add new tools with the same care.
     foreach ($tool in @("awk", "bzip2", "cut", "grep", "gzip", "less", "sed", "touch", "uniq", "xargs")) {
         New-Alias -Name $tool -Value (Join-Path $gitUnixBin "$tool.exe") -Force
     }

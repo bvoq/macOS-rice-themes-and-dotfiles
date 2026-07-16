@@ -9,8 +9,11 @@
         "Type": "Microsoft.PreIndexed.Package"
       },
       "Packages": [
-        { "PackageIdentifier": "yt-dlp.yt-dlp", "Scope": "machine" },
-        { "PackageIdentifier": "yt-dlp.FFmpeg", "Scope": "machine" }
+        {
+          "PackageIdentifier": "Git.Git",
+          "Scope": "machine",
+          "InitialCustomSwitches": "/o:PathOption=Cmd /o:BashTerminalOption=ConHost"
+        }
       ]
     }
   ]

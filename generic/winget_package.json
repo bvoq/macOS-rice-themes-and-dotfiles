@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/microsoft/winget-cli/refs/heads/master/schemas/JSON/packages/packages.schema.2.0.json",
+  "$schema": "../vscode/winget-packages.schema.2.0.json",
   "Sources": [
     {
       "SourceDetails": {
@@ -12,7 +12,6 @@
         { "PackageIdentifier": "ajeetdsouza.zoxide", "Scope": "machine" },
         { "PackageIdentifier": "dbrgn.tealdeer", "Scope": "machine" },
         { "PackageIdentifier": "eza-community.eza", "Scope": "machine" },
-        { "PackageIdentifier": "Git.Git", "Scope": "machine" },
         { "PackageIdentifier": "gopass.gopass", "Scope": "machine" },
         { "PackageIdentifier": "jqlang.jq", "Scope": "machine" },
         { "PackageIdentifier": "junegunn.fzf", "Scope": "machine" },

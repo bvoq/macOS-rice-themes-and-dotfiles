@@ -245,10 +245,13 @@ _razordot_repo_folder() {
 }
 
 # Pins are recorded in .gitignore, keeping the ignore entry and the pinned commit
-# together and version-controlled. Line format: "<folder>/ # <url> <sha>".
+# together and version-controlled. Format is two lines, the pin on a comment line
+# directly above the ignore entry (git does not support trailing comments):
+#   # razordot <folder>/ <url> <sha>
+#   <folder>/
 _razordot_download_pin() {
     [[ -f .gitignore ]] || return 0
-    awk -v f="$1/ # " 'index($0, f) == 1 { print $NF }' .gitignore
+    awk -v f="# razordot $1/ " 'index($0, f) == 1 { print $NF }' .gitignore
 }
 
 _razordot_pin_download() {
@@ -256,7 +259,8 @@ _razordot_pin_download() {
     touch .gitignore
     # keep entries line-separated even if .gitignore has no trailing newline
     [[ -s .gitignore && -n "$(tail -c1 .gitignore)" ]] && echo >>.gitignore
-    echo "$folder/ # $url $sha" >>.gitignore
+    echo "# razordot $folder/ $url $sha" >>.gitignore
+    echo "$folder/" >>.gitignore
 }
 
 _razordot_download_checkout() {
@@ -311,10 +315,10 @@ _razordot_ensure_submodule() {
 }
 
 # Repos previously materialized as gitignored downloads, identified by their
-# .gitignore pin lines ("<folder>/ # <url> <sha>").
+# .gitignore pin lines ("# razordot <folder>/ <url> <sha>").
 _razordot_managed_download_folders() {
     [[ -f .gitignore ]] || return 0
-    awk '$2 == "#" && $1 ~ /\/$/ { s = $1; sub(/\/$/, "", s); print s }' .gitignore
+    awk '$1 == "#" && $2 == "razordot" && $3 ~ /\/$/ { s = $3; sub(/\/$/, "", s); print s }' .gitignore
 }
 
 # Repos previously materialized as submodules by razordot, identified by the
@@ -330,14 +334,16 @@ _razordot_managed_submodule_folders() {
         done
 }
 
-# Remove a gitignored download folder and its .gitignore pin line.
+# Remove a gitignored download folder and its .gitignore pin lines (both the
+# comment pin line and the bare ignore entry directly below it).
 _razordot_remove_download() {
     local folder="$1" tmp
     echo "razordot: removing stale download folder '$folder'"
     rm -rf "$folder"
     [[ -f .gitignore ]] || return 0
     tmp="$(mktemp -t razordot)" || return 1
-    awk -v f="$folder/ # " 'index($0, f) == 1 { next } { print }' .gitignore >"$tmp" &&
+    awk -v c="# razordot $folder/ " -v i="$folder/" \
+        'index($0, c) == 1 { next } $0 == i { next } { print }' .gitignore >"$tmp" &&
         mv "$tmp" .gitignore || {
         rm -f "$tmp"
         return 1
