@@ -1,4 +1,4 @@
-function open($name) { start $name }
+function open($name) { Start-Process $name }
 
 function la { eza -lAF @args }
 
@@ -20,4 +20,4 @@ function sudo() {
 
 function cpwd() { Get-Location | Set-Clipboard }
 
-function Edit-Profile { Invoke-Expression "$(if($env:EDITOR -ne $null)  {$env:EDITOR } else { 'notepad' }) $profile" }
+function Edit-Profile { Invoke-Expression "$(if($null -ne $env:EDITOR)  {$env:EDITOR } else { 'notepad' }) $profile" }

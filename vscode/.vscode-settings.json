@@ -92,7 +92,7 @@
     "explorer.fileNesting.patterns": {
         ".gitignore": ".gitattributes,.gitignore",
         "pubspec.yaml": ".editorconfig,.flutter-plugins,.flutter-plugins-dependencies,.metadata,.packages,build.yaml,pubspec.lock,pubspec.yaml,all_lint_rules.yaml,analysis_options.yaml,l10n.yaml,dcm_baseline.json,cspell.json,melos_*.iml",
-        "*.dart": "${capture}.freezed.dart,${capture}.g.dart,${capture}.hive.dart,${capture}.gr.dart",
+        "*.dart": "${capture}.freezed.dart,${capture}.g.dart,${capture}.hive.dart,${capture}.gr.dart"
     },
 
     "git.openRepositoryInParentFolders": "always",
@@ -113,6 +113,8 @@
 
     "redhat.telemetry.enabled": false,
     "http.proxyAuthorization": null,
+    "json.schemaDownload.enable": true,
+    "security.workspace.trust.untrustedFiles": "open",
     "terminal.integrated.scrollback": 1000000,
     "debug.console.maximumLines":     1000000,
 
@@ -172,8 +174,8 @@
         "editorBracketPairGuide.background4": "#cccccc",
         "editorBracketPairGuide.background5": "#cccccc",
         "editorBracketPairGuide.background6": "#cccccc",
-        "editorWhitespace.foreground": "#cccccc",
-      },
+        "editorWhitespace.foreground": "#cccccc"
+      }
     },
 
 

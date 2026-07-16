@@ -1,4 +1,4 @@
-function hopen() { start powershell } # start powershell in same directory, with the same user and elevation
+function hopen() { Start-Process powershell } # start powershell in same directory, with the same user and elevation
 
 function caffeinate() {
     # Usage: caffeinate (indefinitely), caffeinate --time-limit 3600 (1 hour), caffeinate --display-on true

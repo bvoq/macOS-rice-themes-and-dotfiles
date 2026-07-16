@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "*.vscode-settings.json": "jsonc"
+  },
+  "json.schemaDownload.enable": true,
+  "security.workspace.trust.untrustedFiles": "open"
+}

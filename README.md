@@ -1,4 +1,5 @@
 # dotfiles :: razordot author's example
+
 Here are my dotfiles. They also serve as the main example of the razordot-file manager.
 
 Here you can get a good grasps of the 5 install phases:
@@ -48,7 +49,8 @@ If you are on macOS/unix check out `razordot.zsh`
 If you are on Windows check out `razordot.ps1`
 
 Install using:
-```
+
+```zsh
 zsh razordot.zsh
 ```
 
