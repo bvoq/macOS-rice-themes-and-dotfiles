@@ -705,13 +705,6 @@ if ($args.Count -ge 1 -and $args[0] -eq "--install") {
     $global:RAZORDOT_SINGLE_FOLDER = 1
 }
 
-if (Get-Command git -ErrorAction SilentlyContinue) {
-    & git submodule update --init --recursive
-    if ($LASTEXITCODE -ne 0) {
-        throw "Could not initialize repository submodules."
-    }
-}
-
 # Materialize remote-repository entries (those containing a slash) into local
 # folders before building the install-script list. The resolved folder names
 # are then handled exactly like local feature folders in every phase.

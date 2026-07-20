@@ -573,12 +573,6 @@ assure_userlevel_zsh
 check_not_rosetta
 ensure_developer_tools_installed
 
-if command -v git > /dev/null 2>&1; then
-  git submodule update --init --recursive # in case your repo has submodules.
-else
-  echo "Skipping git submodule update; git not found."
-fi
-
 # Optional: `./razordot.zsh --install <folder>` runs only that single plugin folder (even for disabled folders).
 if [[ "$1" == "--install" ]]; then
   folder="${2%/}"
