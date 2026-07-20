@@ -126,13 +126,15 @@ waitconfirm() {
     if [[ "$WAITCONFIRM_DECISION" == 1 ]]; then
       return 0
     else
-      exit 0
+      [[ -n "${WAITCONFIRM_ABORT_MESSAGE:-}" ]] && echo "$WAITCONFIRM_ABORT_MESSAGE"
+      exit "${WAITCONFIRM_ABORT_EXIT_CODE:-0}"
     fi
   fi
   if read -q "choice?Continue [press y/n]? "; then
     echo "Continuing..."
   else
-    exit 0
+    [[ -n "${WAITCONFIRM_ABORT_MESSAGE:-}" ]] && echo "$WAITCONFIRM_ABORT_MESSAGE"
+    exit "${WAITCONFIRM_ABORT_EXIT_CODE:-0}"
   fi
 }
 
@@ -501,6 +503,40 @@ check_not_rosetta() {
   fi
 }
 
+_darwin_developer_tools_ready() {
+  [[ $OSTYPE == 'darwin'* ]] || return 0
+
+  local developer_dir
+  developer_dir="$(xcode-select -p 2> /dev/null)" || return 1
+  xcrun -f git > /dev/null 2>&1 || return 1
+
+  if [[ "$developer_dir" == *'.app/Contents/Developer' ]] && command -v xcodebuild > /dev/null 2>&1; then
+    xcodebuild -license check > /dev/null 2>&1 || return 1
+  fi
+}
+
+ensure_developer_tools_installed() {
+  [[ $OSTYPE == 'darwin'* ]] || return 0
+  _darwin_developer_tools_ready && return 0
+
+  local WAITCONFIRM_ABORT_MESSAGE="macOS Developer Tools are not available. The user aborted installing them or accepting the license agreements."
+  local WAITCONFIRM_ABORT_EXIT_CODE=1
+
+  echo "macOS Developer Tools are required before Git can be used."
+  echo "This script will execute: xcode-select --install"
+  waitconfirm
+  xcode-select --install > /dev/null 2>&1 || true
+
+  echo "Finish the macOS Developer Tools installation and accept any Xcode license agreements, then confirm to continue."
+  echo "If Xcode asks for a license, accept it with: sudo xcodebuild -license accept"
+  waitconfirm
+
+  if ! _darwin_developer_tools_ready; then
+    echo "$WAITCONFIRM_ABORT_MESSAGE"
+    exit 1
+  fi
+}
+
 ################
 # Run RAZORDOT #
 ################
@@ -509,6 +545,7 @@ set_error_handler
 razordot_self_update "${0:A}" "${0:a}" "$@"
 assure_userlevel_zsh
 check_not_rosetta
+ensure_developer_tools_installed
 
 if command -v git > /dev/null 2>&1; then
   git submodule update --init --recursive # in case your repo has submodules.
