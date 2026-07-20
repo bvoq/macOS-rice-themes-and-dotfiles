@@ -2,7 +2,7 @@
 
 regex="^[a-z0-9!#\$%&'*+/=?^_\`{|}~-]+(\.[a-z0-9!#$%&'*+/=?^_\`{|}~-]+)*@([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z0-9]([a-z0-9-]*[a-z0-9])?\$"
 
-if [[ $1 =~ $regex ]] ; then
+if printf '%s\n' "$1" | grep -Eq "$regex"; then
     echo "Generating your ssh key with email ${1} now."
 else
     echo "You must enter an email as an argument."
