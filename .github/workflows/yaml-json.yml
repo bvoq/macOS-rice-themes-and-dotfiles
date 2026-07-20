@@ -1,0 +1,70 @@
+name: yaml/json checks
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Install validators
+        run: npm install --no-save ajv@8 ajv-formats@3 jsonc-parser@3 yaml@2
+
+      - name: Validate YAML, JSON, and JSONC
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          while IFS= read -r -d '' file; do
+            node - "$file" <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const Ajv = require('ajv');
+          const addFormats = require('ajv-formats');
+          const { parse, printParseErrorCode } = require('jsonc-parser');
+          const YAML = require('yaml');
+
+          (async () => {
+            const file = process.argv[2];
+            const text = fs.readFileSync(file, 'utf8');
+            const values = [];
+
+            if (/\.jsonc?$/i.test(file)) {
+              const errors = [];
+              values.push(parse(text, errors, { allowTrailingComma: true, disallowComments: false }));
+              for (const error of errors) console.error(`${file}: ${printParseErrorCode(error.error)} at offset ${error.offset}`);
+              if (errors.length) process.exit(1);
+            } else {
+              for (const document of YAML.parseAllDocuments(text, { prettyErrors: true })) {
+                for (const error of document.errors) console.error(`${file}: ${error.message}`);
+                if (document.errors.length) process.exit(1);
+                values.push(document.toJSON());
+              }
+            }
+
+            for (const value of values) {
+              if (!value || typeof value !== 'object' || typeof value.$schema !== 'string') continue;
+              const schemaText = /^https?:\/\//.test(value.$schema)
+                ? await (await fetch(value.$schema)).text()
+                : fs.readFileSync(path.resolve(path.dirname(file), value.$schema), 'utf8');
+              const errors = [];
+              const schema = parse(schemaText, errors, { allowTrailingComma: true, disallowComments: false });
+              for (const error of errors) console.error(`${file}: schema ${printParseErrorCode(error.error)} at offset ${error.offset}`);
+              if (errors.length) process.exit(1);
+
+              const ajv = new Ajv({ allErrors: true, loadSchema: async (uri) => await (await fetch(uri)).json(), strict: false });
+              addFormats(ajv);
+              const validate = await ajv.compileAsync(schema);
+              if (!validate(value)) {
+                for (const error of validate.errors || []) console.error(`${file}: ${error.instancePath || '/'} ${error.message}`);
+                process.exit(1);
+              }
+            }
+          })().catch((error) => { console.error(`${process.argv[2]}: ${error.message}`); process.exit(1); });
+          NODE
+          done < <(git ls-files -z -- '*.json' '*.jsonc' '*.yml' '*.yaml')
