@@ -52,6 +52,7 @@ RAZORDOT_UPDATE_LOCATION="https://raw.githubusercontent.com/razordot/razordot/re
 ########################
 # UNMODIFIABLE SECTION #
 ########################
+# This file was checked with: shfmt -ln zsh -i 2 -ci -sr -d razordot.zsh
 # This section is managed by the RAZORDOT_UPDATE_LOCATION and is under the Apache License, Version 2.0.
 # Do not modify below here, unless you fork it with a different name, as "RAZORDOT" is reserved for this project.
 
