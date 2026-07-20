@@ -69,12 +69,15 @@ and loaded by `windows/profile.ps1`.
 
 Like `razordot.zsh`, the Windows orchestrator also accepts remote install-folder
 entries containing a slash, such as `razordot/example`. By default these are
-shallow-cloned into gitignored folders and pinned to the commit recorded beside
-the ignore entry in `.gitignore`. Set `$RAZORDOT_DOWNLOAD_TYPE` to
-`"GITSUBMODULE"` to acquire them as recursive Git submodules instead. When the
-mode changes, or a managed remote folder is removed from `$installFolders`, the
-corresponding managed download or submodule is removed on the next full run.
-Use `--install <folder>` for a single-folder run when you do not want the full
+downloaded into gitignored folders and pinned to the commit recorded beside the
+ignore entry in `.gitignore`. The pin comment starts with the script filename,
+such as `# razordot.zsh`, so several razordot entrypoints can share one
+`.gitignore` without cleaning up each other's managed folders. Public GitHub
+repositories are downloaded without requiring Git; Git is used only as a fallback
+when the web download cannot access the repository, such as for private remotes.
+When a managed remote folder is removed from that script's install folder list,
+the corresponding managed download is removed on the next full run. Use
+`--install <folder>` for a single-folder run when you do not want the full
 managed-folder cleanup.
 
 ![Alt text](xcode/xcodetheme.png?raw=true "XCode Theme")

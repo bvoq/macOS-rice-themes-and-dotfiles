@@ -1,4 +1,4 @@
 .DS_Store
 backups/
-# razordot brew/ https://github.com/razordot/brew.git 891203140013d2cce740b86398841f687aa43382
+# razordot.zsh brew/ https://github.com/razordot/brew.git 891203140013d2cce740b86398841f687aa43382
 brew/

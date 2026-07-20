@@ -43,10 +43,8 @@ install_folders=(
 # Disable updates by commenting/removing the below line.
 RAZORDOT_UPDATE_LOCATION="https://raw.githubusercontent.com/razordot/razordot/refs/heads/main/razordot.zsh"
 
-# How install_folders entries that name a git repo (they contain a "/") are acquired:
-#   DOWNLOAD_GITIGNORED = shallow clone into a gitignored folder, auto-pinned via a .gitignore comment (default)
-#   GITSUBMODULE        = track as a recursive git submodule
-RAZORDOT_DOWNLOAD_TYPE=DOWNLOAD_GITIGNORED
+# install_folders entries containing a "/" are acquired into gitignored folders.
+# Public GitHub repos are downloaded with curl first; git is used only as a fallback.
 
 # Preset every waitconfirm prompt (0 = stop, 1 = keep going). Leave commented to be asked.
 # WAITCONFIRM_DECISION=1
@@ -58,6 +56,7 @@ RAZORDOT_DOWNLOAD_TYPE=DOWNLOAD_GITIGNORED
 # Do not modify below here, unless you fork it with a different name, as "RAZORDOT" is reserved for this project.
 
 cd "${0:a:h}"
+RAZORDOT_SCRIPT_NAME="${0:A:t}"
 
 razordot_self_update() {
     local script_location="$1" invoke_location="$2"
@@ -219,15 +218,12 @@ prune_broken_dotfile_links() {
     done
 }
 
-# Materialize install_folders entries that name a git repo (detected by a "/")
-# into local folders, so the phase loops treat them like any other plugin folder.
-# RAZORDOT_DOWNLOAD_TYPE selects how they are acquired:
-#   DOWNLOAD_GITIGNORED (default) = shallow clone into a gitignored folder, pinned
-#                                   to a commit recorded in a .gitignore comment.
-#   GITSUBMODULE                  = track as a recursive git submodule.
-# Remote install scripts run in an admin context, so first use of a repo is gated
-# behind waitconfirm and pinned to an exact commit (trust on first use); a pinned
-# repo re-resolves to the same commit on later runs without prompting.
+# Materialize install_folders entries that name a repo (detected by a "/") into
+# local gitignored folders, so the phase loops treat them like any other plugin
+# folder. Public GitHub repos are downloaded by curl from a pinned commit archive.
+# If curl cannot access the repo (for example a private repo), git is used as a
+# fallback. First use is gated behind waitconfirm and pinned to an exact commit
+# (trust on first use); a pinned repo re-resolves to the same commit later.
 _razordot_repo_url() {
     local spec="$1"
     if [[ "$spec" == *"://"* || "$spec" == *@*:* ]]; then
@@ -243,14 +239,57 @@ _razordot_repo_folder() {
     printf '%s\n' "${base##*/}"
 }
 
+_razordot_github_slug() {
+    local spec="${1%.git}"
+    spec="${spec%/}"
+    case "$spec" in
+    git@github.com:*) spec="${spec#git@github.com:}" ;;
+    ssh://git@github.com/*) spec="${spec#ssh://git@github.com/}" ;;
+    https://github.com/*) spec="${spec#https://github.com/}" ;;
+    http://github.com/*) spec="${spec#http://github.com/}" ;;
+    git://github.com/*) spec="${spec#git://github.com/}" ;;
+    github.com/*) spec="${spec#github.com/}" ;;
+    esac
+
+    [[ "$spec" == */* ]] || return 1
+    [[ "$spec" == *"://"* || "$spec" == *@*:* ]] && return 1
+
+    local owner="${spec%%/*}"
+    local rest="${spec#*/}"
+    local repo="${rest%%/*}"
+    [[ -n "$owner" && -n "$repo" ]] || return 1
+    printf '%s/%s\n' "$owner" "$repo"
+}
+
+_razordot_curl_resolve_head() {
+    local url="$1" slug sha
+    command -v curl >/dev/null 2>&1 || return 1
+    slug="$(_razordot_github_slug "$url")" || return 1
+    sha="$(curl -fsSL "https://api.github.com/repos/$slug/commits/HEAD" 2>/dev/null |
+        awk -F'"' '$2 == "sha" { print $4; exit }')" || return 1
+    [[ -n "$sha" ]] || return 1
+    printf '%s\n' "$sha"
+}
+
+_razordot_resolve_head() {
+    local url="$1" sha
+    if sha="$(_razordot_curl_resolve_head "$url")"; then
+        printf '%s\n' "$sha"
+        return 0
+    fi
+
+    command -v git >/dev/null 2>&1 || return 1
+    git ls-remote "$url" HEAD | awk 'NR == 1 { print $1 }'
+}
+
 # Pins are recorded in .gitignore, keeping the ignore entry and the pinned commit
 # together and version-controlled. Format is two lines, the pin on a comment line
 # directly above the ignore entry (git does not support trailing comments):
-#   # razordot <folder>/ <url> <sha>
+#   # <script-name> <folder>/ <url> <sha>
 #   <folder>/
 _razordot_download_pin() {
     [[ -f .gitignore ]] || return 0
-    awk -v f="# razordot $1/ " 'index($0, f) == 1 { print $NF }' .gitignore
+    awk -v f="# $RAZORDOT_SCRIPT_NAME $1/ " 'index($0, f) == 1 { print $NF }' .gitignore
 }
 
 _razordot_pin_download() {
@@ -258,15 +297,72 @@ _razordot_pin_download() {
     touch .gitignore
     # keep entries line-separated even if .gitignore has no trailing newline
     [[ -s .gitignore && -n "$(tail -c1 .gitignore)" ]] && echo >>.gitignore
-    echo "# razordot $folder/ $url $sha" >>.gitignore
+    local comment_prefix="# $RAZORDOT_SCRIPT_NAME $folder/ "
+    local ignore_line="$folder/"
+    local tmp
+    tmp="$(mktemp -t razordot)" || return 1
+    awk -v c="$comment_prefix" -v i="$ignore_line" '
+        skip_ignore && $0 == i { skip_ignore = 0; next }
+        { skip_ignore = 0 }
+        index($0, c) == 1 { skip_ignore = 1; next }
+        { print }
+    ' .gitignore >"$tmp" && mv "$tmp" .gitignore || {
+        rm -f "$tmp"
+        return 1
+    }
+    [[ -s .gitignore && -n "$(tail -c1 .gitignore)" ]] && echo >>.gitignore
+    echo "# $RAZORDOT_SCRIPT_NAME $folder/ $url $sha" >>.gitignore
     echo "$folder/" >>.gitignore
 }
 
-_razordot_download_checkout() {
+_razordot_curl_checkout() {
     local url="$1" folder="$2" sha="$3"
+    local slug tmp archive
+    local -a extracted
+
+    command -v curl >/dev/null 2>&1 || return 1
+    command -v tar >/dev/null 2>&1 || return 1
+    slug="$(_razordot_github_slug "$url")" || return 1
+
+    if [[ -f "$folder/.razordot-commit" && "$(cat "$folder/.razordot-commit" 2>/dev/null)" == "$sha" ]]; then
+        return 0
+    fi
+
+    tmp="$(mktemp -d -t razordot)" || return 1
+    archive="$tmp/archive.tar.gz"
+    if ! curl -fsSL "https://api.github.com/repos/$slug/tarball/$sha" -o "$archive"; then
+        rm -rf "$tmp"
+        return 1
+    fi
+    if ! tar -xzf "$archive" -C "$tmp"; then
+        rm -rf "$tmp"
+        return 1
+    fi
+
+    extracted=("$tmp"/*(N/))
+    if (( ${#extracted[@]} == 0 )); then
+        rm -rf "$tmp"
+        return 1
+    fi
+
+    rm -rf "$folder"
+    mkdir -p "${folder:h}"
+    if ! mv "${extracted[1]}" "$folder"; then
+        rm -rf "$tmp"
+        return 1
+    fi
+    printf '%s\n' "$sha" >"$folder/.razordot-commit"
+    rm -rf "$tmp"
+}
+
+_razordot_git_checkout() {
+    local url="$1" folder="$2" sha="$3"
+    command -v git >/dev/null 2>&1 || return 1
+
     if [[ -d "$folder/.git" ]]; then
         [[ "$(git -C "$folder" rev-parse HEAD 2>/dev/null)" == "$sha" ]] && return 0
     else
+        rm -rf "$folder"
         mkdir -p "$folder"
         git -C "$folder" init -q
         git -C "$folder" remote add origin "$url" 2>/dev/null ||
@@ -275,16 +371,25 @@ _razordot_download_checkout() {
     if git -C "$folder" fetch --depth 1 origin "$sha" 2>/dev/null; then
         git -C "$folder" checkout -q FETCH_HEAD
     else
-        git -C "$folder" fetch -q origin
-        git -C "$folder" checkout -q "$sha"
+        git -C "$folder" fetch -q origin && git -C "$folder" checkout -q "$sha"
     fi
+}
+
+_razordot_download_checkout() {
+    local url="$1" folder="$2" sha="$3"
+    if _razordot_curl_checkout "$url" "$folder" "$sha"; then
+        return 0
+    fi
+
+    echo "razordot: curl download failed for $url; trying git fallback."
+    _razordot_git_checkout "$url" "$folder" "$sha"
 }
 
 _razordot_ensure_download() {
     local url="$1" folder="$2" sha
     sha="$(_razordot_download_pin "$folder")"
     if [[ -z "$sha" ]]; then
-        sha="$(git ls-remote "$url" HEAD | awk 'NR == 1 { print $1 }')"
+        sha="$(_razordot_resolve_head "$url")"
         [[ -n "$sha" ]] || {
             echo "razordot: could not resolve a commit for $url"
             return 1
@@ -299,90 +404,61 @@ _razordot_ensure_download() {
     fi
 }
 
-_razordot_ensure_submodule() {
-    local url="$1" folder="$2"
-    if ! git config --file .gitmodules --get-regexp 'submodule\..*\.path' 2>/dev/null |
-        awk '{ print $2 }' | grep -qx "$folder"; then
-        echo "razordot: adding submodule '$folder' ($url)"
-        waitconfirm
-        git submodule add "$url" "$folder"
-    fi
-    git submodule update --init --recursive "$folder"
-    # Mark as razordot-managed so it can be cleaned up if the entry is removed or
-    # RAZORDOT_DOWNLOAD_TYPE changes (leaves the user's own submodules untouched).
-    git config --file .gitmodules "submodule.$folder.razordot" true
-}
-
-# Repos previously materialized as gitignored downloads, identified by their
-# .gitignore pin lines ("# razordot <folder>/ <url> <sha>").
+# Repos previously materialized by this script as gitignored downloads,
+# identified by .gitignore pin lines ("# <script-name> <folder>/ <url> <sha>").
 _razordot_managed_download_folders() {
     [[ -f .gitignore ]] || return 0
-    awk '$1 == "#" && $2 == "razordot" && $3 ~ /\/$/ { s = $3; sub(/\/$/, "", s); print s }' .gitignore
+    awk -v owner="$RAZORDOT_SCRIPT_NAME" '$1 == "#" && $2 == owner && $3 ~ /\/$/ { s = $3; sub(/\/$/, "", s); print s }' .gitignore
 }
 
-# Repos previously materialized as submodules by razordot, identified by the
-# marker razordot writes into .gitmodules when it adds them.
-_razordot_managed_submodule_folders() {
-    [[ -f .gitmodules ]] || return 0
-    local key name
-    git config --file .gitmodules --name-only --get-regexp '\.razordot$' 2>/dev/null |
-        while read -r key; do
-            name="${key#submodule.}"
-            name="${name%.razordot}"
-            git config --file .gitmodules "submodule.$name.path"
-        done
+_razordot_other_download_owners_exist() {
+    [[ -f .gitignore ]] || return 1
+    awk -v owner="$RAZORDOT_SCRIPT_NAME" -v folder="$1/" '
+        $1 == "#" && $2 != owner && $3 == folder { found = 1 }
+        END { exit found ? 0 : 1 }
+    ' .gitignore
 }
 
 # Remove a gitignored download folder and its .gitignore pin lines (both the
 # comment pin line and the bare ignore entry directly below it).
 _razordot_remove_download() {
     local folder="$1" tmp
-    echo "razordot: removing stale download folder '$folder'"
-    rm -rf "$folder"
+    if _razordot_other_download_owners_exist "$folder"; then
+        echo "razordot: removing stale download pin for '$folder' (folder kept; another script still owns it)"
+    else
+        echo "razordot: removing stale download folder '$folder'"
+        rm -rf "$folder"
+    fi
     [[ -f .gitignore ]] || return 0
     tmp="$(mktemp -t razordot)" || return 1
-    awk -v c="# razordot $folder/ " -v i="$folder/" \
-        'index($0, c) == 1 { next } $0 == i { next } { print }' .gitignore >"$tmp" &&
+    awk -v c="# $RAZORDOT_SCRIPT_NAME $folder/ " -v i="$folder/" '
+        skip_ignore && $0 == i { skip_ignore = 0; next }
+        { skip_ignore = 0 }
+        index($0, c) == 1 { skip_ignore = 1; next }
+        { print }
+    ' .gitignore >"$tmp" &&
         mv "$tmp" .gitignore || {
         rm -f "$tmp"
         return 1
     }
 }
 
-# Remove a razordot-managed submodule (working tree, .gitmodules entry, git dir).
-_razordot_remove_submodule() {
-    local folder="$1"
-    echo "razordot: removing stale submodule '$folder'"
-    git submodule deinit -f -- "$folder" >/dev/null 2>&1 || true
-    git rm -qf -- "$folder" >/dev/null 2>&1 ||
-        git rm -qf --cached -- "$folder" >/dev/null 2>&1 || true
-    git config --file .gitmodules --remove-section "submodule.$folder" 2>/dev/null || true
-    rm -rf "$folder" ".git/modules/$folder"
-    [[ -f .gitmodules && ! -s .gitmodules ]] && rm -f .gitmodules
-    return 0
-}
-
 resolve_install_repos() {
-    : ${RAZORDOT_DOWNLOAD_TYPE:=DOWNLOAD_GITIGNORED}
     local i spec url folder f
     local -A desired
     for ((i = 1; i <= $#install_folders; i++)); do
         spec="${install_folders[i]}"
         [[ "$spec" == */* ]] || continue
         folder="$(_razordot_repo_folder "$spec")"
-        desired[$folder]="$RAZORDOT_DOWNLOAD_TYPE"
+        desired[$folder]=1
     done
 
-    # Reconcile away stale managed state (entry removed, or its acquisition type
-    # changed) before acquiring, so e.g. a download->submodule switch clears the
-    # old folder first. Skipped in single-folder mode, which can't see the full
-    # list and would otherwise treat every other repo as removed.
+    # Reconcile away stale managed downloads before acquiring. Skipped in
+    # single-folder mode, which cannot see the full list and would otherwise
+    # treat every other repo as removed.
     if ((${RAZORDOT_SINGLE_FOLDER:-0} == 0)); then
         for f in $(_razordot_managed_download_folders); do
-            [[ "${desired[$f]}" == DOWNLOAD_GITIGNORED ]] || _razordot_remove_download "$f"
-        done
-        for f in $(_razordot_managed_submodule_folders); do
-            [[ "${desired[$f]}" == GITSUBMODULE ]] || _razordot_remove_submodule "$f"
+            [[ -n "${desired[$f]}" ]] || _razordot_remove_download "$f"
         done
     fi
 
@@ -391,11 +467,7 @@ resolve_install_repos() {
         [[ "$spec" == */* ]] || continue
         url="$(_razordot_repo_url "$spec")"
         folder="$(_razordot_repo_folder "$spec")"
-        if [[ "$RAZORDOT_DOWNLOAD_TYPE" == GITSUBMODULE ]]; then
-            _razordot_ensure_submodule "$url" "$folder"
-        else
-            _razordot_ensure_download "$url" "$folder"
-        fi
+        _razordot_ensure_download "$url" "$folder"
         install_folders[i]="$folder"
     done
 }
@@ -431,7 +503,11 @@ razordot_self_update "${0:A}" "${0:a}" "$@"
 assure_userlevel_zsh
 check_not_rosetta
 
-git submodule update --init --recursive # in case your repo has submodules.
+if command -v git >/dev/null 2>&1; then
+    git submodule update --init --recursive # in case your repo has submodules.
+else
+    echo "Skipping git submodule update; git not found."
+fi
 
 # Optional: `./razordot.zsh --install <folder>` runs only that single plugin folder (even for disabled folders).
 if [[ "$1" == "--install" ]]; then

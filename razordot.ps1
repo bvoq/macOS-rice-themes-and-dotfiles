@@ -29,10 +29,8 @@ $installFolders = @(
 # Disable updates by removing this line.
 $RAZORDOT_UPDATE_LOCATION = "https://raw.githubusercontent.com/razordot/razordot/refs/heads/main/razordot.ps1"
 
-# How install_folders entries that name a git repo (they contain a "/") are acquired:
-#   DOWNLOAD_GITIGNORED = shallow clone into a gitignored folder, auto-pinned via a .gitignore comment (default)
-#   GITSUBMODULE        = track as a recursive git submodule
-$RAZORDOT_DOWNLOAD_TYPE = "DOWNLOAD_GITIGNORED"
+# install_folders entries containing a "/" are acquired into gitignored folders.
+# Public GitHub repos are downloaded with web requests first; git is used only as a fallback.
 
 # Preset every waitconfirm prompt (0 = exit on waitconfirm, 1 = keep going). Leave commented to be asked.
 # $WAITCONFIRM_DECISION = 1
@@ -45,6 +43,10 @@ $RAZORDOT_DOWNLOAD_TYPE = "DOWNLOAD_GITIGNORED"
 
 $repoRoot = $PSScriptRoot
 Set-Location -LiteralPath $repoRoot
+$RAZORDOT_SCRIPT_NAME = Split-Path -Leaf $PSCommandPath
+if ([string]::IsNullOrWhiteSpace($RAZORDOT_SCRIPT_NAME)) {
+    $RAZORDOT_SCRIPT_NAME = $MyInvocation.MyCommand.Name
+}
 $profileFragmentsDir = Join-Path (Split-Path -Parent $PROFILE.CurrentUserAllHosts) "profiles.d"
 New-Item -Path $profileFragmentsDir -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
 $global:RAZORDOT_RUN_ID = [guid]::NewGuid().ToString()
@@ -270,6 +272,65 @@ function Get-RazordotRepositoryFolder {
     return ($folder -split '[/\\]')[-1]
 }
 
+function Get-RazordotGitHubSlug {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Specification
+    )
+
+    $specification = $Specification -replace "\.git$", ""
+    while ($specification.EndsWith('/') -or $specification.EndsWith('\')) {
+        $specification = $specification.Substring(0, $specification.Length - 1)
+    }
+
+    if ($specification.StartsWith("git@github.com:", [StringComparison]::OrdinalIgnoreCase)) {
+        $specification = $specification.Substring("git@github.com:".Length)
+    } elseif ($specification.StartsWith("ssh://git@github.com/", [StringComparison]::OrdinalIgnoreCase)) {
+        $specification = $specification.Substring("ssh://git@github.com/".Length)
+    } elseif ($specification.StartsWith("https://github.com/", [StringComparison]::OrdinalIgnoreCase)) {
+        $specification = $specification.Substring("https://github.com/".Length)
+    } elseif ($specification.StartsWith("http://github.com/", [StringComparison]::OrdinalIgnoreCase)) {
+        $specification = $specification.Substring("http://github.com/".Length)
+    } elseif ($specification.StartsWith("git://github.com/", [StringComparison]::OrdinalIgnoreCase)) {
+        $specification = $specification.Substring("git://github.com/".Length)
+    } elseif ($specification.StartsWith("github.com/", [StringComparison]::OrdinalIgnoreCase)) {
+        $specification = $specification.Substring("github.com/".Length)
+    }
+
+    if ($specification -match "://|@[^/\\:]+:") { return }
+    $parts = @($specification -split '[/\\]')
+    if ($parts.Count -lt 2 -or
+        [string]::IsNullOrWhiteSpace($parts[0]) -or
+        [string]::IsNullOrWhiteSpace($parts[1])) {
+        return
+    }
+    return "$($parts[0])/$($parts[1])"
+}
+
+function Resolve-RazordotRemoteHead {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Url
+    )
+
+    $slug = Get-RazordotGitHubSlug -Specification $Url
+    if (-not [string]::IsNullOrWhiteSpace($slug)) {
+        try {
+            $commit = Invoke-RestMethod -Uri "https://api.github.com/repos/$slug/commits/HEAD" -ErrorAction Stop
+            if (-not [string]::IsNullOrWhiteSpace([string]$commit.sha)) {
+                return [string]$commit.sha
+            }
+        } catch {
+            # Fall through to git for private repositories or non-GitHub URLs.
+        }
+    }
+
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) { return }
+    $remoteHead = @(& git ls-remote $Url HEAD 2>$null)
+    if ($LASTEXITCODE -ne 0 -or $remoteHead.Count -eq 0) { return }
+    return (($remoteHead | Select-Object -First 1) -split '\s+')[0]
+}
+
 function Get-RazordotDownloadPin {
     param(
         [Parameter(Mandatory = $true)]
@@ -280,7 +341,7 @@ function Get-RazordotDownloadPin {
         return
     }
 
-    $prefix = "# razordot $Folder/ "
+    $prefix = "# $RAZORDOT_SCRIPT_NAME $Folder/ "
     foreach ($line in @(Get-Content -LiteralPath ".gitignore")) {
         if ($line.StartsWith($prefix, [StringComparison]::Ordinal)) {
             $parts = $line.Substring($prefix.Length) -split '\s+'
@@ -305,15 +366,123 @@ function Set-RazordotDownloadPin {
         New-Item -ItemType File -Path ".gitignore" -Force | Out-Null
     }
 
-    $commentPrefix = "# razordot $Folder/ "
+    $commentPrefix = "# $RAZORDOT_SCRIPT_NAME $Folder/ "
     $ignoreLine = "$Folder/"
-    $lines = @(Get-Content -LiteralPath ".gitignore" | Where-Object {
-        -not $_.StartsWith($commentPrefix, [StringComparison]::Ordinal) -and
-        $_ -ne $ignoreLine
-    })
-    $lines += "# razordot $Folder/ $Url $Commit"
+    $lines = @()
+    $skipIgnoreLine = $false
+    foreach ($line in @(Get-Content -LiteralPath ".gitignore")) {
+        if ($skipIgnoreLine -and $line -eq $ignoreLine) {
+            $skipIgnoreLine = $false
+            continue
+        }
+        $skipIgnoreLine = $false
+        if ($line.StartsWith($commentPrefix, [StringComparison]::Ordinal)) {
+            $skipIgnoreLine = $true
+            continue
+        }
+        $lines += $line
+    }
+    $lines += "# $RAZORDOT_SCRIPT_NAME $Folder/ $Url $Commit"
     $lines += "$Folder/"
     Set-Content -LiteralPath ".gitignore" -Value $lines
+}
+
+function Invoke-RazordotWebDownloadCheckout {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Url,
+        [Parameter(Mandatory = $true)]
+        [string]$Folder,
+        [Parameter(Mandatory = $true)]
+        [string]$Commit
+    )
+
+    $slug = Get-RazordotGitHubSlug -Specification $Url
+    if ([string]::IsNullOrWhiteSpace($slug)) { return $false }
+
+    $markerPath = Join-Path $Folder ".razordot-commit"
+    $existingCommit = Get-Content -LiteralPath $markerPath -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not [string]::IsNullOrWhiteSpace($existingCommit) -and $existingCommit.Trim() -eq $Commit) {
+        return $true
+    }
+
+    $tempDirectory = Join-Path ([IO.Path]::GetTempPath()) "razordot-$([guid]::NewGuid())"
+    $archivePath = Join-Path $tempDirectory "archive.zip"
+    $extractPath = Join-Path $tempDirectory "extract"
+    try {
+        New-Item -ItemType Directory -Path $extractPath -Force | Out-Null
+        Invoke-WebRequest -Uri "https://api.github.com/repos/$slug/zipball/$Commit" `
+            -OutFile $archivePath -UseBasicParsing -ErrorAction Stop
+        Expand-Archive -LiteralPath $archivePath -DestinationPath $extractPath -Force
+
+        $extractedFolder = Get-ChildItem -LiteralPath $extractPath -Directory | Select-Object -First 1
+        if (-not $extractedFolder) { return $false }
+
+        Remove-Item -LiteralPath $Folder -Recurse -Force -ErrorAction SilentlyContinue
+        $parent = Split-Path -Parent $Folder
+        if (-not [string]::IsNullOrWhiteSpace($parent)) {
+            New-Item -ItemType Directory -Path $parent -Force | Out-Null
+        }
+        Move-Item -LiteralPath $extractedFolder.FullName -Destination $Folder
+        Set-Content -LiteralPath (Join-Path $Folder ".razordot-commit") -Value $Commit
+        return $true
+    } catch {
+        return $false
+    } finally {
+        Remove-Item -LiteralPath $tempDirectory -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
+function Invoke-RazordotGitDownloadCheckout {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Url,
+        [Parameter(Mandatory = $true)]
+        [string]$Folder,
+        [Parameter(Mandatory = $true)]
+        [string]$Commit
+    )
+
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) { return $false }
+
+    $gitFolder = Join-Path $Folder ".git"
+    if (Test-Path -LiteralPath $gitFolder -PathType Container) {
+        $head = (& git -C $Folder rev-parse HEAD 2>$null | Select-Object -First 1)
+        if ($LASTEXITCODE -eq 0 -and ([string]$head).Trim() -eq $Commit) {
+            return $true
+        }
+    } else {
+        Remove-Item -LiteralPath $Folder -Recurse -Force -ErrorAction SilentlyContinue
+        New-Item -ItemType Directory -Path $Folder -Force | Out-Null
+        & git -C $Folder init -q | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            return $false
+        }
+    }
+
+    & git -C $Folder remote add origin $Url 2>$null | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        & git -C $Folder remote set-url origin $Url 2>$null | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            return $false
+        }
+    }
+
+    & git -C $Folder fetch --depth 1 origin $Commit 2>$null | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        & git -C $Folder checkout -q FETCH_HEAD | Out-Null
+    } else {
+        & git -C $Folder fetch -q origin | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            return $false
+        }
+        & git -C $Folder checkout -q $Commit | Out-Null
+    }
+
+    if ($LASTEXITCODE -ne 0) {
+        return $false
+    }
+    return $true
 }
 
 function Invoke-RazordotDownloadCheckout {
@@ -326,43 +495,12 @@ function Invoke-RazordotDownloadCheckout {
         [string]$Commit
     )
 
-    $gitFolder = Join-Path $Folder ".git"
-    if (Test-Path -LiteralPath $gitFolder -PathType Container) {
-        $head = (& git -C $Folder rev-parse HEAD 2>$null | Select-Object -First 1)
-        if ($LASTEXITCODE -eq 0 -and ([string]$head).Trim() -eq $Commit) {
-            return $true
-        }
-    } else {
-        New-Item -ItemType Directory -Path $Folder -Force | Out-Null
-        & git -C $Folder init -q | Out-Null
-        if ($LASTEXITCODE -ne 0) {
-            throw "Could not initialize downloaded repository '$Folder'."
-        }
+    if (Invoke-RazordotWebDownloadCheckout -Url $Url -Folder $Folder -Commit $Commit) {
+        return $true
     }
 
-    & git -C $Folder remote add origin $Url 2>$null | Out-Null
-    if ($LASTEXITCODE -ne 0) {
-        & git -C $Folder remote set-url origin $Url 2>$null | Out-Null
-        if ($LASTEXITCODE -ne 0) {
-            throw "Could not configure the origin for downloaded repository '$Folder'."
-        }
-    }
-
-    & git -C $Folder fetch --depth 1 origin $Commit 2>$null | Out-Null
-    if ($LASTEXITCODE -eq 0) {
-        & git -C $Folder checkout -q FETCH_HEAD | Out-Null
-    } else {
-        & git -C $Folder fetch -q origin | Out-Null
-        if ($LASTEXITCODE -ne 0) {
-            throw "Could not fetch '$Url'."
-        }
-        & git -C $Folder checkout -q $Commit | Out-Null
-    }
-
-    if ($LASTEXITCODE -ne 0) {
-        throw "Could not check out commit '$Commit' in '$Folder'."
-    }
-    return $true
+    Write-Host "Web download failed for $Url; trying git fallback." -ForegroundColor Yellow
+    return (Invoke-RazordotGitDownloadCheckout -Url $Url -Folder $Folder -Commit $Commit)
 }
 
 function Initialize-RazordotDownload {
@@ -375,11 +513,7 @@ function Initialize-RazordotDownload {
 
     $commit = Get-RazordotDownloadPin -Folder $Folder
     if ([string]::IsNullOrWhiteSpace($commit)) {
-        $remoteHead = @(& git ls-remote $Url HEAD 2>$null)
-        if ($LASTEXITCODE -ne 0 -or $remoteHead.Count -eq 0) {
-            throw "Could not resolve a commit for $Url."
-        }
-        $commit = (($remoteHead | Select-Object -First 1) -split '\s+')[0]
+        $commit = Resolve-RazordotRemoteHead -Url $Url
         if ([string]::IsNullOrWhiteSpace($commit)) {
             throw "Could not resolve a commit for $Url."
         }
@@ -390,63 +524,16 @@ function Initialize-RazordotDownload {
             return $false
         }
 
-        Invoke-RazordotDownloadCheckout -Url $Url -Folder $Folder -Commit $commit | Out-Null
+        if (-not (Invoke-RazordotDownloadCheckout -Url $Url -Folder $Folder -Commit $commit)) {
+            throw "Could not acquire '$Url' at commit '$commit'."
+        }
         Set-RazordotDownloadPin -Folder $Folder -Url $Url -Commit $commit
     } else {
-        Invoke-RazordotDownloadCheckout -Url $Url -Folder $Folder -Commit $commit | Out-Null
-    }
-
-    return $true
-}
-
-function Test-RazordotSubmodulePath {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$Folder
-    )
-
-    if (-not (Test-Path -LiteralPath ".gitmodules" -PathType Leaf)) {
-        return $false
-    }
-
-    $entries = @(& git config --file .gitmodules --get-regexp 'submodule\..*\.path' 2>$null)
-    foreach ($entry in $entries) {
-        $parts = $entry -split '\s+', 2
-        if ($parts.Count -eq 2 -and $parts[1] -eq $Folder) {
-            return $true
-        }
-    }
-    return $false
-}
-
-function Initialize-RazordotSubmodule {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$Url,
-        [Parameter(Mandatory = $true)]
-        [string]$Folder
-    )
-
-    if (-not (Test-RazordotSubmodulePath -Folder $Folder)) {
-        Write-Host "Adding submodule '$Folder' ($Url)." -ForegroundColor Cyan
-        if (-not (Wait-RazordotConfirm)) {
-            return $false
-        }
-        & git submodule add $Url $Folder
-        if ($LASTEXITCODE -ne 0) {
-            throw "Could not add submodule '$Folder'."
+        if (-not (Invoke-RazordotDownloadCheckout -Url $Url -Folder $Folder -Commit $commit)) {
+            throw "Could not acquire '$Url' at commit '$commit'."
         }
     }
 
-    & git submodule update --init --recursive -- $Folder
-    if ($LASTEXITCODE -ne 0) {
-        throw "Could not update submodule '$Folder'."
-    }
-
-    & git config --file .gitmodules "submodule.$Folder.razordotps1" true
-    if ($LASTEXITCODE -ne 0) {
-        throw "Could not mark submodule '$Folder' as razordot-managed."
-    }
     return $true
 }
 
@@ -455,28 +542,36 @@ function Get-RazordotManagedDownloadFolders {
         return
     }
 
+    $prefix = "# $RAZORDOT_SCRIPT_NAME "
     foreach ($line in @(Get-Content -LiteralPath ".gitignore")) {
-        if ($line -match '^# razordot (.+)/ \S+\s+\S+') {
-            $Matches[1]
+        if ($line.StartsWith($prefix, [StringComparison]::Ordinal)) {
+            $parts = $line.Substring($prefix.Length) -split '\s+'
+            if ($parts.Count -gt 0 -and $parts[0].EndsWith('/')) {
+                $parts[0].TrimEnd('/')
+            }
         }
     }
 }
 
-function Get-RazordotManagedSubmoduleFolders {
-    if (-not (Test-Path -LiteralPath ".gitmodules" -PathType Leaf)) {
-        return
+function Test-RazordotOtherDownloadOwner {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Folder
+    )
+
+    if (-not (Test-Path -LiteralPath ".gitignore" -PathType Leaf)) {
+        return $false
     }
 
-    $keys = @(& git config --file .gitmodules --name-only --get-regexp '\.razordotps1$' 2>$null)
-    foreach ($key in $keys) {
-        if ($key -match '^submodule\.(.+)\.razordotps1$') {
-            $name = $Matches[1]
-            $folder = & git config --file .gitmodules "submodule.$name.path" 2>$null
-            if ($LASTEXITCODE -eq 0 -and -not [string]::IsNullOrWhiteSpace($folder)) {
-                $folder.Trim()
-            }
+    $folderToken = "$Folder/"
+    foreach ($line in @(Get-Content -LiteralPath ".gitignore")) {
+        if (-not $line.StartsWith("# ", [StringComparison]::Ordinal)) { continue }
+        $parts = $line -split '\s+'
+        if ($parts.Count -ge 4 -and $parts[1] -ne $RAZORDOT_SCRIPT_NAME -and $parts[2] -eq $folderToken) {
+            return $true
         }
     }
+    return $false
 }
 
 function Remove-RazordotDownload {
@@ -485,46 +580,33 @@ function Remove-RazordotDownload {
         [string]$Folder
     )
 
-    Write-Host "Removing stale downloaded folder '$Folder'." -ForegroundColor Yellow
-    Remove-Item -LiteralPath $Folder -Recurse -Force -ErrorAction SilentlyContinue
+    if (Test-RazordotOtherDownloadOwner -Folder $Folder) {
+        Write-Host "Removing stale download pin for '$Folder' (folder kept; another script still owns it)." -ForegroundColor Yellow
+    } else {
+        Write-Host "Removing stale downloaded folder '$Folder'." -ForegroundColor Yellow
+        Remove-Item -LiteralPath $Folder -Recurse -Force -ErrorAction SilentlyContinue
+    }
     if (-not (Test-Path -LiteralPath ".gitignore" -PathType Leaf)) {
         return
     }
 
-    $commentPrefix = "# razordot $Folder/ "
+    $commentPrefix = "# $RAZORDOT_SCRIPT_NAME $Folder/ "
     $ignoreLine = "$Folder/"
-    $remaining = @(Get-Content -LiteralPath ".gitignore" | Where-Object {
-        -not $_.StartsWith($commentPrefix, [StringComparison]::Ordinal) -and
-        $_ -ne $ignoreLine
-    })
+    $remaining = @()
+    $skipIgnoreLine = $false
+    foreach ($line in @(Get-Content -LiteralPath ".gitignore")) {
+        if ($skipIgnoreLine -and $line -eq $ignoreLine) {
+            $skipIgnoreLine = $false
+            continue
+        }
+        $skipIgnoreLine = $false
+        if ($line.StartsWith($commentPrefix, [StringComparison]::Ordinal)) {
+            $skipIgnoreLine = $true
+            continue
+        }
+        $remaining += $line
+    }
     Set-Content -LiteralPath ".gitignore" -Value $remaining
-}
-
-function Remove-RazordotSubmodule {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$Folder
-    )
-
-    Write-Host "Removing stale submodule '$Folder'." -ForegroundColor Yellow
-    & git submodule deinit -f -- $Folder 2>$null | Out-Null
-    & git rm -qf -- $Folder 2>$null | Out-Null
-    if ($LASTEXITCODE -ne 0) {
-        & git rm -qf --cached -- $Folder 2>$null | Out-Null
-    }
-    & git config --file .gitmodules --remove-section "submodule.$Folder" 2>$null | Out-Null
-    Remove-Item -LiteralPath $Folder -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -LiteralPath (Join-Path ".git/modules" $Folder) -Recurse -Force -ErrorAction SilentlyContinue
-
-    $gitmodulesContents = Get-Content -LiteralPath ".gitmodules" -Raw -ErrorAction SilentlyContinue
-    if ((Test-Path -LiteralPath ".gitmodules" -PathType Leaf) -and
-        [string]::IsNullOrWhiteSpace($gitmodulesContents)) {
-        # git submodule add stages .gitmodules. Remove the empty file from the
-        # index as well as the working tree so another mode can add it again
-        # before the parent repository commits this transition.
-        & git rm -qf -- .gitmodules 2>$null | Out-Null
-        Remove-Item -LiteralPath ".gitmodules" -Force
-    }
 }
 
 function Resolve-RazordotInstallRepositories {
@@ -533,35 +615,17 @@ function Resolve-RazordotInstallRepositories {
         [string[]]$InstallFolders
     )
 
-    $remoteSpecifications = @($InstallFolders | Where-Object { $_ -match '/' })
-    if ($remoteSpecifications.Count -gt 0 -and -not (Get-Command git -ErrorAction SilentlyContinue)) {
-        throw "Git is required to download remote razordot install folders."
-    }
-
-    $downloadType = $RAZORDOT_DOWNLOAD_TYPE
-    if ([string]::IsNullOrWhiteSpace($downloadType)) {
-        $downloadType = "DOWNLOAD_GITIGNORED"
-    }
-    if ($downloadType -notin @("DOWNLOAD_GITIGNORED", "GITSUBMODULE")) {
-        throw "Unsupported RAZORDOT_DOWNLOAD_TYPE '$downloadType'."
-    }
-
     $desired = @{}
     foreach ($specification in $InstallFolders) {
         if ($specification -notmatch '/') { continue }
         $folder = Get-RazordotRepositoryFolder -Specification $specification
-        $desired[$folder] = $downloadType
+        $desired[$folder] = $true
     }
 
     if (-not $global:RAZORDOT_SINGLE_FOLDER) {
         foreach ($folder in @(Get-RazordotManagedDownloadFolders)) {
-            if ($desired[$folder] -ne "DOWNLOAD_GITIGNORED") {
+            if (-not $desired.ContainsKey($folder)) {
                 Remove-RazordotDownload -Folder $folder
-            }
-        }
-        foreach ($folder in @(Get-RazordotManagedSubmoduleFolders)) {
-            if ($desired[$folder] -ne "GITSUBMODULE") {
-                Remove-RazordotSubmodule -Folder $folder
             }
         }
     }
@@ -575,11 +639,7 @@ function Resolve-RazordotInstallRepositories {
 
         $url = Get-RazordotRepositoryUrl -Specification $specification
         $folder = Get-RazordotRepositoryFolder -Specification $specification
-        if ($downloadType -eq "GITSUBMODULE") {
-            if (-not (Initialize-RazordotSubmodule -Url $url -Folder $folder)) {
-                return
-            }
-        } elseif (-not (Initialize-RazordotDownload -Url $url -Folder $folder)) {
+        if (-not (Initialize-RazordotDownload -Url $url -Folder $folder)) {
             return
         }
         $resolvedFolders += $folder
