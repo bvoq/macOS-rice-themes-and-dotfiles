@@ -1,3 +1,5 @@
+# shellcheck shell=sh
+
 rcloneclean() {
   if [ -z "$1" ]; then
     printf '%s\n' "Usage: rcloneclean <remote:path/>"
@@ -18,7 +20,7 @@ rcloneclean() {
     --include ".Trashes/**" \
     --include ".fseventsd/**" \
     --include ".TemporaryItems/**" \
-    --include '$RECYCLE.BIN/**' \
+    --include "\$RECYCLE.BIN/**" \
     --include "System Volume Information/**" \
     -v
 }
@@ -46,7 +48,7 @@ _bsync_run() {
     --exclude ".TemporaryItems" \
     --exclude "Thumbs.db" \
     --exclude "desktop.ini" \
-    --exclude '$RECYCLE.BIN' \
+    --exclude "\$RECYCLE.BIN" \
     --exclude "System Volume Information" \
     -v \
     "$@"

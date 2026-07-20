@@ -33,7 +33,7 @@ jobs:
 
           while IFS= read -r -d '' file; do
             [[ -f "$file" ]] || continue
-            first_line="$(head -n 1 "$file" || true)"
+            first_line="$(head -n 1 "$file" 2> /dev/null | LC_ALL=C tr -d '\000' || true)"
 
             case "$file" in
               *.zsh|*/.zshrc.d/*|*/.zshenv.d/*) printf '%s\0' "$file" >>"$zsh_files" ;;

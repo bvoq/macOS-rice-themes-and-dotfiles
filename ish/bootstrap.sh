@@ -1,7 +1,7 @@
 #!/bin/sh
 
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
-REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd -P)
+SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
+REPO_ROOT=$(CDPATH='' cd -- "$SCRIPT_DIR/.." && pwd -P)
 
 apk add curl git gnupg openssh gopass rclone vim zoxide
 apk add bat ncdu oath-toolkit oath-toolkit-oathtool
