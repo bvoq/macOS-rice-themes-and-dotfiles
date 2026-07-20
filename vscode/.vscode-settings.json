@@ -94,6 +94,10 @@
         "pubspec.yaml": ".editorconfig,.flutter-plugins,.flutter-plugins-dependencies,.metadata,.packages,build.yaml,pubspec.lock,pubspec.yaml,all_lint_rules.yaml,analysis_options.yaml,l10n.yaml,dcm_baseline.json,cspell.json,melos_*.iml",
         "*.dart": "${capture}.freezed.dart,${capture}.g.dart,${capture}.hive.dart,${capture}.gr.dart"
     },
+    "files.associations": {
+        ".vscode-settings.json": "jsonc",
+        "**/.vscode-settings.json": "jsonc"
+    },
 
     "git.openRepositoryInParentFolders": "always",
     "git.suggestSmartCommit": true,
@@ -183,6 +187,14 @@
     "diffEditor.experimental.showMoves": true,
     "[yaml]": {
         "editor.defaultFormatter": "redhat.vscode-yaml"
-    }
+    },
+    "yaml.disableSchemaDetection": [
+        "**/.github/workflows/*.yml",
+        "**/.github/workflows/*.yaml",
+        "**/.gitea/workflows/*.yml",
+        "**/.gitea/workflows/*.yaml",
+        "**/.forgejo/workflows/*.yml",
+        "**/.forgejo/workflows/*.yaml"
+    ]
 }
 

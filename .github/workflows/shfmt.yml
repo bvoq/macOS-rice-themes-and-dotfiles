@@ -1,0 +1,74 @@
+name: shell checks
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+jobs:
+  shell-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Install shell tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+          if ! command -v go >/dev/null 2>&1; then
+            sudo apt-get install -y golang-go
+          fi
+          go install mvdan.cc/sh/v3/cmd/shfmt@master
+          echo "$(go env GOPATH)/bin" >>"$GITHUB_PATH"
+
+      - name: Run targeted shell checks
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          zsh_files="$(mktemp)"
+          bash_files="$(mktemp)"
+          sh_files="$(mktemp)"
+
+          while IFS= read -r -d '' file; do
+            [[ -f "$file" ]] || continue
+            first_line="$(head -n 1 "$file" || true)"
+
+            case "$file" in
+              *.zsh|*/.zshrc.d/*|*/.zshenv.d/*) printf '%s\0' "$file" >>"$zsh_files" ;;
+            esac
+            if [[ "$first_line" == '#!/bin/zsh'* || "$first_line" == '#!/usr/bin/env zsh'* ]]; then
+              printf '%s\0' "$file" >>"$zsh_files"
+            fi
+
+            if [[ "$first_line" == '#!/bin/bash'* || "$first_line" == '#!/usr/bin/env bash'* ]]; then
+              printf '%s\0' "$file" >>"$bash_files"
+            elif [[ "$file" == *.sh || "$first_line" == '#!/bin/sh'* || "$first_line" == '#!/usr/bin/env sh'* || "$first_line" == '#!/bin/ash'* || "$first_line" == '#!/usr/bin/env ash'* ]]; then
+              printf '%s\0' "$file" >>"$sh_files"
+            fi
+          done < <(git ls-files -z)
+
+          sort -zu "$zsh_files" -o "$zsh_files"
+          sort -zu "$bash_files" -o "$bash_files"
+          sort -zu "$sh_files" -o "$sh_files"
+
+          if [[ -s "$zsh_files" ]]; then
+            xargs -0 shfmt -ln zsh -i 2 -ci -sr -d <"$zsh_files"
+          else
+            echo "No zsh files found."
+          fi
+
+          if [[ -s "$bash_files" ]]; then
+            xargs -0 shfmt -ln bash -i 2 -ci -sr -d <"$bash_files"
+            xargs -0 shellcheck -s bash <"$bash_files"
+          else
+            echo "No bash-shebang files found."
+          fi
+
+          if [[ -s "$sh_files" ]]; then
+            xargs -0 shfmt -ln posix -i 2 -ci -sr -d <"$sh_files"
+            xargs -0 shellcheck -s sh <"$sh_files"
+          else
+            echo "No POSIX sh/ash files found."
+          fi
