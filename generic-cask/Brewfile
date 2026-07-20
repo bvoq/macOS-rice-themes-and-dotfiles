@@ -2,7 +2,7 @@
 # GUI apps. Real footprint lives under /Applications/, not /opt/homebrew/Caskroom.
 
 cask "appcleaner"
-cask "baidunetdisk"
+# cask "baidunetdisk"
 cask "daisydisk"  # Note: I have a license for this.
 cask "devcleaner"
 cask "keka"

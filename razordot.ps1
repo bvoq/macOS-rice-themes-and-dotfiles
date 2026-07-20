@@ -6,13 +6,6 @@
 ######################
 # MODIFIABLE SECTION #
 ######################
-# Add/Source any of your own custom functions here, that should be available to
-# the install scripts. This dotfiles repository sources its Windows helpers so
-# feature folders can call them directly. The shared WinGet implementation is
-# acquired as the razordot/winget feature folder below, so its install_wingetfile
-# command is available to every folder listed after it.
-. (Join-Path $PSScriptRoot "windows/functions.ps1")
-
 # Enable or disable feature folders here, analogous to install_folders in
 # razordot.zsh. Each enabled folder must contain an install.ps1. An entry
 # containing a slash (for example "owner/repository" or a git URL) is fetched
@@ -192,6 +185,35 @@ function link_file {
     } catch {
         throw "Could not copy '$sourcePath' -> '$targetPath'. $($_.Exception.Message)"
     }
+}
+
+Function Set-PathVariable {
+    param (
+        [string]$AddPath,
+        [string]$RemovePath,
+        [ValidateSet('Process', 'User', 'Machine')]
+        [string]$Scope = 'Process'
+    )
+    $regexPaths = @()
+    if ($PSBoundParameters.Keys -contains 'AddPath') {
+        $regexPaths += [regex]::Escape($AddPath)
+    }
+
+    if ($PSBoundParameters.Keys -contains 'RemovePath') {
+        $regexPaths += [regex]::Escape($RemovePath)
+    }
+    $arrPath = [System.Environment]::GetEnvironmentVariable('PATH', $Scope) -split ';'
+    foreach ($path in $regexPaths) {
+        $arrPath = $arrPath | Where-Object { $_ -notMatch "^$path\\?" }
+    }
+    $value = ($arrPath + $addPath) -join ';'
+    [System.Environment]::SetEnvironmentVariable('PATH', $value, $Scope)
+}
+
+function Verify-Elevated {
+    $myIdentity=[System.Security.Principal.WindowsIdentity]::GetCurrent()
+    $myPrincipal=new-object System.Security.Principal.WindowsPrincipal($myIdentity)
+    return $myPrincipal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
 function Wait-RazordotConfirm {

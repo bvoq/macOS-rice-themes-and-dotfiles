@@ -207,14 +207,13 @@ link_dotfile() {
 }
 
 prune_broken_dotfile_links() {
-    local repo_root="$PWD"
-    local dir link
+    local dir link target
     for dir in "$@"; do
         [[ -d "$dir" ]] || continue
         for link in "$dir"/*(N@) "$dir"/.*(N@); do
             [[ -e "$link" ]] && continue
-            [[ "$(readlink "$link")" == "$repo_root"/* ]] || continue
-            echo "Removing broken dotfile link: $link"
+            target="$(readlink "$link")"
+            echo "Removing broken dotfile link: $link -> $target"
             rm -f "$link"
         done
     done

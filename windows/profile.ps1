@@ -29,7 +29,7 @@ $env:POWERSHELL_UPDATECHECK = "Off"
 new-alias -Name clip -Value "C:\Windows\System32\clip.exe"
 new-alias -Name pbcopy -Value "C:\Windows\System32\clip.exe"
 new-alias -Name ncdu -Value gdu
-new-alias -Name dup -Value windows_czkawka_cli 
+new-alias -Name dup -Value windows_czkawka_cli
 new-alias -Name pass -Value gopass
 
 # Use analyzer using: Invoke-ScriptAnalyzer .\your-script.ps1

@@ -2,5 +2,3 @@
 backups/
 # razordot brew/ https://github.com/razordot/brew.git 891203140013d2cce740b86398841f687aa43382
 brew/
-# razordot winget/ https://github.com/razordot/winget.git 04b01ab9a0aed4a9cb2d5c97786a8cda09f33eac
-winget/
