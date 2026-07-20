@@ -1,4 +1,4 @@
-name: yaml/json checks
+name: yaml/json/toml checks
 
 on:
   pull_request:
@@ -15,7 +15,7 @@ jobs:
       - name: Install validators
         run: npm install --no-save ajv@8 ajv-formats@3 jsonc-parser@3 yaml@2
 
-      - name: Validate YAML, JSON, and JSONC
+      - name: Validate YAML, JSON, JSONC, and TOML
         shell: bash
         run: |
           set -euo pipefail
@@ -68,3 +68,13 @@ jobs:
           })().catch((error) => { console.error(`${process.argv[2]}: ${error.message}`); process.exit(1); });
           NODE
           done < <(git ls-files -z -- '*.json' '*.jsonc' '*.yml' '*.yaml')
+
+          while IFS= read -r -d '' file; do
+            python3 - "$file" <<'PY'
+          import sys
+          import tomllib
+
+          with open(sys.argv[1], "rb") as file:
+              tomllib.load(file)
+          PY
+          done < <(git ls-files -z -- '*.toml')
