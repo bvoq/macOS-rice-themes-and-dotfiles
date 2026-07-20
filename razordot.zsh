@@ -503,16 +503,31 @@ check_not_rosetta() {
   fi
 }
 
-_darwin_developer_tools_ready() {
+_darwin_developer_tools_present() {
   [[ $OSTYPE == 'darwin'* ]] || return 0
 
   local developer_dir
   developer_dir="$(xcode-select -p 2> /dev/null)" || return 1
-  xcrun -f git > /dev/null 2>&1 || return 1
+  [[ -d "$developer_dir" ]] || return 1
+}
+
+_darwin_developer_tools_ready() {
+  [[ $OSTYPE == 'darwin'* ]] || return 0
+  _darwin_developer_tools_present || return 1
+
+  local developer_dir
+  developer_dir="$(xcode-select -p 2> /dev/null)" || return 1
 
   if [[ "$developer_dir" == *'.app/Contents/Developer' ]] && command -v xcodebuild > /dev/null 2>&1; then
     xcodebuild -license check > /dev/null 2>&1 || return 1
   fi
+}
+
+_darwin_accept_xcode_license() {
+  [[ $OSTYPE == 'darwin'* ]] || return 0
+  command -v xcodebuild > /dev/null 2>&1 || return 1
+  isadminuser || return 1
+  sudo xcodebuild -license accept
 }
 
 ensure_developer_tools_installed() {
@@ -522,19 +537,30 @@ ensure_developer_tools_installed() {
   local WAITCONFIRM_ABORT_MESSAGE="macOS Developer Tools are not available. The user aborted installing them or accepting the license agreements."
   local WAITCONFIRM_ABORT_EXIT_CODE=1
 
-  echo "macOS Developer Tools are required before Git can be used."
-  echo "This script will execute: xcode-select --install"
-  waitconfirm
-  xcode-select --install > /dev/null 2>&1 || true
-
-  echo "Finish the macOS Developer Tools installation and accept any Xcode license agreements, then confirm to continue."
-  echo "If Xcode asks for a license, accept it with: sudo xcodebuild -license accept"
-  waitconfirm
-
-  if ! _darwin_developer_tools_ready; then
-    echo "$WAITCONFIRM_ABORT_MESSAGE"
-    exit 1
+  echo "macOS developer tools aren't installed yet."
+  echo "This script will execute: xcode-select --install if the tools are missing."
+  if isadminuser; then
+    echo "This script will also execute: sudo xcodebuild -license accept after the tools are present."
+  else
+    echo "You are not an admin user; accept Xcode license agreements manually if prompted."
   fi
+  waitconfirm
+  _darwin_developer_tools_present || xcode-select --install > /dev/null 2>&1 || true
+
+  while true; do
+    if _darwin_developer_tools_present; then
+      _darwin_accept_xcode_license || true
+    fi
+    _darwin_developer_tools_ready && return 0
+
+    echo "macOS developer tools aren't installed yet."
+    if _darwin_developer_tools_present; then
+      echo "Accept any remaining license agreements, then continue to check again."
+    else
+      echo "Finish the macOS Developer Tools installation, then continue to check again."
+    fi
+    waitconfirm
+  done
 }
 
 ################

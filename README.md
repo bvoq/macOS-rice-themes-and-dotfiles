@@ -38,15 +38,12 @@ linked into ~/.zshrc.d/ with the folder name appended (e.g. 00_safe_config_git.z
 
 You can define your own naming convention, all razordot does is link them and source them in order for you.
 
-To get started with your own razordot powered repository, just copy the self-updating razordot.zsh / razordot.ps1 to your repository and create your own folders.
+To get started with your own razordot powered repository, just copy the self-updating razordot.zsh / razordot.ps1 to your repository or clone this one, and create your own folders.
 
-If you like to load different folders for different machines, just copy them and enable/disable different folders.
+If you like to load different folders for different machines, you can have various razordot files without needing to duplicate folders, eg.:
+`razordot_work_windows.ps1`, `razordot_private_windows.ps1`, `razordot_work_macos.zsh`, `razordot_private_macos.zsh`.
 
-Further, some of these folders can be used directly by you.
-
-If you are on macOS/unix check out `razordot.zsh`
-
-If you are on Windows check out `razordot.ps1`
+## Main zsh
 
 Download and run main without Git, after this repository is renamed to `bvoq/dotfiles`:
 
@@ -54,13 +51,31 @@ Download and run main without Git, after this repository is renamed to `bvoq/dot
 curl -fsSL https://github.com/bvoq/dotfiles/archive/refs/heads/main.tar.gz | tar -xz && cd dotfiles-main && zsh razordot.zsh
 ```
 
-After the first run installed Git and your personal Git setup, attach that download to Git:
+After the first run installed Git and you initialised your personal Git setup, you can attach that download to Git:
 
 ```zsh
 git init -b main && git remote add origin https://github.com/bvoq/dotfiles.git && git fetch origin main && git reset --mixed origin/main && git branch --set-upstream-to=origin/main main
 ```
 
-To install develop instead:
+## Main PowerShell
+
+Download and run main without Git, after this repository is renamed to `bvoq/dotfiles`:
+
+```powershell
+Invoke-WebRequest -Uri https://github.com/bvoq/dotfiles/archive/refs/heads/main.zip -OutFile dotfiles-main.zip; Expand-Archive -Path dotfiles-main.zip -DestinationPath . -Force; Set-Location dotfiles-main; Set-ExecutionPolicy -Scope Process Bypass -Force; .\razordot.ps1
+```
+
+After the first run installed Git and your personal Git setup, attach that download to Git:
+
+```powershell
+git init -b main; git remote add origin https://github.com/bvoq/dotfiles.git; git fetch origin main; git reset --mixed origin/main; git branch --set-upstream-to=origin/main main
+```
+
+## Develop
+
+### zsh
+
+Download and run develop without Git:
 
 ```zsh
 curl -fsSL https://github.com/bvoq/dotfiles/archive/refs/heads/develop.tar.gz | tar -xz && cd dotfiles-develop && zsh razordot.zsh
@@ -70,6 +85,20 @@ After the first develop run installed Git and your personal Git setup, attach th
 
 ```zsh
 git init -b develop && git remote add origin https://github.com/bvoq/dotfiles.git && git fetch origin develop && git reset --mixed origin/develop && git branch --set-upstream-to=origin/develop develop
+```
+
+### PowerShell
+
+Download and run develop without Git:
+
+```powershell
+Invoke-WebRequest -Uri https://github.com/bvoq/dotfiles/archive/refs/heads/develop.zip -OutFile dotfiles-develop.zip; Expand-Archive -Path dotfiles-develop.zip -DestinationPath . -Force; Set-Location dotfiles-develop; Set-ExecutionPolicy -Scope Process Bypass -Force; .\razordot.ps1
+```
+
+After the first develop run installed Git and your personal Git setup, attach that download to Git:
+
+```powershell
+git init -b develop; git remote add origin https://github.com/bvoq/dotfiles.git; git fetch origin develop; git reset --mixed origin/develop; git branch --set-upstream-to=origin/develop develop
 ```
 
 Install using:
