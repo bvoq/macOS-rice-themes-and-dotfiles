@@ -15,7 +15,7 @@ phase_3_dotfiles() {
 }
 
 phase_4_post_dotfiles() {
-  command -v code >/dev/null 2>&1 || return 0
+  command -v code > /dev/null 2>&1 || return 0
 
   local chatgpt_extension="openai-chatgpt-latest.vsix"
 

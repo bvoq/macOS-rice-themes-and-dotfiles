@@ -3,4 +3,8 @@ alias ios="open /Applications/Xcode.app/Contents/Developer/Applications/Simulato
 
 alias dca='dart run dart_code_linter:metrics analyze lib --fatal-style --fatal-performance --fatal-warnings;dart run dart_code_linter:metrics check-unused-files lib --fatal-unused'
 
-simulatordata() { cd ~/Library/Developer/CoreSimulator/Devices/"${1}"/data/Containers/Data/Application ; ls -lt ; pwd}
+simulatordata() {
+  cd ~/Library/Developer/CoreSimulator/Devices/"${1}"/data/Containers/Data/Application
+  ls -lt
+  pwd
+}

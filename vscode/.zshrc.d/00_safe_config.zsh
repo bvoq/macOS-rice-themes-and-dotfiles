@@ -1,4 +1,4 @@
-add_vscode_bookmark () {
+add_vscode_bookmark() {
   local file_line="$1"
   local label="$2"
   code --goto "$file_line"

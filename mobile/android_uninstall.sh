@@ -44,4 +44,3 @@ echo "find a compatible jdk version too."
 echo "Next install sdkmanager:"
 echo "Preferences → Appearance & Behavior → System Settings → Android SDK → SDK Tools → [Tick]: Android SDK Command-line Tools (latest) + [Tick] Apply"
 echo "Then resolve android licenses. Easy way: flutter doctor --android-licenses"
-

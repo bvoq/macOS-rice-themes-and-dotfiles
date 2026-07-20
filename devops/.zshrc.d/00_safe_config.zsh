@@ -10,4 +10,4 @@ alias kall='kubectl api-resources --verbs=list --namespaced -o name | xargs -n 1
 
 # stop and delete docker containers by their image id
 dsi() { docker stop $(docker ps -a | awk -v i="^$1.*" '{if($2~i){print$1}}'); }
-drmi() { docker rm $(dsi $1  | tr '\n' ' '); }
+drmi() { docker rm $(dsi $1 | tr '\n' ' '); }

@@ -11,7 +11,10 @@ phase_1_admin_installs() {
     chmod -R u+rw "$HOME/monero"
     git fetch --all
     branch=$(git ls-remote --heads origin | grep 'release-' | awk -F'/' '{print $3}' | sort -V | tail -n 1)
-    [[ -n "$branch" ]] || { echo "Could not determine monero release branch."; return 1; }
+    [[ -n "$branch" ]] || {
+      echo "Could not determine monero release branch."
+      return 1
+    }
     echo "Using monero branch: ${branch}"
     git checkout --recurse-submodules "$branch"
     git submodule init

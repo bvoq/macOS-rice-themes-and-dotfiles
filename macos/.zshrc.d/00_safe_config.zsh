@@ -22,17 +22,17 @@ alias ifactive="ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active'
 
 # Defines: GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS:
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
-    alias "${method}"="lwp-request -m '${method}'"
+  alias "${method}"="lwp-request -m '${method}'"
 done
 
 #NGET, NHEAD, etc. for uncertified requests and most likely headers.
 for method in GET HEAD POST PUT DELETE TRACE OPTIONS; do
-    alias "N${method}"="PERL_LWP_SSL_VERIFY_HOSTNAME=0 lwp-request -m '${method}' -H 'Content-type: application/json' -H 'Accept: application/json'"
+  alias "N${method}"="PERL_LWP_SSL_VERIFY_HOSTNAME=0 lwp-request -m '${method}' -H 'Content-type: application/json' -H 'Accept: application/json'"
 done
 
-jscbin="/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources/jsc";
-[ -e "${jscbin}" ] && alias jsc="${jscbin}";
-unset jscbin;
+jscbin="/System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Resources/jsc"
+[ -e "${jscbin}" ] && alias jsc="${jscbin}"
+unset jscbin
 
 rgspotlight() {
   local query="kMDItemTextContent = \"$1\""
@@ -45,8 +45,15 @@ export -f rgspotlight > /dev/null
 alias jsc='/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc'
 
 instruments() {
-  [[ $# -gt 0 ]] || { echo "Usage: instruments <cmd> [args…]"; return 1 }
-  local cmd_path; cmd_path=$(command -v -- "$1") || { echo "Not found: $1"; return 1 }
+  [[ $# -gt 0 ]] || {
+    echo "Usage: instruments <cmd> [args…]"
+    return 1
+  }
+  local cmd_path
+  cmd_path=$(command -v -- "$1") || {
+    echo "Not found: $1"
+    return 1
+  }
   shift
   local output="/var/tmp/instruments-$(date '+%Y%m%d-%H%M%S').trace"
   xcrun xctrace record --no-prompt --output "$output" --launch -- "$cmd_path" "$@"

@@ -7,36 +7,36 @@
 
 # Add your install folders here.
 install_folders=(
-    razordot/brew
-    # ai
-    zsh
-    core
-    # crypto
-    # csharp
-    # devops
-    emacs
-    ffmpeg_ytdlp
-    # formal
-    generic
-    generic-cask
-    git
-    iterm
-    librewolf
-    # lowlevel
-    macos
-    #mobile
-    nvim
-    rclone
-    readline
-    ripgrep
-    ruby
-    ssdeep
-    starship
-    # tex
-    tmux
-    vim
-    vscode
-    xcode
+  razordot/brew
+  # ai
+  zsh
+  core
+  # crypto
+  # csharp
+  # devops
+  emacs
+  ffmpeg_ytdlp
+  # formal
+  generic
+  generic-cask
+  git
+  iterm
+  librewolf
+  # lowlevel
+  macos
+  #mobile
+  nvim
+  rclone
+  readline
+  ripgrep
+  ruby
+  ssdeep
+  starship
+  # tex
+  tmux
+  vim
+  vscode
+  xcode
 )
 # OPTIONS:
 
@@ -64,8 +64,14 @@ razordot_self_update() {
 
     [[ -n "${RAZORDOT_UPDATE_LOCATION:-}" ]] || return 0 # disabled when unset
     [[ -t 0 ]] || return 0                               # only when stdin is a tty (we prompt below)
-    command -v curl >/dev/null 2>&1 || return 0          # need curl to fetch
-    command -v awk >/dev/null 2>&1 || return 0           # need awk to slice the section
+    command -v curl >/dev/null 2>&1 || {
+        echo "razordot: curl is required for self-update."
+        return 1
+    }
+    command -v awk >/dev/null 2>&1 || {
+        echo "razordot: awk is required for self-update."
+        return 1
+    }
 
     local marker='# UNMODIFIABLE SECTION #'
     grep -qxF "$marker" "$script_location" 2>/dev/null || return 0 # only if the marker exists

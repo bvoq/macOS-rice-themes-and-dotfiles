@@ -4,7 +4,7 @@ rcloneclean() {
     return 1
   fi
 
-  if ! command -v rclone >/dev/null 2>&1; then
+  if ! command -v rclone > /dev/null 2>&1; then
     printf '%s\n' "rclone not found"
     return 1
   fi
@@ -53,7 +53,7 @@ _bsync_run() {
 }
 
 _bsync_count_matches() {
-  printf '%s\n' "$1" | grep -E -c "$2" 2>/dev/null || true
+  printf '%s\n' "$1" | grep -E -c "$2" 2> /dev/null || true
 }
 
 bsync() {
@@ -72,7 +72,7 @@ bsync() {
   fi
 
   # Preflight
-  if ! command -v rclone >/dev/null 2>&1; then
+  if ! command -v rclone > /dev/null 2>&1; then
     printf '%s\n' "rclone not found"
     return 1
   fi
@@ -82,7 +82,7 @@ bsync() {
     return 1
   fi
 
-  if ! command rclone lsd "$_bsync_remote_path" >/dev/null 2>&1; then
+  if ! command rclone lsd "$_bsync_remote_path" > /dev/null 2>&1; then
     printf '%s\n' "Remote not accessible: $_bsync_remote_path"
     return 1
   fi
@@ -102,7 +102,10 @@ bsync() {
   if [ "$_bsync_resync" -eq 1 ]; then
     printf '%s\n' "=== Resync dry-run ==="
     _bsync_run "$_bsync_local_path" "$_bsync_remote_path" --resync --dry-run || return 1
-    _bsync_confirm "Run actual resync?" || { printf '%s\n' "Cancelled."; return 0; }
+    _bsync_confirm "Run actual resync?" || {
+      printf '%s\n' "Cancelled."
+      return 0
+    }
     printf '%s\n' "=== Resyncing ==="
     if _bsync_run "$_bsync_local_path" "$_bsync_remote_path" --resync; then
       printf '%s\n' "Done. Use 'bsync' from now on."
@@ -140,7 +143,10 @@ bsync() {
   fi
 
   printf '\n'
-  _bsync_confirm "Proceed with sync?" || { printf '%s\n' "Cancelled."; return 0; }
+  _bsync_confirm "Proceed with sync?" || {
+    printf '%s\n' "Cancelled."
+    return 0
+  }
   printf '%s\n' "=== Syncing ==="
   if _bsync_run "$_bsync_local_path" "$_bsync_remote_path"; then
     printf '%s\n' "Done."
@@ -166,11 +172,17 @@ _rclone_copy_remote_dir_to_tmp() {
     return 1
   fi
 
-  command -v rclone >/dev/null 2>&1 || { printf '%s\n' "rclone not found" >&2; return 1; }
+  command -v rclone > /dev/null 2>&1 || {
+    printf '%s\n' "rclone not found" >&2
+    return 1
+  }
   _rclone_remote_dir_name "$_rclone_remote_dir_local"
   _rclone_remote_dir_tmp=$(mktemp -d "${TMPDIR:-/tmp}/${_rclone_remote_dir_tmp_prefix}.XXXXXX") || return 1
   _rclone_remote_dir_copy="$_rclone_remote_dir_tmp/$_rclone_remote_dir_name_result"
-  mkdir -p "$_rclone_remote_dir_copy" || { rm -rf "$_rclone_remote_dir_tmp"; return 1; }
+  mkdir -p "$_rclone_remote_dir_copy" || {
+    rm -rf "$_rclone_remote_dir_tmp"
+    return 1
+  }
 
   if command rclone copy "$_rclone_remote_dir_remote" "$_rclone_remote_dir_copy"; then
     :
@@ -189,7 +201,10 @@ rclonedirdiff() {
     return 1
   fi
 
-  command -v diff >/dev/null 2>&1 || { printf '%s\n' "diff not found" >&2; return 1; }
+  command -v diff > /dev/null 2>&1 || {
+    printf '%s\n' "diff not found" >&2
+    return 1
+  }
   _rclone_copy_remote_dir_to_tmp "$1" "$2" rclone-dirdiff || return $?
 
   if command diff -ruN "$1" "$_rclone_remote_dir_copy"; then
@@ -212,7 +227,10 @@ rclonevimdirdiff() {
     return 1
   fi
 
-  command -v vim >/dev/null 2>&1 || { printf '%s\n' "vim not found" >&2; return 1; }
+  command -v vim > /dev/null 2>&1 || {
+    printf '%s\n' "vim not found" >&2
+    return 1
+  }
   _rclone_copy_remote_dir_to_tmp "$1" "$2" rclone-vimdirdiff || return $?
 
   _rclone_vimdirdiff_local=$(_rclone_vim_single_quote "$1")
