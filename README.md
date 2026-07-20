@@ -48,6 +48,30 @@ If you are on macOS/unix check out `razordot.zsh`
 
 If you are on Windows check out `razordot.ps1`
 
+Download and run main without Git, after this repository is renamed to `bvoq/dotfiles`:
+
+```zsh
+curl -fsSL https://github.com/bvoq/dotfiles/archive/refs/heads/main.tar.gz | tar -xz && cd dotfiles-main && zsh razordot.zsh
+```
+
+After the first run installed Git and your personal Git setup, attach that download to Git:
+
+```zsh
+git init -b main && git remote add origin https://github.com/bvoq/dotfiles.git && git fetch origin main && git reset --mixed origin/main && git branch --set-upstream-to=origin/main main
+```
+
+To install develop instead:
+
+```zsh
+curl -fsSL https://github.com/bvoq/dotfiles/archive/refs/heads/develop.tar.gz | tar -xz && cd dotfiles-develop && zsh razordot.zsh
+```
+
+After the first develop run installed Git and your personal Git setup, attach that download to Git:
+
+```zsh
+git init -b develop && git remote add origin https://github.com/bvoq/dotfiles.git && git fetch origin develop && git reset --mixed origin/develop && git branch --set-upstream-to=origin/develop develop
+```
+
 Install using:
 
 ```zsh
