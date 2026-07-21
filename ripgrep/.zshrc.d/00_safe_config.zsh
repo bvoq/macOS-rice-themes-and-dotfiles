@@ -1,5 +1,5 @@
 # Search for files:
-alias rgd='rg --hidden --files --no-ignore --sort-files . 2> /dev/null | xargs -0 dirname | uniq | rg'
+rgd() { find . -type d -print | rg "(^|/)[^/]*${1}[^/]*$" }
 alias rgf='rg --hidden --files --no-ignore --sort-files . 2> /dev/null | rg'
 rgall() {
   rg --files | rg "$1"
