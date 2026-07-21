@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/microsoft/winget-cli/master/schemas/JSON/packages/packages.schema.2.0.json",
+  "$schema": "https://aka.ms/winget-packages.schema.2.0.json",
   "Sources": [
     {
       "SourceDetails": {
