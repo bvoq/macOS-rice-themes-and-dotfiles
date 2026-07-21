@@ -201,7 +201,11 @@ fun! TrimWhitespace()
 endfun
 command! TrimWhitespace call TrimWhitespace()
 " Fzf plugin
-set rtp+=/usr/local/opt/fzf
+if has('macunix')
+    set rtp+=/opt/homebrew/opt/fzf
+else
+    set rtp+=/usr/local/opt/fzf
+endif
 
 
 """ Custom commands
