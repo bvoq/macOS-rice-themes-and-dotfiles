@@ -5,8 +5,12 @@ function vimdirdiff {
         [Parameter(Mandatory = $true)]
         [string]$Dir1,
         [Parameter(Mandatory = $true)]
-        [string]$Dir2
+        [string]$Dir2,
+        [Parameter(ValueFromRemainingArguments = $true)]
+        [string[]]$VimArgs
     )
 
-    & vim -c "DirDiff $Dir1 $Dir2"
+    $EscapedDir1 = $Dir1 -replace "'", "''"
+    $EscapedDir2 = $Dir2 -replace "'", "''"
+    & vim @VimArgs -c "execute 'DirDiff ' . fnameescape('$EscapedDir1') . ' ' . fnameescape('$EscapedDir2')"
 }

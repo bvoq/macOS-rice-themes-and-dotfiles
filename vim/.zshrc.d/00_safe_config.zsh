@@ -1,7 +1,7 @@
 vimdirdiff() {
-  DIR1=$(printf '%q' "$1")
+  DIR1=$(printf '%s\n' "$1" | sed "s/'/''/g")
   shift
-  DIR2=$(printf '%q' "$1")
+  DIR2=$(printf '%s\n' "$1" | sed "s/'/''/g")
   shift
-  \vim $@ -c "DirDiff $DIR1 $DIR2"
+  \vim "$@" -c "execute 'DirDiff ' . fnameescape('$DIR1') . ' ' . fnameescape('$DIR2')"
 }
