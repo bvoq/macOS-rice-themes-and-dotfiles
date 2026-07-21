@@ -24,7 +24,7 @@ phase_4_post_dotfiles() {
   code --install-extension ms-vsliveshare.vsliveshare
 
   code --install-extension eamodio.gitlens
-  code --install-extesion github.vscode-github-actions
+  code --install-extension github.vscode-github-actions
   code --install-extension GitHub.vscode-pull-request-github
 
   code --install-extension ifahrentholz.one-quiet-dark-pro
