@@ -102,14 +102,14 @@ errors() {
     else
       grep -Ei -C "$surroundno" -n "$regex" "$1"
     fi
-    # Case: Input is piped in.
+  # Case: Input is piped in.
   else
-    if [ "$" -eq 0 ]; then
+    if [ "$#" -eq 0 ]; then
       local surroundno=1
-    elif [ "$" -eq 1 ]; then
+    elif [ "$#" -eq 1 ]; then
       local surroundno="$1"
     else
-      echo "Usage: cat file | filtererrors [context_lines]" >&2
+      echo "Usage: cat <file> | errors [context_lines]" >&2
       return 1
     fi
     if command -v rg > /dev/null 2>&1; then
