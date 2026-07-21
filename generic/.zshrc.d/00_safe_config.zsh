@@ -79,9 +79,9 @@ errors() {
   # Case: Input is an argument.
   if [ -t 0 ]; then
     # One argument: filename
-    if [ "$#" -eq 1 ]; then
+    if [ "${#}" -eq 1 ]; then
       local surroundno=1
-    elif [ "$#" -eq 2 ]; then
+    elif [ "${#}" -eq 2 ]; then
       # Two arguments: filename and context lines
       local surroundno="$2"
     else
@@ -104,9 +104,9 @@ errors() {
     fi
   # Case: Input is piped in.
   else
-    if [ "$#" -eq 0 ]; then
+    if [ "${#}" -eq 0 ]; then
       local surroundno=1
-    elif [ "$#" -eq 1 ]; then
+    elif [ "${#}" -eq 1 ]; then
       local surroundno="$1"
     else
       echo "Usage: cat <file> | errors [context_lines]" >&2
