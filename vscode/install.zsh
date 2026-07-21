@@ -1,3 +1,7 @@
+phase_1_admin_installs() {
+  install_brewfile vscode/Brewfile
+}
+
 phase_3_dotfiles() {
   link_dotfile "vscode/.vscode-settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
   link_dotfile "vscode/.vscode-settings.json" "$HOME/Library/Application Support/Code - Insiders/User/settings.json"

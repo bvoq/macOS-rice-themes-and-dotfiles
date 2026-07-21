@@ -9,6 +9,4 @@ cask "keka"
 cask "paintbrush"
 cask "telegram"
 cask "tor-browser"
-# There seem to be problems with this cask.
-# cask "visual-studio-code"
 cask "vlc"
