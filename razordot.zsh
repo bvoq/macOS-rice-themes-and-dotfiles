@@ -31,6 +31,7 @@ install_folders=(
   ripgrep
   ruby
   ssdeep
+  ssh
   starship
   # tex
   tmux
