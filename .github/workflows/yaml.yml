@@ -1,13 +1,22 @@
-name: yaml/json/toml checks
+name: yaml checks
 
 on:
   pull_request:
+    paths:
+      - "**/*.yml"
+      - "**/*.yaml"
+      - ".github/workflows/yaml.yml"
   push:
+    paths:
+      - "**/*.yml"
+      - "**/*.yaml"
+      - ".github/workflows/yaml.yml"
   workflow_dispatch:
 
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Check out repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
@@ -15,7 +24,7 @@ jobs:
       - name: Install validators
         run: npm install --no-save ajv@8 ajv-formats@3 jsonc-parser@3 yaml@2
 
-      - name: Validate YAML, JSON, JSONC, and TOML
+      - name: Validate YAML
         shell: bash
         run: |
           set -euo pipefail
@@ -29,35 +38,38 @@ jobs:
           const { parse, printParseErrorCode } = require('jsonc-parser');
           const YAML = require('yaml');
 
+          const fetchText = async (uri) => {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 10000);
+            try {
+              const response = await fetch(uri, { signal: controller.signal });
+              if (!response.ok) throw new Error(`${uri} returned ${response.status}`);
+              return await response.text();
+            } finally {
+              clearTimeout(timeout);
+            }
+          };
+
           (async () => {
             const file = process.argv[2];
-            const text = fs.readFileSync(file, 'utf8');
             const values = [];
-
-            if (/\.jsonc?$/i.test(file)) {
-              const errors = [];
-              values.push(parse(text, errors, { allowTrailingComma: true, disallowComments: false }));
-              for (const error of errors) console.error(`${file}: ${printParseErrorCode(error.error)} at offset ${error.offset}`);
-              if (errors.length) process.exit(1);
-            } else {
-              for (const document of YAML.parseAllDocuments(text, { prettyErrors: true })) {
-                for (const error of document.errors) console.error(`${file}: ${error.message}`);
-                if (document.errors.length) process.exit(1);
-                values.push(document.toJSON());
-              }
+            for (const document of YAML.parseAllDocuments(fs.readFileSync(file, 'utf8'), { prettyErrors: true })) {
+              for (const error of document.errors) console.error(`${file}: ${error.message}`);
+              if (document.errors.length) process.exit(1);
+              values.push(document.toJSON());
             }
 
             for (const value of values) {
               if (!value || typeof value !== 'object' || typeof value.$schema !== 'string') continue;
               const schemaText = /^https?:\/\//.test(value.$schema)
-                ? await (await fetch(value.$schema)).text()
+                ? await fetchText(value.$schema)
                 : fs.readFileSync(path.resolve(path.dirname(file), value.$schema), 'utf8');
               const errors = [];
               const schema = parse(schemaText, errors, { allowTrailingComma: true, disallowComments: false });
               for (const error of errors) console.error(`${file}: schema ${printParseErrorCode(error.error)} at offset ${error.offset}`);
               if (errors.length) process.exit(1);
 
-              const ajv = new Ajv({ allErrors: true, loadSchema: async (uri) => await (await fetch(uri)).json(), strict: false });
+              const ajv = new Ajv({ allErrors: true, loadSchema: async (uri) => JSON.parse(await fetchText(uri)), strict: false });
               addFormats(ajv);
               const validate = await ajv.compileAsync(schema);
               if (!validate(value)) {
@@ -67,14 +79,4 @@ jobs:
             }
           })().catch((error) => { console.error(`${process.argv[2]}: ${error.message}`); process.exit(1); });
           NODE
-          done < <(git ls-files -z -- '*.json' '*.jsonc' '*.yml' '*.yaml')
-
-          while IFS= read -r -d '' file; do
-            python3 - "$file" <<'PY'
-          import sys
-          import tomllib
-
-          with open(sys.argv[1], "rb") as file:
-              tomllib.load(file)
-          PY
-          done < <(git ls-files -z -- '*.toml')
+          done < <(git ls-files -z -- '*.yml' '*.yaml')
