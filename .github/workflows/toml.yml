@@ -23,14 +23,26 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          VALIDATION_TIMEOUT=30s
 
           while IFS= read -r -d '' file; do
             printf 'Validating %s\n' "$file"
-            python3 - "$file" <<'PY'
+            set +e
+            timeout "$VALIDATION_TIMEOUT" python3 - "$file" <<'PY'
           import sys
           import tomllib
 
+          print(f"{sys.argv[1]}: reading TOML", flush=True)
           with open(sys.argv[1], "rb") as file:
               tomllib.load(file)
+          print(f"{sys.argv[1]}: TOML parse passed", flush=True)
           PY
+            status=$?
+            set -e
+            if [[ "$status" -eq 124 ]]; then
+              printf 'Timed out validating %s after %s\n' "$file" "$VALIDATION_TIMEOUT" >&2
+              exit "$status"
+            elif [[ "$status" -ne 0 ]]; then
+              exit "$status"
+            fi
           done < <(git ls-files -z -- '*.toml')

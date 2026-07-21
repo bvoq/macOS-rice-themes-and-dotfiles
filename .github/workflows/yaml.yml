@@ -28,13 +28,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          VALIDATION_TIMEOUT=30s
 
           while IFS= read -r -d '' file; do
             printf 'Validating %s\n' "$file"
-            node - "$file" <<'NODE'
+            set +e
+            timeout "$VALIDATION_TIMEOUT" node - "$file" <<'NODE'
           const fs = require('fs');
           const path = require('path');
-          const Ajv = require('ajv');
+          const Ajv = require('ajv/dist/2019');
           const addFormats = require('ajv-formats');
           const { parse, printParseErrorCode } = require('jsonc-parser');
           const YAML = require('yaml');
@@ -47,16 +49,35 @@ jobs:
             if (isRemoteSchema(baseUri)) return new URL(uri, baseUri).toString();
             return path.resolve(path.dirname(baseUri), uri);
           };
+          const schemaTextCache = new Map();
           const readSchemaText = async (uri) => {
             const uriWithoutFragment = withoutFragment(uri);
-            if (!isRemoteSchema(uriWithoutFragment)) return { text: fs.readFileSync(uriWithoutFragment, 'utf8'), uri: uriWithoutFragment };
+            if (schemaTextCache.has(uriWithoutFragment)) {
+              console.log(`Using cached schema ${uriWithoutFragment}`);
+              return schemaTextCache.get(uriWithoutFragment);
+            }
+            if (!isRemoteSchema(uriWithoutFragment)) {
+              console.log(`Reading local schema ${uriWithoutFragment}`);
+              const text = fs.readFileSync(uriWithoutFragment, 'utf8');
+              console.log(`Read local schema ${uriWithoutFragment} (${text.length} bytes)`);
+              const result = { text, uri: uriWithoutFragment };
+              schemaTextCache.set(uriWithoutFragment, result);
+              return result;
+            }
 
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+            const startedAt = Date.now();
             try {
+              console.log(`Fetching schema ${uriWithoutFragment}`);
               const response = await fetch(uriWithoutFragment, { redirect: 'follow', signal: controller.signal });
+              console.log(`Schema response ${uriWithoutFragment}: HTTP ${response.status} -> ${response.url || uriWithoutFragment}`);
               if (!response.ok) throw new Error(`${uriWithoutFragment} returned ${response.status}`);
-              return { text: await response.text(), uri: response.url || uriWithoutFragment };
+              const text = await response.text();
+              console.log(`Fetched schema ${uriWithoutFragment} (${text.length} bytes in ${Date.now() - startedAt} ms)`);
+              const result = { text, uri: response.url || uriWithoutFragment };
+              schemaTextCache.set(uriWithoutFragment, result);
+              return result;
             } catch (error) {
               if (error.name === 'AbortError') throw new Error(`${uriWithoutFragment} could not be fetched within ${FETCH_TIMEOUT_MS / 1000} seconds`);
               throw new Error(`${uriWithoutFragment} could not be fetched: ${error.message}`);
@@ -67,31 +88,54 @@ jobs:
 
           (async () => {
             const file = process.argv[2];
+            console.log(`${file}: reading YAML`);
             const values = [];
             for (const document of YAML.parseAllDocuments(fs.readFileSync(file, 'utf8'), { prettyErrors: true })) {
               for (const error of document.errors) console.error(`${file}: ${error.message}`);
               if (document.errors.length) process.exit(1);
               values.push(document.toJSON());
             }
+            console.log(`${file}: parsed ${values.length} YAML document(s)`);
 
-            for (const value of values) {
-              if (!value || typeof value !== 'object' || typeof value.$schema !== 'string') continue;
+            for (const [index, value] of values.entries()) {
+              const label = values.length === 1 ? file : `${file} document ${index + 1}`;
+              if (!value || typeof value !== 'object' || typeof value.$schema !== 'string') {
+                console.log(`${label}: no $schema, skipping schema validation`);
+                continue;
+              }
               const schemaLocation = resolveSchemaUri(value.$schema, file);
+              console.log(`${label}: schema ${value.$schema} resolved to ${schemaLocation}`);
               const { text: schemaText, uri: schemaBaseUri } = await readSchemaText(schemaLocation);
+              console.log(`${label}: parsing schema ${schemaBaseUri}`);
               const errors = [];
               const schema = parse(schemaText, errors, { allowTrailingComma: true, disallowComments: false });
-              for (const error of errors) console.error(`${file}: schema ${printParseErrorCode(error.error)} at offset ${error.offset}`);
+              for (const error of errors) console.error(`${label}: schema ${printParseErrorCode(error.error)} at offset ${error.offset}`);
               if (errors.length) process.exit(1);
               if (schema && typeof schema === 'object' && !schema.$id) schema.$id = schemaBaseUri;
 
-              const ajv = new Ajv({ allErrors: true, loadSchema: async (uri) => JSON.parse((await readSchemaText(resolveSchemaUri(uri, schemaBaseUri))).text), strict: false });
+              console.log(`${label}: compiling schema ${schemaBaseUri}`);
+              const ajv = new Ajv({ allErrors: true, loadSchema: async (uri) => {
+                const resolvedUri = resolveSchemaUri(uri, schemaBaseUri);
+                console.log(`${label}: loading referenced schema ${uri} resolved to ${resolvedUri}`);
+                return JSON.parse((await readSchemaText(resolvedUri)).text);
+              }, strict: false, unicodeRegExp: false });
               addFormats(ajv);
               const validate = await ajv.compileAsync(schema);
+              console.log(`${label}: running validation`);
               if (!validate(value)) {
-                for (const error of validate.errors || []) console.error(`${file}: ${error.instancePath || '/'} ${error.message}`);
+                for (const error of validate.errors || []) console.error(`${label}: ${error.instancePath || '/'} ${error.message}`);
                 process.exit(1);
               }
+              console.log(`${label}: validation passed`);
             }
           })().catch((error) => { console.error(`${process.argv[2]}: ${error.message}`); process.exit(1); });
           NODE
+            status=$?
+            set -e
+            if [[ "$status" -eq 124 ]]; then
+              printf 'Timed out validating %s after %s\n' "$file" "$VALIDATION_TIMEOUT" >&2
+              exit "$status"
+            elif [[ "$status" -ne 0 ]]; then
+              exit "$status"
+            fi
           done < <(git ls-files -z -- '*.yml' '*.yaml')
