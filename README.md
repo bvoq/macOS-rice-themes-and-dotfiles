@@ -54,7 +54,7 @@ curl -fsSL https://github.com/bvoq/dotfiles/archive/refs/heads/main.tar.gz | tar
 After the first run installed Git and you initialised your personal Git setup, you can attach that download to Git:
 
 ```zsh
-git init -b main && git remote add origin https://github.com/bvoq/dotfiles.git && git fetch origin main && git reset --mixed origin/main && git branch --set-upstream-to=origin/main main
+git init -b main && git remote add origin git@github.com:bvoq/dotfiles.git && git fetch origin main && git reset --mixed origin/main && git branch --set-upstream-to=origin/main main
 ```
 
 ## Main PowerShell
@@ -68,7 +68,7 @@ Invoke-WebRequest -Uri https://github.com/bvoq/dotfiles/archive/refs/heads/main.
 After the first run installed Git and your personal Git setup, attach that download to Git:
 
 ```powershell
-git init -b main; git remote add origin https://github.com/bvoq/dotfiles.git; git fetch origin main; git reset --mixed origin/main; git branch --set-upstream-to=origin/main main
+git init -b main; git remote add origin git@github.com:bvoq/dotfiles.git; git fetch origin main; git reset --mixed origin/main; git branch --set-upstream-to=origin/main main
 ```
 
 ## Develop
@@ -84,7 +84,7 @@ curl -fsSL https://github.com/bvoq/dotfiles/archive/refs/heads/develop.tar.gz | 
 After the first develop run installed Git and your personal Git setup, attach that download to Git:
 
 ```zsh
-git init -b develop && git remote add origin https://github.com/bvoq/dotfiles.git && git fetch origin develop && git reset --mixed origin/develop && git branch --set-upstream-to=origin/develop develop
+git init -b develop && git remote add origin git@github.com:bvoq/dotfiles.git && git fetch origin develop && git reset --mixed origin/develop && git branch --set-upstream-to=origin/develop develop
 ```
 
 ### PowerShell
@@ -98,7 +98,7 @@ Invoke-WebRequest -Uri https://github.com/bvoq/dotfiles/archive/refs/heads/devel
 After the first develop run installed Git and your personal Git setup, attach that download to Git:
 
 ```powershell
-git init -b develop; git remote add origin https://github.com/bvoq/dotfiles.git; git fetch origin develop; git reset --mixed origin/develop; git branch --set-upstream-to=origin/develop develop
+git init -b develop; git remote add origin git@github.com:bvoq/dotfiles.git; git fetch origin develop; git reset --mixed origin/develop; git branch --set-upstream-to=origin/develop develop
 ```
 
 Install using:
