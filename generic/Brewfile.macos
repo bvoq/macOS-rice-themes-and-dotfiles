@@ -14,4 +14,11 @@ brew "trash"
 brew "tree"
 brew "watch"
 brew "xcodes"
+# The package zsh-completions lists the following caveats. I never had to bother with it but you may have to:
+# You may also need to force rebuild zcompdump:
+#   rm -f ~/.zcompdump; compinit
+# Additionally, if you receive "zsh compinit: insecure directories" warnings when attempting
+# to load these completions, you may need to run these commands:
+#   chmod go-w '/opt/homebrew/share'
+#   chmod -R go-w '/opt/homebrew/share/zsh'
 brew "zsh-completions"
