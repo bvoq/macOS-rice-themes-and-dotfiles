@@ -25,6 +25,7 @@ jobs:
           set -euo pipefail
 
           while IFS= read -r -d '' file; do
+            printf 'Validating %s\n' "$file"
             python3 - "$file" <<'PY'
           import sys
           import tomllib

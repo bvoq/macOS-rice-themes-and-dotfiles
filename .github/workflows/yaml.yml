@@ -30,6 +30,7 @@ jobs:
           set -euo pipefail
 
           while IFS= read -r -d '' file; do
+            printf 'Validating %s\n' "$file"
             node - "$file" <<'NODE'
           const fs = require('fs');
           const path = require('path');
@@ -38,13 +39,27 @@ jobs:
           const { parse, printParseErrorCode } = require('jsonc-parser');
           const YAML = require('yaml');
 
-          const fetchText = async (uri) => {
+          const FETCH_TIMEOUT_MS = 5000;
+          const isRemoteSchema = (uri) => /^https?:\/\//.test(uri);
+          const withoutFragment = (uri) => uri.replace(/#.*/, '');
+          const resolveSchemaUri = (uri, baseUri) => {
+            if (isRemoteSchema(uri)) return uri;
+            if (isRemoteSchema(baseUri)) return new URL(uri, baseUri).toString();
+            return path.resolve(path.dirname(baseUri), uri);
+          };
+          const readSchemaText = async (uri) => {
+            const uriWithoutFragment = withoutFragment(uri);
+            if (!isRemoteSchema(uriWithoutFragment)) return { text: fs.readFileSync(uriWithoutFragment, 'utf8'), uri: uriWithoutFragment };
+
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 10000);
+            const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
             try {
-              const response = await fetch(uri, { signal: controller.signal });
-              if (!response.ok) throw new Error(`${uri} returned ${response.status}`);
-              return await response.text();
+              const response = await fetch(uriWithoutFragment, { redirect: 'follow', signal: controller.signal });
+              if (!response.ok) throw new Error(`${uriWithoutFragment} returned ${response.status}`);
+              return { text: await response.text(), uri: response.url || uriWithoutFragment };
+            } catch (error) {
+              if (error.name === 'AbortError') throw new Error(`${uriWithoutFragment} could not be fetched within ${FETCH_TIMEOUT_MS / 1000} seconds`);
+              throw new Error(`${uriWithoutFragment} could not be fetched: ${error.message}`);
             } finally {
               clearTimeout(timeout);
             }
@@ -61,15 +76,15 @@ jobs:
 
             for (const value of values) {
               if (!value || typeof value !== 'object' || typeof value.$schema !== 'string') continue;
-              const schemaText = /^https?:\/\//.test(value.$schema)
-                ? await fetchText(value.$schema)
-                : fs.readFileSync(path.resolve(path.dirname(file), value.$schema), 'utf8');
+              const schemaLocation = resolveSchemaUri(value.$schema, file);
+              const { text: schemaText, uri: schemaBaseUri } = await readSchemaText(schemaLocation);
               const errors = [];
               const schema = parse(schemaText, errors, { allowTrailingComma: true, disallowComments: false });
               for (const error of errors) console.error(`${file}: schema ${printParseErrorCode(error.error)} at offset ${error.offset}`);
               if (errors.length) process.exit(1);
+              if (schema && typeof schema === 'object' && !schema.$id) schema.$id = schemaBaseUri;
 
-              const ajv = new Ajv({ allErrors: true, loadSchema: async (uri) => JSON.parse(await fetchText(uri)), strict: false });
+              const ajv = new Ajv({ allErrors: true, loadSchema: async (uri) => JSON.parse((await readSchemaText(resolveSchemaUri(uri, schemaBaseUri))).text), strict: false });
               addFormats(ajv);
               const validate = await ajv.compileAsync(schema);
               if (!validate(value)) {
