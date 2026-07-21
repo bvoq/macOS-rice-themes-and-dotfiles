@@ -84,7 +84,7 @@ function phase_3_dotfiles {
 
     New-Item $profileDir -ItemType Directory -Force -ErrorAction SilentlyContinue | Out-Null
 
-    Copy-Item -Path (Join-Path $PSScriptRoot "*.ps1") -Destination $profileDir -Exclude "install.ps1"
+    Copy-Item -Path (Join-Path $PSScriptRoot "*.ps1") -Destination $profileDir -Exclude "install.ps1" -Force
 }
 
 ####################################################################################
