@@ -79,14 +79,14 @@ errors() {
   # Case: Input is an argument.
   if [ -t 0 ]; then
     # One argument: filename
-    if [ "$" -eq 1 ]; then
+    if [ "$#" -eq 1 ]; then
       local surroundno=1
-    elif [ "$" -eq 2 ]; then
+    elif [ "$#" -eq 2 ]; then
       # Two arguments: filename and context lines
       local surroundno="$2"
     else
-      echo "Usage: filtererrors file [context_lines]" >&2
-      echo "Alternative Usage: cat file | filtererrors [context_lines]" >&2
+      echo "Usage: errors <file> [context_lines]" >&2
+      echo "Alternative: cat <file> | errors [context_lines]" >&2
       return 1
     fi
     if command -v rg > /dev/null 2>&1; then
