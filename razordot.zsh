@@ -37,7 +37,7 @@ install_folders=(
   # tex
   tmux
   tor
-  wezterm
+  kitty
   vim
   vscode
   xcode

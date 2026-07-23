@@ -52,6 +52,15 @@ Plug 'github/copilot.vim'
 call plug#end()
 
 lua << EOF
+  -- Compatibility shim for plugins that still call deprecated vim.tbl_flatten.
+  if vim.fn.has('nvim-0.11') == 1 and vim.iter then
+    vim.tbl_flatten = function(t)
+      return vim.iter(t):flatten(math.huge):totable()
+    end
+  end
+EOF
+
+lua << EOF
   local ok, quarto = pcall(require, 'quarto')
 
   if ok then
@@ -238,14 +247,15 @@ lua << EOF
     })
   })
 
-  -- Setup lspconfig.
+  -- Setup LSP servers using Neovim 0.11+ APIs.
   local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
   -- other language servers: clangd', 'rust_analyzer', 'pyright', 'tsserver'
   -- TODO: Add your own languageservers here.
   -- See: https://github.com/neovim/nvim-lspconfig/blob/b01c0d0542c7a942f8f2ebf1232e0557a85a9045/doc/server_configurations.md
-  require('lspconfig')['pyright'].setup {
+  vim.lsp.config('pyright', {
     capabilities = capabilities
-  }
+  })
+  vim.lsp.enable('pyright')
   -- require'lspconfig'.pylsp.setup {
   --   capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities()),
   --   settings = {
@@ -259,13 +269,16 @@ lua << EOF
   --   },
   -- }
 
-  require'lspconfig'.bashls.setup{
+  vim.lsp.config('bashls', {
     capabilities = capabilities
-  }
-  require'lspconfig'.dartls.setup{ 
+  })
+  vim.lsp.enable('bashls')
+
+  vim.lsp.config('dartls', {
     cmd = { "dart", 'language-server', '--protocol=lsp' },
     capabilities = capabilities
-  }
+  })
+  vim.lsp.enable('dartls')
 
 EOF
 
