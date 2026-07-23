@@ -11,3 +11,5 @@ brew "tealdeer"
 brew "wget"
 brew "yq"
 brew "zoxide"
+
+cask "perplexity"

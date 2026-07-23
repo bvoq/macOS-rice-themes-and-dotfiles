@@ -1,5 +1,6 @@
 # do not bell on tab-completion
-set bell-style none # Options: none, visible, audible
+# Options: none, visible, audible
+set bell-style visible
 
 # Adds punctuation as word delimiters
 set bind-tty-special-chars off
