@@ -2,6 +2,8 @@
 alias pbcopy="cat > /dev/clipboard"
 alias pbpaste="cat /dev/clipboard"
 
+EDITOR="vim"
+
 mountios() {
   mkdir -p /mnt && mount -t ios . /mnt
 }
