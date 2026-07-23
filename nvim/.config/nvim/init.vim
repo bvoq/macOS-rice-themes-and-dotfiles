@@ -27,6 +27,10 @@ Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-vsnip'
 Plug 'hrsh7th/vim-vsnip'
 
+Plug 'quarto-dev/quarto-nvim'
+Plug 'jmbuhr/otter.nvim'
+Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
+
 " color codes:
 Plug 'norcalli/nvim-colorizer.lua'
 
@@ -46,6 +50,30 @@ Plug 'github/copilot.vim'
 "Plug 'tpope/vim-speeddating' " required for org-mode
 
 call plug#end()
+
+lua << EOF
+  local ok, quarto = pcall(require, 'quarto')
+
+  if ok then
+    quarto.setup({
+      lspFeatures = {
+        enabled = true,
+        diagnostics = {
+          enabled = true,
+          triggers = { 'BufWritePost' },
+        },
+        completion = {
+          enabled = true,
+        },
+      },
+      codeRunner = {
+        enabled = false,
+      },
+    })
+
+    vim.keymap.set('n', '<leader>qp', quarto.quartoPreview, { silent = true, noremap = true, desc = 'Quarto preview' })
+  end
+EOF
 
 
 """ Zenburn theme

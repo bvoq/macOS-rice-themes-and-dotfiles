@@ -26,6 +26,7 @@ install_folders=(
   macos
   #mobile
   nvim
+  quarto
   rclone
   readline
   ripgrep
@@ -35,6 +36,8 @@ install_folders=(
   starship
   # tex
   tmux
+  tor
+  wezterm
   vim
   vscode
   xcode
