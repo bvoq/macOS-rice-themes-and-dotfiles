@@ -41,7 +41,6 @@ Plug 'will133/vim-dirdiff'
 Plug 'github/copilot.vim'
 
 """ Plugins I stopped using
-"Plug 'Valloric/YouCompleteMe' " now using nvim-lspconfig (language servers) instead. Pain to setup.
 "Plug 'neomake/neomake' " nvim-lspconfig takes care of most things I cared about.
 "Plug 'jupyter-vim/jupyter-vim'
 "Plug 'vim-airline/vim-airline' " prefer using minimal vim look
@@ -99,41 +98,6 @@ if (has("termguicolors"))
     lua require 'colorizer'.setup()
   endif
 endif
-
-""" YouCompleteMe (Now using nvim-lspconfig instead)
-" pip3 uninstall neovim pynvim
-" pip3 install pynvim
-" pip3 install neovim
-" Note: https://ricostacruz.com/til/neovim-with-python-on-osx
-" Note: https://github.com/neovim/neovim/wiki/FAQ#python-support-isnt-working
-" Note: https://github.com/neovim/neovim/wiki/Following-HEAD#20181118
-" For Neovim: ~/.local/share/nvim/plugged/YouCompleteMe/install.py --clang-completer
-" For Vim8: ~/.vim/plugged/YouCompleteMe/install.py --clang-completer
-let g:ycm_global_ycm_extra_conf = "'.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'"
-let g:ycm_collect_identifiers_from_tags_files = 1
-let g:ycm_seed_identifiers_with_syntax = 1
-let g:ycm_autoclose_preview_window_after_completion = 0
-let g:ycm_confirm_extra_conf = 0
-let g:ycm_server_keep_logfiles = 1
-let g:ycm_server_log_level = 'debug'
-let g:ycm_goto_buffer_command = 'vertical-split'
-" nnoremap <leader>jd :YcmCompleter GoToDefinition<CR>
-nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>
-nnoremap <leader>gd :YcmCompleter GoToDeclaration<CR>
-
-
-""" Neomake
-" Note: Better python error checking for neomake:
-" pip3 install flake8
-" use :lopen and :lclose to see a list of errors!
-autocmd BufRead,BufNewFile *.py let python_highlight_all=1
-"let g:neomake_place_signs = 0 " disable the error column
-"set signcolumn=no " needed for some neomake configs
-"autocmd FileType python map <buffer> <leader>s :Neomake<CR><c-w><c-w>
-"autocmd BufWritePost * :Neomake
-"hi NeomakeErrorSign ctermfg=160 guifg=#ff0000
-"hi NeomakeVirtualtextError ctermfg=203 guifg=#bfbfbf
-
 
 """ nvim-lspconfig
 set completeopt=menu,menuone,noselect
@@ -251,23 +215,11 @@ lua << EOF
   local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
   -- other language servers: clangd', 'rust_analyzer', 'pyright', 'tsserver'
   -- TODO: Add your own languageservers here.
-  -- See: https://github.com/neovim/nvim-lspconfig/blob/b01c0d0542c7a942f8f2ebf1232e0557a85a9045/doc/server_configurations.md
+  -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
   vim.lsp.config('pyright', {
     capabilities = capabilities
   })
   vim.lsp.enable('pyright')
-  -- require'lspconfig'.pylsp.setup {
-  --   capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities()),
-  --   settings = {
-  --       pylsp = {
-  --           plugins = {
-  --          jedi_completion = {
-  --            include_params = true,
-  --         },
-  --       },
-  --     },
-  --   },
-  -- }
 
   vim.lsp.config('bashls', {
     capabilities = capabilities
@@ -281,37 +233,6 @@ lua << EOF
   vim.lsp.enable('dartls')
 
 EOF
-
-function! s:on_lsp_buffer_enabled() abort
-    setlocal omnifunc=lsp#complete
-    setlocal signcolumn=yes
-    if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
-    nmap <buffer> gD <plug>(lsp-declaration)
-    nmap <buffer> gd <plug>(lsp-definition)
-    nmap <buffer> gs <plug>(lsp-document-symbol-search)
-    nmap <buffer> gS <plug>(lsp-workspace-symbol-search)
-    nmap <buffer> gr <plug>(lsp-references)
-    nmap <buffer> gi <plug>(lsp-implementation)
-    nmap <buffer> gt <plug>(lsp-type-definition)
-    nmap <buffer> <leader>rn <plug>(lsp-rename)
-    nmap <buffer> [g <plug>(lsp-previous-diagnostic)
-    nmap <buffer> ]g <plug>(lsp-next-diagnostic)
-    nmap <buffer> K <plug>(lsp-hover)
-    inoremap <buffer> <expr><c-f> lsp#scroll(+4)
-    inoremap <buffer> <expr><c-d> lsp#scroll(-4)
-
-    let g:lsp_format_sync_timeout = 1000
-    autocmd! BufWritePre *.rs,*.go call execute('LspDocumentFormatSync')
-
-    " refer to doc to add more commands
-endfunction
-
-augroup lsp_install
-    au!
-    " call s:on_lsp_buffer_enabled only for languages that has the server registered.
-    autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
-augroup END
-
 
 """ Tamarin source code (for .spthy and .sapic)
 augroup filetypedetect
@@ -375,7 +296,6 @@ if has('nvim')
     set inccommand=nosplit
 endif
 set mouse=a " for mouse to work in tmux and vim
-set paste
 
 
 

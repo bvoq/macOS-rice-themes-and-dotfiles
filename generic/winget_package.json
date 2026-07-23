@@ -12,6 +12,7 @@
         { "PackageIdentifier": "ajeetdsouza.zoxide", "Scope": "machine" },
         { "PackageIdentifier": "dbrgn.tealdeer", "Scope": "machine" },
         { "PackageIdentifier": "eza-community.eza", "Scope": "machine" },
+        { "PackageIdentifier": "sharkdp.fd", "Scope": "machine" },
         { "PackageIdentifier": "gopass.gopass", "Scope": "machine" },
         { "PackageIdentifier": "jqlang.jq", "Scope": "machine" },
         { "PackageIdentifier": "junegunn.fzf", "Scope": "machine" },

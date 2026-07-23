@@ -2,6 +2,7 @@
 
 brew "bat"
 brew "eza"
+brew "fd"
 brew "fnm"
 brew "fzf"
 brew "git"
