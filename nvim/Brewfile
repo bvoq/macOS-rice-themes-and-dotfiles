@@ -1,1 +1,2 @@
 brew "neovim"
+brew "tree-sitter-cli"

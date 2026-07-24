@@ -1,4 +1,5 @@
 brew "python"
+brew "pyright"
 brew "pandoc"
 brew "jupyterlab"
 cask "quarto"

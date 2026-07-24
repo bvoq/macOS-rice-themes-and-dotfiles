@@ -1,6 +1,14 @@
 set encoding=utf-8
 set nocp " don't need arcane vi support
 
+let mapleader = " "
+let maplocalleader = " "
+
+" ==============================================================================
+" Vim-Plug plugin manager
+" ==============================================================================
+
+
 if has('nvim')
 call plug#begin('~/.local/share/nvim/plugged')
 else
@@ -10,23 +18,16 @@ end
 Plug 'kassio/neoterm' " better terminal, launch with T
 Plug 'jnurmine/Zenburn'
 
-" Allows :History
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
 
 " Smoother scrolling
 Plug 'petertriho/nvim-scrollbar'
 
-""" neovim only
-Plug 'neovim/nvim-lspconfig'
-Plug 'hrsh7th/cmp-nvim-lsp'
-Plug 'hrsh7th/cmp-buffer'
-Plug 'hrsh7th/cmp-path'
-Plug 'hrsh7th/cmp-cmdline'
-Plug 'hrsh7th/nvim-cmp'
-Plug 'hrsh7th/cmp-vsnip'
-Plug 'hrsh7th/vim-vsnip'
+" Completion (blink.cmp) — modern replacement for nvim-cmp
+" tag v1.* downloads the prebuilt fuzzy matcher binary automatically
+Plug 'saghen/blink.cmp', { 'tag': 'v1.*' }
+Plug 'rafamadriz/friendly-snippets'
 
+" Quarto
 Plug 'quarto-dev/quarto-nvim'
 Plug 'jmbuhr/otter.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
@@ -36,6 +37,12 @@ Plug 'norcalli/nvim-colorizer.lua'
 
 " DirDiff
 Plug 'will133/vim-dirdiff'
+
+" Telescope
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+Plug 'jvgrootveld/telescope-zoxide'
 
 " copilot
 Plug 'github/copilot.vim'
@@ -59,30 +66,9 @@ lua << EOF
   end
 EOF
 
-lua << EOF
-  local ok, quarto = pcall(require, 'quarto')
-
-  if ok then
-    quarto.setup({
-      lspFeatures = {
-        enabled = true,
-        diagnostics = {
-          enabled = true,
-          triggers = { 'BufWritePost' },
-        },
-        completion = {
-          enabled = true,
-        },
-      },
-      codeRunner = {
-        enabled = false,
-      },
-    })
-
-    vim.keymap.set('n', '<leader>qp', quarto.quartoPreview, { silent = true, noremap = true, desc = 'Quarto preview' })
-  end
-EOF
-
+" ==============================================================================
+" Theme related
+" ==============================================================================
 
 """ Zenburn theme
 :let g:zenburn_high_Contrast=1
@@ -99,140 +85,312 @@ if (has("termguicolors"))
   endif
 endif
 
-""" nvim-lspconfig
+" ==============================================================================
+" Quarto
+" ==============================================================================
+
+lua << EOF
+  local ok, quarto = pcall(require, 'quarto')
+  if not ok then
+    vim.notify('quarto.nvim not available: ' .. tostring(quarto), vim.log.levels.WARN, { title = 'init' })
+    return
+  end
+
+  quarto.setup({
+    lspFeatures = {
+      languages = { 'python' },  -- add 'r', 'julia', 'bash' if you use them
+      chunks = 'curly',
+      enabled = true,
+      diagnostics = {
+        enabled = true,
+        triggers = { 'BufWritePost' },
+      },
+      completion = {
+        enabled = true,
+      },
+    },
+    codeRunner = {
+      enabled = false,
+    },
+  })
+
+  vim.keymap.set('n', '<leader>qp', quarto.quartoPreview, { silent = true, noremap = true, desc = 'Quarto preview' })
+  
+  vim.treesitter.language.register('markdown', 'quarto')
+EOF
+
+" ==============================================================================
+" Treesitter (syntax highlighting + Quarto/otter support)
+" ==============================================================================
+lua << EOF
+local ok, treesitter = pcall(require, 'nvim-treesitter')
+if not ok then
+  vim.notify('nvim-treesitter not available: ' .. tostring(treesitter), vim.log.levels.WARN, { title = 'init' })
+  return
+end
+
+treesitter.setup({})
+
+local parsers = {
+  -- Quarto / markdown
+  'markdown',
+  'markdown_inline',
+  'yaml',
+  'json',
+  'html',
+
+  -- Code cells for Quarto / otter
+  'python',
+  -- 'r',       -- uncomment if you use it
+  -- 'julia',   -- uncomment if you use it
+  'bash',
+
+  -- Neovim / config
+  'lua',
+  'vim',
+  'vimdoc',
+  'query',
+}
+
+treesitter.install(parsers)
+
+local available_parsers = treesitter.get_available()
+vim.api.nvim_create_autocmd('FileType', {
+  callback = function(args)
+    local language = vim.treesitter.language.get_lang(args.match)
+    if not language then return end
+
+    local function attach()
+      if not vim.api.nvim_buf_is_valid(args.buf) then return end
+      if not vim.treesitter.language.add(language) then return end
+
+      if language ~= 'latex' then
+        vim.treesitter.start(args.buf, language)
+      end
+
+      if vim.treesitter.query.get(language, 'indents') then
+        vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+      end
+    end
+
+    if vim.list_contains(treesitter.get_installed('parsers'), language) then
+      attach()
+    elseif vim.list_contains(available_parsers, language) then
+      treesitter.install(language):await(attach)
+    else
+      attach()
+    end
+  end,
+})
+EOF
+
+" ==============================================================================
+" Telescope: fuzzy finder (files, grep, buffers, LSP, zoxide, …)
+" ==============================================================================
+
+lua << EOF
+local ok, telescope = pcall(require, 'telescope')
+if not ok then
+  vim.notify('telescope.nvim not available: ' .. tostring(telescope), vim.log.levels.WARN, { title = 'init' })
+  return
+end
+
+telescope.setup({
+  defaults = {
+    mappings = {
+      i = {
+        ['<C-u>'] = false,
+        ['<C-d>'] = false,
+      },
+    },
+  },
+  extensions = {
+    fzf = {
+      fuzzy = true,
+      override_generic_sorter = true,
+      override_file_sorter = true,
+      case_mode = 'smart_case',
+    },
+  },
+})
+
+-- native fzf sorter (compiled C library)
+pcall(telescope.load_extension, 'fzf')
+
+-- zoxide integration (you already install zoxide system-wide)
+pcall(telescope.load_extension, 'zoxide')
+
+local tel = require('telescope.builtin')
+
+-- Everyday maps
+vim.keymap.set('n', '<leader>ff', tel.find_files, { desc = 'TELE: Find files' })
+vim.keymap.set('n', '<leader>fg', tel.live_grep,  { desc = 'TELE: Live grep' })
+vim.keymap.set('n', '<leader>fb', tel.buffers,    { desc = 'TELE: Buffers' })
+vim.keymap.set('n', '<leader>fh', tel.help_tags,  { desc = 'TELE: Help tags' })
+vim.keymap.set('n', '<leader>fo', tel.oldfiles,   { desc = 'TELE: Recent files' })
+vim.keymap.set('n', '<leader>/', function()
+  tel.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown({
+    previewer = false,
+  }))
+end, { desc = 'TELE: Search in buffer' })
+
+-- zoxide
+vim.keymap.set('n', '<leader>cd', require('telescope').extensions.zoxide.list, { desc = 'TELE: Zoxide' })
+EOF
+
+" ==============================================================================
+" Completion + LSP (blink.cmp + vim.lsp)
+" ==============================================================================
+" Note: I will never use mason. An LSP should be in your PATH and you should know
+" how to install an LSP yourself. Manage your dotfiles!
+
 set completeopt=menu,menuone,noselect
 
 lua << EOF
-  -- Setup nvim-cmp.
-  local cmp = require'cmp'
-
-  cmp.setup({
-    snippet = {
-      -- REQUIRED - you must specify a snippet engine
-      expand = function(args)
-        vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-        -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
-        -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
-        -- require'snippy'.expand_snippet(args.body) -- For `snippy` users.
-      end,
+  ---------------------------------------------------------------
+  -- blink.cmp
+  ---------------------------------------------------------------
+  require('blink.cmp').setup({
+    keymap = { preset = 'default' },
+  
+    appearance = {
+      nerd_font_variant = 'mono',
     },
-    mapping = {
-      ['<C-d>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
-      ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
-      ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
-      ['<C-y>'] = cmp.config.disable, -- Specify `cmp.config.disable` if you want to remove the default `<C-y>` mapping.
-      ['<C-e>'] = cmp.mapping({
-        i = cmp.mapping.abort(),
-        c = cmp.mapping.close(),
-      }),
-      ['<CR>'] = cmp.mapping.confirm({ select = true }),
-      ['<C-n>'] = cmp.mapping({
-        c = function()
-            if cmp.visible() then
-                cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
-            else
-                vim.api.nvim_feedkeys(t("<Down>"), "n", true)
-            end
-        end,
-        i = function(fallback)
-            if cmp.visible() then
-                cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
-            else
-                fallback()
-            end
-        end,
-    }),
-    ['<C-p>'] = cmp.mapping({
-        c = function()
-            if cmp.visible() then
-                cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
-            else
-                vim.api.nvim_feedkeys(t("<Up>"), "n", true)
-            end
-        end,
-        i = function(fallback)
-            if cmp.visible() then
-                cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
-            else
-                fallback()
-            end
-        end,
-    }),
-    -- ['<Tab>'] = cmp.mapping(function(fallback)
-    --   if require("copilot.suggestion").is_visible() then
-    --     require("copilot.suggestion").accept()
-    --   elseif cmp.visible() then
-    --     cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
-    --   elseif luasnip.expandable() then
-    --     luasnip.expand()
-    --   elseif has_words_before() then
-    --     cmp.complete()
-    --   else
-    --     fallback()
-    --   end
-    -- end, {
-    --   "i",
-    --   "s",
-    -- }),
-    -- ['<S-Tab>'] = cmp.mapping(function()
-    --   if cmp.visible() then
-    --     cmp.select_prev_item({ behavior = cmp.SelectBehavior.Insert })
-    --   end
-    -- end, {
-    --   "i",
-    --   "s",
-    -- }),
- 
+  
+    completion = {
+      documentation = {
+        auto_show = true,          -- your preference
+        auto_show_delay_ms = 200,
+      },
     },
-    sources = cmp.config.sources({
-      { name = 'nvim_lsp' },
-      { name = 'vsnip' }, -- For vsnip users.
-      -- { name = 'luasnip' }, -- For luasnip users.
-      -- { name = 'ultisnips' }, -- For ultisnips users.
-      -- { name = 'snippy' }, -- For snippy users.
-    }, {
-      { name = 'buffer' },
-    })
-  })
-
-  -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
-  cmp.setup.cmdline('/', {
+  
     sources = {
-      { name = 'buffer' }
+      default = { 'lsp', 'path', 'snippets', 'buffer' },
+    },
+  
+    snippets = {
+      preset = 'default',          -- uses vim.snippet + friendly-snippets
+    },
+  
+    fuzzy = {
+      implementation = 'prefer_rust_with_warning',
+    },
+  })
+
+  ---------------------------------------------------------------
+  -- LSP capabilities
+  ---------------------------------------------------------------
+  local capabilities = require('blink.cmp').get_lsp_capabilities()
+
+  --- This function was added, because I don't want to use mason.nvim.
+  --- This simply checks if the LSP is available and if so adds it, if not writes a warning.
+  ---@param name string
+  ---@param cmd string[]          -- required
+  ---@param capabilities table    -- required
+  ---@param opts? table           -- optional extra settings
+  local function add_lsp_if_available(name, cmd, capabilities, opts)
+    assert(type(name) == "string" and name ~= "", "name is required")
+    assert(type(cmd) == "table" and #cmd > 0, "cmd is required (non-empty table)")
+    assert(type(capabilities) == "table", "capabilities is required")
+  
+    opts = opts or {}
+    opts.cmd = cmd
+    opts.capabilities = capabilities
+  
+    local executable = cmd[1]
+  
+    if vim.fn.executable(executable) == 1 then
+      -- vim.lsp.configs[name] = vim.tbl_deep_extend("force", vim.lsp.configs[name] or {}, opts)
+      -- vim.lsp.start_client(vim.lsp.get_client_by_name(name))
+      vim.lsp.config(name, opts)
+      vim.lsp.enable(name)
+    else
+      vim.notify(
+        string.format("LSP '%s' not found on $PATH (looking for '%s'). Skipping.", name, executable),
+        vim.log.levels.WARN,
+        { title = "LSP" }
+      )
+    end
+  end
+
+  ---------------------------------------------------------------
+  -- Language servers (keep the ones you already use)
+  ---------------------------------------------------------------
+
+  -- Good collection of LSPs:
+  -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
+
+  add_lsp_if_available("pyright",
+    { "pyright-langserver", "--stdio" },
+    capabilities,
+    {
+      filetypes = { "python" },  -- critical: never "quarto" / "markdown"
     }
+  )
+
+  -- add_lsp_if_available("dartls",
+  --  { "dart", "language-server", "--protocol=lsp" },
+  --  capabilities
+  -- )
+
+  ---------------------------------------------------------------
+  -- LspAttach keymaps
+  ---------------------------------------------------------------
+  vim.api.nvim_create_autocmd('LspAttach', {
+    group = vim.api.nvim_create_augroup('UserLspConfig', { clear = true }),
+    callback = function(ev)
+      local opts = { buffer = ev.buf, silent = true }
+      local tel = require('telescope.builtin')
+  
+      local function map(keys, func, desc, mode)
+        mode = mode or 'n'
+        local o = vim.tbl_extend('force', opts, desc and { desc = desc } or {})
+        vim.keymap.set(mode, keys, func, o)
+      end
+  
+      -- Telescope-enhanced LSP navigations
+      map('grr', tel.lsp_references,                'LSP: References')
+      map('gri', tel.lsp_implementations,           'LSP: Implementations')
+      map('grd', tel.lsp_definitions,               'LSP: Definitions')
+      map('grt', tel.lsp_type_definitions,          'LSP: Type Definitions')
+      map('gO',  tel.lsp_document_symbols,          'LSP: Document Symbols')
+      map('gW',  tel.lsp_dynamic_workspace_symbols, 'LSP: Workspace Symbols')
+  
+      -- Classic navigations
+      map('gd',  tel.lsp_definitions,               'LSP: Goto Definition') -- grd
+      map('<leader>D', tel.lsp_type_definitions,    'LSP: Type Definition') -- grt
+      map('gD',  vim.lsp.buf.declaration,           'LSP: Goto Declaration')
+  
+      -- Leader actions
+      map('<leader>rn', vim.lsp.buf.rename,         'LSP: Rename')
+      map('<leader>ca', vim.lsp.buf.code_action,    'LSP: Code Action', { 'n', 'v' })
+  
+      -- Diagnostics
+      map('<leader>e', vim.diagnostic.open_float,   'LSP: Show Diagnostic')
+      map('<leader>q', vim.diagnostic.setloclist,   'LSP: Diagnostics → Loclist')
+  
+      -- Inlay hints
+      map('<leader>th', function()
+        vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = ev.buf }))
+      end, 'LSP: Toggle Inlay Hints')
+    end,
   })
 
-  -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-  cmp.setup.cmdline(':', {
-    sources = cmp.config.sources({
-      { name = 'path' }
-    }, {
-      { name = 'cmdline' }
-    })
+  -- Slightly nicer diagnostics
+  vim.diagnostic.config({
+    virtual_text = true,
+    signs = true,
+    underline = true,
+    update_in_insert = false,
+    severity_sort = true,
+    -- virtual_lines = false, -- set true if you prefer lines instead of virtual text
   })
-
-  -- Setup LSP servers using Neovim 0.11+ APIs.
-  local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
-  -- other language servers: clangd', 'rust_analyzer', 'pyright', 'tsserver'
-  -- TODO: Add your own languageservers here.
-  -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
-  vim.lsp.config('pyright', {
-    capabilities = capabilities
-  })
-  vim.lsp.enable('pyright')
-
-  vim.lsp.config('bashls', {
-    capabilities = capabilities
-  })
-  vim.lsp.enable('bashls')
-
-  vim.lsp.config('dartls', {
-    cmd = { "dart", 'language-server', '--protocol=lsp' },
-    capabilities = capabilities
-  })
-  vim.lsp.enable('dartls')
-
 EOF
+
+
+" ====================
+" My custom functions
+" ====================
 
 """ Tamarin source code (for .spthy and .sapic)
 augroup filetypedetect
@@ -240,11 +398,9 @@ au BufNewFile,BufRead *.spthy	setf spthy
 au BufNewFile,BufRead *.sapic	setf sapic
 augroup END
 
-"""" File executions
-"" Run with Shift+R
+"" Old file executions, ran with Shift+R
 "autocmd FileType python map <buffer> <S-r> :w<CR>:exec 'w !python3' shellescape(@%, 1)<CR>
 "autocmd FileType cpp map <buffer> <S-r> :w<CR>:exec 'w !g++ -std=c++17 -Wall -Wextra -g3 -ggdb3 -fsanitize=address ' shellescape(@%, 1) ';./a.out' <CR>
-
 
 " Trim Whitespace at the end of the line.
 fun! TrimWhitespace()
@@ -270,7 +426,9 @@ command! ErrorRegex execute "/\\v\([a-zA-Z_-]\)\@<!\(error\|missing\|unknown\|ex
 
 
 
-""" Various vim settings
+" =================
+" General settings
+" =================
 syntax on
 set ignorecase
 set hidden " hide buffers instead of closing them.
@@ -283,8 +441,6 @@ set showbreak=↪\
 set listchars=tab:↦-,nbsp:␣,trail:∙,extends:⟩,precedes:⟨
 set autoindent tabstop=4 softtabstop=0 shiftwidth=4 expandtab
 set splitbelow  "move preview window to below, so it doesn't move the code
-" some people prefer , as leader, default is \
-" let mapleader = ","
 nnoremap <F6> yiw:%s/\<<C-r>"\>/<C-r>"/gc<Left><Left><Left>
 vnoremap <F6> y:%s/\<<C-r>"\>/<C-r>"/gc<Left><Left><Left>
 " delete the black hole register: https://vim.fandom.com/wiki/Replace_a_word_with_yanked_text
@@ -299,7 +455,9 @@ set mouse=a " for mouse to work in tmux and vim
 
 
 
-" Vim Rabbit Hole Hierarchy:
+" =============
+" Learning Vim
+" =============
 " ---
 " BUFFERS
 " use buffers when navigating code in the same context.
