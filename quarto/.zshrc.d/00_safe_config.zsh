@@ -89,6 +89,9 @@ title: "p5.js sketch"
 format:
   html:
     code-fold: true
+    include-in-header:
+      - text: |
+          <script src="https://cdn.jsdelivr.net/npm/p5@2.3.1/lib/p5.min.js"></script>
 ---
 
 Load p5 in an `{ojs}` cell, then run sketches in **instance mode**
@@ -96,7 +99,7 @@ Load p5 in an `{ojs}` cell, then run sketches in **instance mode**
 
 ```{ojs}
 // p5 from CDN via Observable's require()
-P5 = require("p5")
+P5 = window.p5
 
 // helper: mount a sketch into its own div
 function* createSketch(sketch) {
@@ -121,6 +124,42 @@ createSketch((s) => {
     s.circle(200, 200, 120);
   };
 });
+```
+
+## D3 example
+
+```{ojs}
+d3 = require("d3@7")
+
+{
+  const width = 320;
+  const height = 120;
+  const data = [4, 8, 15, 16, 23, 42];
+
+  const x = d3.scaleBand()
+    .domain(d3.range(data.length))
+    .range([0, width])
+    .padding(0.1);
+
+  const y = d3.scaleLinear()
+    .domain([0, d3.max(data)])
+    .range([height, 0]);
+
+  const svg = d3.create("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  svg.selectAll("rect")
+    .data(data)
+    .join("rect")
+    .attr("x", (_, i) => x(i))
+    .attr("y", (d) => y(d))
+    .attr("width", x.bandwidth())
+    .attr("height", (d) => height - y(d))
+    .attr("fill", "steelblue");
+
+  yield svg.node();
+}
 ```
 QMD
   fi
