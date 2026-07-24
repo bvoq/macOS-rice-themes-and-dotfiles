@@ -31,6 +31,7 @@ Plug 'rafamadriz/friendly-snippets'
 Plug 'quarto-dev/quarto-nvim'
 Plug 'jmbuhr/otter.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
+Plug 'luyiyun/quarto-sync.nvim'
 
 " color codes:
 Plug 'norcalli/nvim-colorizer.lua'
@@ -117,6 +118,34 @@ lua << EOF
   vim.keymap.set('n', '<leader>qp', quarto.quartoPreview, { silent = true, noremap = true, desc = 'Quarto preview' })
   
   vim.treesitter.language.register('markdown', 'quarto')
+EOF
+
+" ==============================================================================
+" Quarto sync
+" ==============================================================================
+lua << EOF
+local ok, qsync = pcall(require, 'quarto_sync')
+if not ok then
+  vim.notify('quarto-sync.nvim not available: ' .. tostring(qsync), vim.log.levels.WARN, { title = 'init' })
+  return
+end
+
+qsync.setup({
+  port = 18787,
+  quarto_cmd = 'quarto',
+  open_browser = true,
+  preview_mode = 'auto',       -- document, or website overlay when project.type = website
+  sync_on_cursor_move = true,  -- nvim -> browser
+  sync_from_browser = true,    -- browser -> nvim
+  debounce_ms = 120,
+})
+
+vim.keymap.set('n', '<leader>qs', '<cmd>QSyncPreview<CR>', {
+  silent = true, desc = 'Quarto sync preview'
+})
+vim.keymap.set('n', '<leader>qS', '<cmd>QSyncStop<CR>', {
+  silent = true, desc = 'Quarto sync stop'
+})
 EOF
 
 " ==============================================================================
