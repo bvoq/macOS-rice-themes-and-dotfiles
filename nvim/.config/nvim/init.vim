@@ -140,6 +140,36 @@ qsync.setup({
   debounce_ms = 120,
 })
 
+local function qsync_clean_artifacts(root)
+  root = root or vim.fn.getcwd()
+  for _, pattern in ipairs({
+    '/.qsync-*.html',
+    '/.qsync-*.qmd',
+    '/.qsync-*_files',
+  }) do
+    for _, path in ipairs(vim.fn.glob(root .. pattern, false, true)) do
+      local flags = path:match('_files$') and 'rf' or ''
+      vim.fn.delete(path, flags)
+    end
+  end
+end
+
+local preview = require('quarto_sync.preview')
+local original_stop = preview.stop
+preview.stop = function(opts)
+  local ok, result = pcall(original_stop, opts)
+  -- Move this after the error check to retain artifacts while debugging stop failures.
+  qsync_clean_artifacts(vim.fn.getcwd())
+  if not ok then
+    error(result)
+  end
+  return result
+end
+
+vim.api.nvim_create_user_command('QSyncCleanArtifacts', function()
+  qsync_clean_artifacts()
+end, {})
+
 vim.keymap.set('n', '<leader>qs', '<cmd>QSyncPreview<CR>', {
   silent = true, desc = 'Quarto sync preview'
 })
