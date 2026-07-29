@@ -115,67 +115,79 @@ lua << EOF
     },
   })
 
-  vim.keymap.set('n', '<leader>qp', quarto.quartoPreview, { silent = true, noremap = true, desc = 'Quarto preview' })
-  
-  vim.treesitter.language.register('markdown', 'quarto')
-EOF
-
-" ==============================================================================
-" Quarto sync
-" ==============================================================================
-lua << EOF
-local ok, qsync = pcall(require, 'quarto_sync')
-if not ok then
-  vim.notify('quarto-sync.nvim not available: ' .. tostring(qsync), vim.log.levels.WARN, { title = 'init' })
-  return
-end
-
-qsync.setup({
-  port = 18787,
-  quarto_cmd = 'quarto',
-  open_browser = true,
-  preview_mode = 'auto',       -- document, or website overlay when project.type = website
-  sync_on_cursor_move = true,  -- nvim -> browser
-  sync_from_browser = true,    -- browser -> nvim
-  debounce_ms = 120,
-})
-
-local function qsync_clean_artifacts(root)
-  root = root or vim.fn.getcwd()
-  for _, pattern in ipairs({
-    '/.qsync-*.html',
-    '/.qsync-*.qmd',
-    '/.qsync-*_files',
-  }) do
-    for _, path in ipairs(vim.fn.glob(root .. pattern, false, true)) do
-      local flags = path:match('_files$') and 'rf' or ''
-      vim.fn.delete(path, flags)
+  local function quarto_clean_artifacts(root)
+    root = root or vim.fn.getcwd()
+    for _, pattern in ipairs({
+      '/.qsync-*.html',
+      '/.qsync-*.qmd',
+      '/.qsync-*_files',
+      '/*.quarto_ipynb*',
+    }) do
+      for _, path in ipairs(vim.fn.glob(root .. pattern, false, true)) do
+        local flags = path:match('_files$') and 'rf' or ''
+        vim.fn.delete(path, flags)
+      end
     end
   end
-end
 
-local preview = require('quarto_sync.preview')
-local original_stop = preview.stop
-preview.stop = function(opts)
-  local ok, result = pcall(original_stop, opts)
-  -- Move this after the error check to retain artifacts while debugging stop failures.
-  qsync_clean_artifacts(vim.fn.getcwd())
-  if not ok then
-    error(result)
+  local function quarto_preview()
+    local source_dir = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ':h')
+    quarto.quartoPreview()
+
+    local ok_output, output_buf = pcall(vim.api.nvim_buf_get_var, 0, 'quartoOutputBuf')
+    if ok_output then
+      vim.api.nvim_create_autocmd('TermClose', {
+        buffer = output_buf,
+        once = true,
+        callback = function()
+          quarto_clean_artifacts(source_dir)
+        end,
+      })
+    end
   end
-  return result
-end
 
-vim.api.nvim_create_user_command('QSyncCleanArtifacts', function()
-  qsync_clean_artifacts()
-end, {})
+  vim.keymap.set('n', '<leader>qp', quarto_preview, { silent = true, noremap = true, desc = 'Quarto preview' })
+  
+  vim.treesitter.language.register('markdown', 'quarto')
 
-vim.keymap.set('n', '<leader>qs', '<cmd>QSyncPreview<CR>', {
-  silent = true, desc = 'Quarto sync preview'
-})
-vim.keymap.set('n', '<leader>qS', '<cmd>QSyncStop<CR>', {
-  silent = true, desc = 'Quarto sync stop'
-})
+  local ok_qsync, qsync = pcall(require, 'quarto_sync')
+  if not ok_qsync then
+    vim.notify('quarto-sync.nvim not available: ' .. tostring(qsync), vim.log.levels.WARN, { title = 'init' })
+    return
+  end
+
+  qsync.setup({
+    port = 18787,
+    quarto_cmd = 'quarto',
+    open_browser = true,
+    preview_mode = 'auto',       -- document, or website overlay when project.type = website
+    sync_on_cursor_move = true,  -- nvim -> browser
+    sync_from_browser = true,    -- browser -> nvim
+    debounce_ms = 120,
+  })
+
+  local preview = require('quarto_sync.preview')
+  local original_stop = preview.stop
+  preview.stop = function(opts)
+    local ok_stop, result = pcall(original_stop, opts)
+    -- Move this after the error check to retain artifacts while debugging stop failures.
+    quarto_clean_artifacts(vim.fn.getcwd())
+    if not ok_stop then
+      error(result)
+    end
+    return result
+  end
+
+  vim.api.nvim_create_user_command('QSyncCleanArtifacts', function()
+    quarto_clean_artifacts()
+  end, {})
+
+  vim.keymap.set('n', '<leader>qs', '<cmd>QSyncPreview<CR>', {
+    silent = true, desc = 'Quarto sync preview'
+  })
+  vim.keymap.set('n', '<leader>qS', '<cmd>QSyncStop<CR>', {
+    silent = true, desc = 'Quarto sync stop'
+  })
 EOF
 
 " ==============================================================================

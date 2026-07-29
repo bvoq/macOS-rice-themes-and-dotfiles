@@ -57,8 +57,41 @@ PY
 
   python -m pip freeze > requirements.txt
 
+  local starter="python-sample.qmd"
+  if [[ -f $starter ]]; then
+    print "→ $starter already exists (skip)"
+  else
+    print "→ write $starter"
+    cat > "$starter" <<'QMD'
+---
+title: "Python sample"
+format:
+  html:
+    code-fold: true
+---
+
+This document runs Python through Quarto's Jupyter integration.
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(0, 2 * np.pi, 200)
+y = np.sin(x)
+
+fig, ax = plt.subplots()
+ax.plot(x, y, label="sin(x)")
+ax.set(xlabel="x", ylabel="y", title="A simple Python plot")
+ax.legend()
+plt.show()
+```
+QMD
+  fi
+
   print "→ quarto check jupyter"
   quarto check jupyter
+  print "OK. Try:"
+  print "  quarto preview $starter"
 }
 
 # Quarto + p5.js (Observable JS) project bootstrap
