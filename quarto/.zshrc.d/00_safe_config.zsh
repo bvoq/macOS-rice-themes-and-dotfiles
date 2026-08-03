@@ -1,3 +1,97 @@
+# Note, favorite theme is lux followed by sandstone
+
+quarto_course_create() {
+  if ! command -v quarto >/dev/null 2>&1; then
+    print -u2 "error: quarto not found on PATH"
+    return 1
+  fi
+
+  if [[ $# -lt 1 || $# -gt 2 ]]; then
+    print -u2 "usage: quarto_course_create <directory> [title]"
+    return 1
+  fi
+
+  local course_dir=$1
+  local course_name=${course_dir:t}
+  local course_title=${2:-${course_name//-/ }}
+
+  if [[ -e $course_dir ]]; then
+    print -u2 "error: $course_dir already exists"
+    return 1
+  fi
+
+  quarto create project book "$course_dir" || return 1
+
+  cat > "$course_dir/_quarto.yml" <<YAML
+project:
+  type: book
+  output-dir: ./
+
+lang: de
+
+toc: true
+toc-depth: 3
+number-sections: true
+number-depth: 3
+
+book:
+  title: "${course_title}"
+  author: "Kevin De Keyser"
+  date: today
+  downloads: [pdf, epub]
+  output-file: "${course_name}"
+  page-navigation: true
+  sidebar:
+    background: light
+    search: true
+    style: docked
+  chapters:
+    - index.qmd
+    - intro.qmd
+    - summary.qmd
+    - references.qmd
+
+bibliography: references.bib
+
+format:
+  docx:
+    toc: true
+  epub:
+    syntax-highlighting: idiomatic
+    toc: true
+  html:
+    anchor-sections: true
+    citations-hover: true
+    code-copy: true
+    code-fold: true
+    code-tools: true
+    crossrefs-hover: true
+    footnotes-hover: true
+    html-math-method: katex
+    link-external-icon: true
+    link-external-newwindow: true
+    smooth-scroll: true
+    syntax-highlighting: kate
+    theme:
+      - lux
+      - sandstone
+  pdf:
+    documentclass: scrreprt
+    syntax-highlighting: idiomatic
+  typst:
+    toc: true
+    syntax-highlighting: idiomatic
+
+execute:
+  echo: true
+  warning: false
+  message: false
+YAML
+
+  print "Created German Quarto course: $course_dir"
+  print "Try: cd $course_dir && quarto preview"
+}
+
 quarto_python_init() {
   if ! command -v quarto >/dev/null 2>&1; then
     print -u2 "error: quarto not found on PATH"
@@ -42,18 +136,11 @@ quarto_python_init() {
   print -r -- "QUARTO_PYTHON=$VIRTUAL_ENV/bin/python" > _environment
 
   print "→ pyrightconfig.json"
-  VENV_PATH=${VIRTUAL_ENV:h} VENV_NAME=${VIRTUAL_ENV:t} python - <<'PY'
-import json
-import os
-
-with open("pyrightconfig.json", "w", encoding="utf-8") as config:
-    json.dump(
-        {"venvPath": os.environ["VENV_PATH"], "venv": os.environ["VENV_NAME"]},
-        config,
-        indent=2,
-    )
-    config.write("\n")
-PY
+  cat > pyrightconfig.json <<'JSON'
+{
+  "typeCheckingMode": "standard"
+}
+JSON
 
   python -m pip freeze > requirements.txt
 

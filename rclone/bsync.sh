@@ -54,22 +54,42 @@ _bsync_run() {
     "$@"
 }
 
+_bsync_run_with_options() {
+  if [ "${_bsync_force:-0}" -eq 1 ]; then
+    _bsync_run "$@" --force
+  else
+    _bsync_run "$@"
+  fi
+}
+
 _bsync_count_matches() {
   printf '%s\n' "$1" | grep -E -c "$2" 2> /dev/null || true
 }
 
 bsync() {
   _bsync_resync=0
-  if [ "${1:-}" = "--resync" ]; then
-    _bsync_resync=1
-    shift
-  fi
+  _bsync_force=0
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --resync)
+        _bsync_resync=1
+        shift
+        ;;
+      --force)
+        _bsync_force=1
+        shift
+        ;;
+      *)
+        break
+        ;;
+    esac
+  done
 
   _bsync_local_path="${1:-}"
   _bsync_remote_path="${2:-}"
 
   if [ -z "$_bsync_local_path" ] || [ -z "$_bsync_remote_path" ]; then
-    printf '%s\n' "Usage: bsync [--resync] <local-path> <remote:path>"
+    printf '%s\n' "Usage: bsync [--resync] [--force] <local-path> <remote:path>"
     return 1
   fi
 
@@ -103,13 +123,13 @@ bsync() {
 
   if [ "$_bsync_resync" -eq 1 ]; then
     printf '%s\n' "=== Resync dry-run ==="
-    _bsync_run "$_bsync_local_path" "$_bsync_remote_path" --resync --dry-run || return 1
+    _bsync_run_with_options "$_bsync_local_path" "$_bsync_remote_path" --resync --dry-run || return 1
     _bsync_confirm "Run actual resync?" || {
       printf '%s\n' "Cancelled."
       return 0
     }
     printf '%s\n' "=== Resyncing ==="
-    if _bsync_run "$_bsync_local_path" "$_bsync_remote_path" --resync; then
+    if _bsync_run_with_options "$_bsync_local_path" "$_bsync_remote_path" --resync; then
       printf '%s\n' "Done. Use 'bsync' from now on."
     else
       printf '%s\n' "ERROR."
@@ -120,7 +140,7 @@ bsync() {
 
   # Normal sync: dry-run, summarise, confirm
   printf '%s\n' "=== Dry-run: $_bsync_local_path <-> $_bsync_remote_path ==="
-  _bsync_output="$(_bsync_run "$_bsync_local_path" "$_bsync_remote_path" --dry-run 2>&1)"
+  _bsync_output="$(_bsync_run_with_options "$_bsync_local_path" "$_bsync_remote_path" --dry-run 2>&1)"
   _bsync_status=$?
   printf '%s\n' "$_bsync_output"
 
@@ -150,7 +170,7 @@ bsync() {
     return 0
   }
   printf '%s\n' "=== Syncing ==="
-  if _bsync_run "$_bsync_local_path" "$_bsync_remote_path"; then
+  if _bsync_run_with_options "$_bsync_local_path" "$_bsync_remote_path"; then
     printf '%s\n' "Done."
   else
     printf '%s\n' "ERROR."
