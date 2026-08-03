@@ -5,6 +5,10 @@ quarto_course_create() {
     print -u2 "error: quarto not found on PATH"
     return 1
   fi
+  if ! command -v yq >/dev/null 2>&1; then
+    print -u2 "error: yq not found on PATH"
+    return 1
+  fi
 
   if [[ $# -lt 1 || $# -gt 2 ]]; then
     print -u2 "usage: quarto_course_create <directory> [title]"
@@ -14,81 +18,70 @@ quarto_course_create() {
   local course_dir=$1
   local course_name=${course_dir:t}
   local course_title=${2:-${course_name//-/ }}
+  local quarto_config="$course_dir/_quarto.yml"
+  local created_project=false
 
-  if [[ -e $course_dir ]]; then
-    print -u2 "error: $course_dir already exists"
+  if [[ ! -e $course_dir ]]; then
+    quarto create project book "$course_dir" || return 1
+    created_project=true
+  elif [[ ! -d $course_dir ]]; then
+    print -u2 "error: $course_dir exists but is not a directory"
     return 1
   fi
 
-  quarto create project book "$course_dir" || return 1
+  if [[ ! -f $quarto_config ]]; then
+    print -u2 "error: missing Quarto configuration: $quarto_config"
+    return 1
+  fi
 
-  cat > "$course_dir/_quarto.yml" <<YAML
-project:
-  type: book
-  output-dir: ./
+  COURSE_NAME="$course_name" COURSE_TITLE="$course_title" yq -i '
+    .project.type = "book" |
+    .project."output-dir" = "./" |
+    .lang = "de" |
+    .toc = true |
+    ."toc-depth" = 3 |
+    ."number-sections" = true |
+    ."number-depth" = 3 |
+    .book.title = strenv(COURSE_TITLE) |
+    .book.author = "Kevin De Keyser" |
+    .book.date = "today" |
+    .book.downloads = ["pdf", "epub"] |
+    .book."output-file" = strenv(COURSE_NAME) |
+    .book."page-navigation" = true |
+    .book.sidebar.background = "light" |
+    .book.sidebar.search = true |
+    .book.sidebar.style = "docked" |
+    .bibliography = "references.bib" |
+    .format.docx.toc = true |
+    .format.epub."syntax-highlighting" = "idiomatic" |
+    .format.epub.toc = true |
+    .format.html."anchor-sections" = true |
+    .format.html."citations-hover" = true |
+    .format.html."code-copy" = true |
+    .format.html."code-fold" = true |
+    .format.html."code-tools" = true |
+    .format.html."crossrefs-hover" = true |
+    .format.html."footnotes-hover" = true |
+    .format.html."html-math-method" = "katex" |
+    .format.html."link-external-icon" = true |
+    .format.html."link-external-newwindow" = true |
+    .format.html."smooth-scroll" = true |
+    .format.html."syntax-highlighting" = "kate" |
+    .format.html.theme = ["lux", "sandstone"] |
+    .format.pdf.documentclass = "scrreprt" |
+    .format.pdf."syntax-highlighting" = "idiomatic" |
+    .format.typst.toc = true |
+    .format.typst."syntax-highlighting" = "idiomatic" |
+    .execute.echo = true |
+    .execute.warning = false |
+    .execute.message = false
+  ' "$quarto_config" || return 1
 
-lang: de
-
-toc: true
-toc-depth: 3
-number-sections: true
-number-depth: 3
-
-book:
-  title: "${course_title}"
-  author: "Kevin De Keyser"
-  date: today
-  downloads: [pdf, epub]
-  output-file: "${course_name}"
-  page-navigation: true
-  sidebar:
-    background: light
-    search: true
-    style: docked
-  chapters:
-    - index.qmd
-    - intro.qmd
-    - summary.qmd
-    - references.qmd
-
-bibliography: references.bib
-
-format:
-  docx:
-    toc: true
-  epub:
-    syntax-highlighting: idiomatic
-    toc: true
-  html:
-    anchor-sections: true
-    citations-hover: true
-    code-copy: true
-    code-fold: true
-    code-tools: true
-    crossrefs-hover: true
-    footnotes-hover: true
-    html-math-method: katex
-    link-external-icon: true
-    link-external-newwindow: true
-    smooth-scroll: true
-    syntax-highlighting: kate
-    theme:
-      - lux
-      - sandstone
-  pdf:
-    documentclass: scrreprt
-    syntax-highlighting: idiomatic
-  typst:
-    toc: true
-    syntax-highlighting: idiomatic
-
-execute:
-  echo: true
-  warning: false
-  message: false
-YAML
-
-  print "Created German Quarto course: $course_dir"
+  if [[ $created_project == true ]]; then
+    print "Created and configured German Quarto course: $course_dir"
+  else
+    print "Patched German Quarto course configuration: $quarto_config"
+  fi
   print "Try: cd $course_dir && quarto preview"
 }
 
