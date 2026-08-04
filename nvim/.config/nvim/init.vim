@@ -104,6 +104,8 @@ endif
 " ==============================================================================
 " Copilot
 " ==============================================================================
+" Manually authenticate using :Copilot auth
+" Verify using :Copilot auth info
 
 lua << EOF
 require('copilot').setup({
@@ -117,8 +119,20 @@ EOF
 " ==============================================================================
 
 if exists('g:plugs') && has_key(g:plugs, 'avante.nvim') && isdirectory(g:plugs['avante.nvim'].dir)
-  autocmd! User avante.nvim
+  autocmd!
   lua << EOF
+  -- Compatibility shim for Avante Copilot auth: https://github.com/yetone/avante.nvim/issues/3121
+  local copilot_config_dir = vim.env.XDG_CONFIG_HOME or vim.fn.expand('~/.config')
+  local copilot_dir = vim.fs.joinpath(copilot_config_dir, 'github-copilot')
+  local auth_db = vim.fs.joinpath(copilot_dir, 'auth.db')
+  local apps_json = vim.fs.joinpath(copilot_dir, 'apps.json')
+  if vim.uv.fs_stat(auth_db) and not vim.uv.fs_stat(apps_json) and vim.fn.executable('sqlite3') == 1 then
+    local token = vim.trim(vim.fn.system({ 'sqlite3', auth_db, 'SELECT CAST(token_ciphertext AS TEXT) FROM oauth_tokens LIMIT 1;' }))
+    if vim.v.shell_error == 0 and token ~= '' then
+      vim.fn.writefile({ vim.json.encode({ ['github.com'] = { oauth_token = token } }) }, apps_json)
+    end
+  end
+
   require('avante').setup({
       provider = 'copilot',
       -- provider = 'claude',
