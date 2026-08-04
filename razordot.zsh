@@ -668,7 +668,7 @@ RAZORDOT_ZSHENV
 cat > "$HOME/.zprofile" << 'RAZORDOT_ZPROFILE'
 #!/bin/zsh
 
-for zprofile_file in "${ZDOTDIR:-$HOME}"/.zprofile.d/.zprofile_*(N); do
+for zprofile_file in "${ZDOTDIR:-$HOME}"/.zprofile.d/zprofile_*(N); do
   source "$zprofile_file"
 done
 unset zprofile_file
