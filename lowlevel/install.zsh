@@ -7,5 +7,5 @@ phase_2_user_installs() {
 }
 
 phase_3_dotfiles() {
-  link_dotfile "lowlevel/.zshenv" "$HOME/.zshenv.d/.zshenv_lowlevel"
+  link_dotfile "lowlevel/.zshenv" "$HOME/.zshenv.d/zshenv_lowlevel"
 }

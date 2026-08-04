@@ -3,7 +3,7 @@ phase_1_admin_installs() {
 }
 
 phase_3_dotfiles() {
-  link_dotfile "emacs/.zshenv" "$HOME/.zshenv.d/.zshenv_emacs"
+  link_dotfile "emacs/.zshenv" "$HOME/.zshenv.d/zshenv_emacs"
 }
 
 install_macos_emacs_daemon() {

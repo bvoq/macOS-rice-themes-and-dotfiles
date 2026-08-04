@@ -119,7 +119,6 @@ EOF
 " ==============================================================================
 
 if exists('g:plugs') && has_key(g:plugs, 'avante.nvim') && isdirectory(g:plugs['avante.nvim'].dir)
-  autocmd!
   lua << EOF
   -- Compatibility shim for Avante Copilot auth: https://github.com/yetone/avante.nvim/issues/3121
   local copilot_config_dir = vim.env.XDG_CONFIG_HOME or vim.fn.expand('~/.config')

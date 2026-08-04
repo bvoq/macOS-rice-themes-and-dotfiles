@@ -14,7 +14,7 @@ phase_2_user_installs() {
 }
 
 phase_3_dotfiles() {
-  link_dotfile "csharp/.zshenv" "$HOME/.zshenv.d/.zshenv_csharp"
+  link_dotfile "csharp/.zshenv" "$HOME/.zshenv.d/zshenv_csharp"
 }
 
 phase_4_post_dotfiles() {

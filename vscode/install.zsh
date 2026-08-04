@@ -5,7 +5,7 @@ phase_1_admin_installs() {
 phase_3_dotfiles() {
   link_dotfile "vscode/.vscode-settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
   link_dotfile "vscode/.vscode-settings.json" "$HOME/Library/Application Support/Code - Insiders/User/settings.json"
-  link_dotfile "vscode/.zshenv" "$HOME/.zshenv.d/.zshenv_vscode"
+  link_dotfile "vscode/.zshenv" "$HOME/.zshenv.d/zshenv_vscode"
   #link_dotfile "vscode/keybindings.json" "$HOME/Library/Application Support/Code/User/keybindings.json"
   #link_dotfile "vscode/keybindings.json" "$HOME/Library/Application Support/Code - Insiders/User/keybindings.json"
   link_dotfile "vscode/.zshrc.d/00_safe_config.zsh" "$HOME/.zshrc.d/00_safe_config_vscode.zsh"
