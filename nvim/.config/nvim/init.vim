@@ -39,11 +39,26 @@ Plug 'norcalli/nvim-colorizer.lua'
 " DirDiff
 Plug 'will133/vim-dirdiff'
 
-" Telescope
+" Dependency for telescope and avante
 Plug 'nvim-lua/plenary.nvim'
+
+" Further dependencies for avante
+Plug 'MunifTanjim/nui.nvim'
+Plug 'MeanderingProgrammer/render-markdown.nvim'
+Plug 'HakonHarnes/img-clip.nvim'
+Plug 'zbirenbaum/copilot.lua'
+
+" Avante
+if executable('cargo')
+  Plug 'yetone/avante.nvim', { 'branch': 'main', 'do': 'make' }
+endif
+
+" Telescope
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 Plug 'jvgrootveld/telescope-zoxide'
+
+
 
 " copilot
 Plug 'github/copilot.vim'
@@ -85,6 +100,33 @@ if (has("termguicolors"))
     lua require 'colorizer'.setup()
   endif
 endif
+
+" ==============================================================================
+" Copilot
+" ==============================================================================
+
+lua << EOF
+require('copilot').setup({
+  panel = { enabled = true },
+  suggestion = { enabled = true },
+})
+EOF
+
+" ==============================================================================
+" Avante
+" ==============================================================================
+
+if exists('g:plugs') && has_key(g:plugs, 'avante.nvim') && isdirectory(g:plugs['avante.nvim'].dir)
+  autocmd! User avante.nvim
+  lua << EOF
+  require('avante').setup({
+      provider = 'copilot',
+      -- provider = 'claude',
+      -- provider = 'perplexity',
+  })
+EOF
+endif
+
 
 " ==============================================================================
 " Quarto

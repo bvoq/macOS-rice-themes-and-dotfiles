@@ -1,4 +1,0 @@
-cask "claude"
-cask "copilot-cli"
-cask "ollama"
-cask "perplexity"

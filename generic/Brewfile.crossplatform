@@ -13,4 +13,5 @@ brew "wget"
 brew "yq"
 brew "zoxide"
 
+cask "android-file-transfer"
 cask "perplexity"

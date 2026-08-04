@@ -8,7 +8,8 @@
 # Add your install folders here.
 install_folders=(
   razordot/brew
-  # ai
+  # claude
+  # copilot
   zsh
   core
   # crypto
@@ -22,7 +23,7 @@ install_folders=(
   git
   iterm
   librewolf
-  # lowlevel
+  lowlevel
   macos
   #mobile
   nvim
