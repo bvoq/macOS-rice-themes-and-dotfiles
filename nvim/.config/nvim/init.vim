@@ -131,34 +131,70 @@ if exists('g:plugs') && has_key(g:plugs, 'avante.nvim') && isdirectory(g:plugs['
     end
   end
 
-  -- Avante's horizontal resize path otherwise squeezes its input window to minimum width.
+  local terminal_cell_aspect_ratio = 2
+  local function avante_position()
+    return vim.o.columns >= vim.o.lines * terminal_cell_aspect_ratio and 'right' or 'bottom'
+  end
+
+  -- Avante places its input beside the result in horizontal layouts.
   local AvanteSidebar = require('avante.sidebar')
-  if not AvanteSidebar.horizontal_resize_fixed then
-    local original_adjust_result = AvanteSidebar.adjust_result_container_layout
+  local AvanteConfig = require('avante.config')
+  if not AvanteSidebar.horizontal_stack_fixed then
+    local original_create_input = AvanteSidebar.create_input_container
+    local original_open = AvanteSidebar.open
     local original_resize = AvanteSidebar.resize
 
-    function AvanteSidebar:adjust_result_container_layout()
-      if self:get_layout() ~= 'horizontal' then
-        return original_adjust_result(self)
-      end
+    function AvanteSidebar:open(opts)
+      AvanteConfig.windows.position = avante_position()
+      self.razordot_position = AvanteConfig.windows.position
+      return original_open(self, opts)
+    end
 
-      local total_width = vim.api.nvim_win_get_width(self.code.winid)
-      vim.api.nvim_win_set_width(self.containers.result.winid, math.max(1, math.floor(total_width * 0.6)))
-      vim.api.nvim_win_set_height(self.containers.result.winid, self:get_result_container_height())
+    function AvanteSidebar:create_input_container()
+      original_create_input(self)
+      self.razordot_position = AvanteConfig.windows.position
+      if self:get_layout() == 'horizontal'
+        and self.containers.input
+        and self.containers.input.winid
+        and vim.api.nvim_win_is_valid(self.containers.input.winid)
+      then
+        vim.fn.win_splitmove(self.containers.input.winid, self.containers.result.winid, {
+          vertical = 0,
+          rightbelow = 1,
+        })
+        vim.api.nvim_win_set_height(self.containers.input.winid, AvanteConfig.windows.input.height)
+      end
     end
 
     function AvanteSidebar:resize()
+      local desired_position = avante_position()
+      if self.razordot_position ~= desired_position then
+        local input = self:get_input_value()
+        AvanteConfig.windows.position = desired_position
+        self:close()
+        self:open({ ask = true })
+        self:set_input_value(input)
+        return
+      end
+
       if self:get_layout() ~= 'horizontal' then
-        return original_resize(self)
+        local result = original_resize(self)
+        if self.containers.input and self.containers.input.winid then
+          vim.api.nvim_win_set_height(self.containers.input.winid, AvanteConfig.windows.input.height)
+        end
+        return result
       end
 
       self:adjust_layout()
+      if self.containers.input and self.containers.input.winid then
+        vim.api.nvim_win_set_height(self.containers.input.winid, AvanteConfig.windows.input.height)
+      end
       self:render_result()
       self:render_input()
       self:render_selected_code()
     end
 
-    AvanteSidebar.horizontal_resize_fixed = true
+    AvanteSidebar.horizontal_stack_fixed = true
   end
 
   require('avante').setup({
@@ -166,8 +202,11 @@ if exists('g:plugs') && has_key(g:plugs, 'avante.nvim') && isdirectory(g:plugs['
       -- provider = 'claude',
       -- provider = 'perplexity',
       windows = {
-        position = 'bottom',
+        position = avante_position(),
         height = 40,
+        ask = {
+          start_insert = false,
+        },
       },
       mappings = {
         ask            = '<leader>aa', -- also use it for closing the chat pane.
