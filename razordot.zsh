@@ -26,6 +26,7 @@ install_folders=(
   librewolf
   lowlevel
   macos
+  messaging
   #mobile
   nvim
   quarto

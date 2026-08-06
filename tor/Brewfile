@@ -1,1 +1,2 @@
 brew "tor"
+cask "tor-browser"
