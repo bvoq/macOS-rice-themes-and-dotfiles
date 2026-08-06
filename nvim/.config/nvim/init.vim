@@ -16,7 +16,7 @@ call plug#begin('~/.vim/plugged')
 end
 
 Plug 'kassio/neoterm' " better terminal, launch with T
-Plug 'jnurmine/Zenburn'
+" Plug 'jnurmine/Zenburn'
 
 
 " Smoother scrolling
@@ -87,11 +87,8 @@ EOF
 " ==============================================================================
 
 """ Zenburn theme
-:let g:zenburn_high_Contrast=1
-:colors zenburn
-
-""" airline-theme compatible with Zenburn
-let g:airline_theme = 'zenburn'
+" :let g:zenburn_high_Contrast=1
+" :colors zenburn
 
 """ colorizer
 if (has("termguicolors"))

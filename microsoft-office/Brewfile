@@ -1,0 +1,3 @@
+# Microsoft Office apps via Homebrew cask.
+cask "microsoft-office"
+cask "microsoft-teams"

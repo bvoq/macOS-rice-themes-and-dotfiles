@@ -1,7 +1,7 @@
 phase_1_admin_installs() {
   local url latest_version installed_version tmp_dir dmg_path mount_point expected_sha256 actual_sha256 needs_install=1
 
-  url="$(curl -fsSL https://librewolf.net/installation/macos/ | grep -Eo 'https://dl\.librewolf\.net/librewolf/[^"]*macos-arm64-package\.dmg' | head -n 1)"
+  url="$(curl -fsSL --compressed https://librewolf.net/installation/macos/ | grep -Eo 'https://dl\.librewolf\.net/librewolf/[^"]*macos-arm64-package\.dmg' | head -n 1)"
   [[ -n "$url" ]] || {
     echo "Could not find latest LibreWolf arm64 DMG."
     return 1

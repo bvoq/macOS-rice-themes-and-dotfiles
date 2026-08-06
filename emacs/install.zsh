@@ -1,5 +1,7 @@
 phase_1_admin_installs() {
   install_brewfile emacs/Brewfile
+  # brew sets quarantine on all casks; strip it so non-interactive emacs --batch isn't SIGKILL'd
+  [[ -d /Applications/Emacs.app ]] && xattr -dr com.apple.quarantine /Applications/Emacs.app
 }
 
 phase_3_dotfiles() {

@@ -20,6 +20,7 @@ install_folders=(
   # formal
   generic
   generic-cask
+  microsoft-office
   git
   iterm
   librewolf
