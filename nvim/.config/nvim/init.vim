@@ -63,6 +63,8 @@ Plug 'jvgrootveld/telescope-zoxide'
 " copilot
 Plug 'github/copilot.vim'
 
+Plug 'folke/which-key.nvim'
+
 """ Plugins I stopped using
 "Plug 'neomake/neomake' " nvim-lspconfig takes care of most things I cared about.
 "Plug 'jupyter-vim/jupyter-vim'
@@ -129,10 +131,62 @@ if exists('g:plugs') && has_key(g:plugs, 'avante.nvim') && isdirectory(g:plugs['
     end
   end
 
+  -- Avante's horizontal resize path otherwise squeezes its input window to minimum width.
+  local AvanteSidebar = require('avante.sidebar')
+  if not AvanteSidebar.horizontal_resize_fixed then
+    local original_adjust_result = AvanteSidebar.adjust_result_container_layout
+    local original_resize = AvanteSidebar.resize
+
+    function AvanteSidebar:adjust_result_container_layout()
+      if self:get_layout() ~= 'horizontal' then
+        return original_adjust_result(self)
+      end
+
+      local total_width = vim.api.nvim_win_get_width(self.code.winid)
+      vim.api.nvim_win_set_width(self.containers.result.winid, math.max(1, math.floor(total_width * 0.6)))
+      vim.api.nvim_win_set_height(self.containers.result.winid, self:get_result_container_height())
+    end
+
+    function AvanteSidebar:resize()
+      if self:get_layout() ~= 'horizontal' then
+        return original_resize(self)
+      end
+
+      self:adjust_layout()
+      self:render_result()
+      self:render_input()
+      self:render_selected_code()
+    end
+
+    AvanteSidebar.horizontal_resize_fixed = true
+  end
+
   require('avante').setup({
       provider = 'copilot',
       -- provider = 'claude',
       -- provider = 'perplexity',
+      windows = {
+        position = 'bottom',
+        height = 40,
+      },
+      mappings = {
+        ask            = '<leader>aa', -- also use it for closing the chat pane.
+        new_ask        = '<leader>an',
+        zen_mode       = '<leader>az',
+        edit           = '<leader>ae',
+        refresh        = '<leader>ar',
+        focus          = '<leader>af',
+        stop           = '<leader>aS',
+        select_model   = '<leader>a?',
+        select_history = '<leader>ah',
+        toggle = {
+          default    = '<leader>at',
+          debug      = '<leader>ad',
+          selection  = '<leader>aC',
+          suggestion = '<leader>as',
+          repomap    = '<leader>aR',
+        },
+      },
   })
 EOF
 endif
@@ -199,6 +253,7 @@ lua << EOF
   end
 
   vim.keymap.set('n', '<leader>qp', quarto_preview, { silent = true, noremap = true, desc = 'Quarto preview' })
+  vim.keymap.set('n', '<leader>qP', '<cmd>QuartoClosePreview<CR>', { silent = true, noremap = true, desc = 'Quarto close preview' })
   
   vim.treesitter.language.register('markdown', 'quarto')
 
@@ -510,6 +565,28 @@ lua << EOF
   })
 EOF
 
+
+" ==================
+" Config shortcuts
+" ==================
+" $MYVIMRC resolves to the init file for the current nvim session
+nnoremap <leader>ev :split $MYVIMRC<CR>
+lua vim.keymap.set('n', '<leader>qq', function() local f = vim.fn.getcwd() .. '/_quarto.yml'; if vim.fn.filereadable(f) == 1 then vim.cmd('split ' .. f) else vim.notify('_quarto.yml not found', vim.log.levels.WARN) end end, { desc = 'Open _quarto.yml' })
+
+lua << EOF
+local ok_wk, wk = pcall(require, 'which-key')
+if ok_wk then
+  wk.setup({})
+  wk.add({
+    { '<leader>q',  group = 'Quarto' },
+    { '<leader>f',  group = 'Find (Telescope)' },
+    { '<leader>e',  group = 'Edit config' },
+    { '<leader>c',  group = 'Code / LSP' },
+    { '<leader>cd', desc  = 'TELE: Zoxide' },
+    { '<leader>a',  group = 'Avante' },
+  })
+end
+EOF
 
 " ====================
 " My custom functions
