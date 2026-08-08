@@ -63,8 +63,6 @@ Plug 'jvgrootveld/telescope-zoxide'
 " copilot
 Plug 'github/copilot.vim'
 
-Plug 'folke/which-key.nvim'
-
 """ Plugins I stopped using
 "Plug 'neomake/neomake' " nvim-lspconfig takes care of most things I cared about.
 "Plug 'jupyter-vim/jupyter-vim'
@@ -611,21 +609,6 @@ EOF
 " $MYVIMRC resolves to the init file for the current nvim session
 nnoremap <leader>ev :split $MYVIMRC<CR>
 lua vim.keymap.set('n', '<leader>qq', function() local f = vim.fn.getcwd() .. '/_quarto.yml'; if vim.fn.filereadable(f) == 1 then vim.cmd('split ' .. f) else vim.notify('_quarto.yml not found', vim.log.levels.WARN) end end, { desc = 'Open _quarto.yml' })
-
-lua << EOF
-local ok_wk, wk = pcall(require, 'which-key')
-if ok_wk then
-  wk.setup({})
-  wk.add({
-    { '<leader>q',  group = 'Quarto' },
-    { '<leader>f',  group = 'Find (Telescope)' },
-    { '<leader>e',  group = 'Edit config' },
-    { '<leader>c',  group = 'Code / LSP' },
-    { '<leader>cd', desc  = 'TELE: Zoxide' },
-    { '<leader>a',  group = 'Avante' },
-  })
-end
-EOF
 
 " ====================
 " My custom functions
