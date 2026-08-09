@@ -1,8 +1,8 @@
 # macOS only for now: relies on --cookies-from-browser chrome.
 if [[ $OSTYPE == 'darwin'* ]]; then
   # make sure to use " around url when using ymp3, works for playlists and single videos.
-  alias ymp3='yt-dlp -x --audio-format mp3 --add-metadata --embed-thumbnail --cookies-from-browser chrome'
-  alias ymp4='yt-dlp -fmp4 --write-sub --write-auto-sub --sub-lang "en.*" --cookies-from-browser chrome'
+  alias ymp3='yt-dlp -x --audio-format mp3 --add-metadata --embed-thumbnail --cookies-from-browser "firefox:~/Library/Application Support/librewolf"'
+  alias ymp4='yt-dlp -fmp4 --write-sub --write-auto-sub --sub-lang "en.*" --cookies-from-browser "firefox:~/Library/Application Support/librewolf"'
 fi
 
 compressvideo() {
