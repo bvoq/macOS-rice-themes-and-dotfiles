@@ -24,6 +24,7 @@ install_folders=(
   git
   iterm
   librewolf
+  localai
   lowlevel
   macos
   messaging
