@@ -1,6 +1,7 @@
 # Cross-platform generic tools.
 
 brew "bat"
+brew "dua-cli"
 brew "eza"
 brew "fd"
 brew "fnm"

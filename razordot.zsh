@@ -8,9 +8,9 @@
 # Add your install folders here.
 install_folders=(
   razordot/brew
-  # claude
-  # copilot
   zsh
+  # claude
+  copilot
   core
   # crypto
   # csharp

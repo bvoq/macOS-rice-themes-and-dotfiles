@@ -54,7 +54,7 @@ phase_4_post_dotfiles() {
   fi
 
   mkdir -p ~/.config/doom
-  ~/.config/emacs/bin/doom upgrade
+  ~/.config/emacs/bin/doom upgrade --force
   link_dotfile "emacs/.config/doom/cheatsheet.org" "$HOME/.config/doom/cheatsheet.org"
   link_dotfile "emacs/.config/doom/config.org" "$HOME/.config/doom/config.org"
   link_dotfile "emacs/.config/doom/init.el" "$HOME/.config/doom/init.el"

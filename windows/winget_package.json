@@ -12,7 +12,6 @@
         { "PackageIdentifier": "dandavison.delta", "Scope": "machine" },
         { "PackageIdentifier": "DenoLand.Deno", "Scope": "machine" },
         { "PackageIdentifier": "7zip.7zip", "Scope": "machine" },
-        { "PackageIdentifier": "dundee.gdu", "Scope": "machine" },
         { "PackageIdentifier": "GitHub.Copilot", "Scope": "machine" },
         { "PackageIdentifier": "GnuPG.Gpg4win", "Scope": "machine" },
         { "PackageIdentifier": "Microsoft.NuGet", "Scope": "machine" },

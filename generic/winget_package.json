@@ -10,6 +10,7 @@
       },
       "Packages": [
         { "PackageIdentifier": "ajeetdsouza.zoxide", "Scope": "machine" },
+        { "PackageIdentifier": "Byron.dua-cli", "Scope": "machine" },
         { "PackageIdentifier": "dbrgn.tealdeer", "Scope": "machine" },
         { "PackageIdentifier": "eza-community.eza", "Scope": "machine" },
         { "PackageIdentifier": "sharkdp.fd", "Scope": "machine" },
