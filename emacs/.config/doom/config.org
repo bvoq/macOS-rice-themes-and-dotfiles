@@ -89,7 +89,7 @@
 (defun bv/toggle-markdown-view-mode ()
   "Toggle between 'markdown-mode' and 'markdown-view-mode'."
   (interactive)
-  (if (eq major-mode 'markdown-view-mode')
+  (if (eq major-mode 'markdown-view-mode)
     (markdown-mode) (markdown-view-mode)
   )
 )
@@ -143,11 +143,6 @@ M-x eval-region = run selected region as a command
 
 ;; (setq confirm-kill-emacs nil)
 ;; (setq initial-buffer-choice 'eshell) ;; and comment out doom-dashboard
-
-;; Doom prerequisite: Install nerd-icons fonts if missing. Next start should be fixed.
-(after! nerd-icons
-  (unless (find-font (font-spec :name "Symbols Nerd Font Mono"))
-    (nerd-icons-install-fonts t)))
 
 ;; Telegram
 (setq telega-server-libs-prefix "/opt/homebrew/opt/tdlib")

@@ -4,7 +4,7 @@ phase_1_admin_installs() {
 }
 
 phase_2_user_installs() {
-  tldr --update
+  tldr --language en --update || echo "Cannot update tldr cache; continuing."
 }
 
 phase_3_dotfiles() {
