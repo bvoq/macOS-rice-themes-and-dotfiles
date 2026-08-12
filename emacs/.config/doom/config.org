@@ -43,6 +43,8 @@
 #+begin_src emacs-lisp
 ;; from: https://www.youtube.com/watch?v=eFRzRsWTXPk
 
+(load (expand-file-name "~/emacs/anki/anki-setup.el"))
+
 (custom-theme-set-faces!
   'doom-one
   '(org-level-8 :inherit outline-3 :height 1.0)

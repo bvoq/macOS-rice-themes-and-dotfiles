@@ -55,6 +55,7 @@ phase_4_post_dotfiles() {
 
   mkdir -p ~/.config/doom
   ~/.config/emacs/bin/doom upgrade --force
+  link_dotfile "emacs/anki-setup.el" "$HOME/emacs/anki/anki-setup.el"
   link_dotfile "emacs/.config/doom/cheatsheet.org" "$HOME/.config/doom/cheatsheet.org"
   link_dotfile "emacs/.config/doom/config.org" "$HOME/.config/doom/config.org"
   link_dotfile "emacs/.config/doom/init.el" "$HOME/.config/doom/init.el"

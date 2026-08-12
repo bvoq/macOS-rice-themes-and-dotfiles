@@ -15,5 +15,6 @@ brew "yq"
 brew "zoxide"
 
 cask "android-file-transfer"
+cask "anki"
 cask "logseq"
 cask "perplexity"

@@ -56,6 +56,8 @@
 (package! telega)
 (package! alert)
 (package! org-alert)
+(package! anki-editor)
+(package! org-download)
 (package! tldr)
 (package! visual-fill-column)
 ; Text based browser
