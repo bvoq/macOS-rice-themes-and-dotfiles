@@ -6,6 +6,7 @@ phase_1_admin_installs() {
 
 phase_3_dotfiles() {
   link_dotfile "emacs/.zshenv" "$HOME/.zshenv.d/zshenv_emacs"
+  link_dotfile "emacs/.zshrc.d/40_emacs_client.zsh" "$HOME/.zshrc.d/40_emacs_client.zsh"
 }
 
 install_macos_emacs_daemon() {
@@ -23,7 +24,10 @@ install_macos_emacs_daemon() {
 
   label=emacs-daemon
   plist="$HOME/Library/LaunchAgents/$label.plist"
-  [[ -f "$plist" ]] && return 0
+  if [[ -f "$plist" ]]; then
+    echo "Emacs daemon LaunchAgent already exists: $plist (skip)"
+    return 0
+  fi
   mkdir -p "${plist:h}"
   mkdir -p "$HOME/Library/Logs"
   emacs_daemon_path="/opt/homebrew/opt/ccache/libexec:$PATH:$HOME/.config/emacs/bin"
