@@ -63,6 +63,7 @@ quarto_course_create() {
     .format.html."crossrefs-hover" = true |
     .format.html."footnotes-hover" = true |
     .format.html."html-math-method" = "katex" |
+    .format.html."include-in-header" = ((.format.html."include-in-header" // []) + [{"text": "<script src=\"https://cdn.jsdelivr.net/npm/p5@2.3.1/lib/p5.min.js\"></script>\n"}] | unique) |
     .format.html."link-external-icon" = true |
     .format.html."link-external-newwindow" = true |
     .format.html."smooth-scroll" = true |

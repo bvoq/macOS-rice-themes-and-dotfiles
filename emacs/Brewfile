@@ -2,6 +2,7 @@ brew "cmake"
 brew "coreutils"
 cask "emacs-app"
 brew "fd"
+brew "pngpaste"
 brew "ripgrep"
 # tdlib is needed for telegram for emacs.
 brew "tdlib", args: ["HEAD"]
