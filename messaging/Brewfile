@@ -1,2 +1,3 @@
 cask "telegram"
 cask "whatsapp"
+cask "discord"

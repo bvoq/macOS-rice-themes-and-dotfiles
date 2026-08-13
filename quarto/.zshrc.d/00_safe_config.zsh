@@ -15,14 +15,21 @@ quarto_course_create() {
     return 1
   fi
 
-  local course_dir=$1
+  local course_dir=${1:A}
+  local course_parent=${course_dir:h}
   local course_name=${course_dir:t}
   local course_title=${2:-${course_name//-/ }}
   local quarto_config="$course_dir/_quarto.yml"
+  local bibliography="$course_dir/references.bib"
   local created_project=false
 
   if [[ ! -e $course_dir ]]; then
-    quarto create project book "$course_dir" || return 1
+    mkdir -p "$course_parent" || return 1
+    pushd "$course_parent" >/dev/null || return 1
+    quarto create project book "$course_name" --no-prompt --no-open
+    local create_exit=$?
+    popd >/dev/null || return 1
+    (( create_exit == 0 )) || return 1
     created_project=true
   elif [[ ! -d $course_dir ]]; then
     print -u2 "error: $course_dir exists but is not a directory"
@@ -63,7 +70,7 @@ quarto_course_create() {
     .format.html."crossrefs-hover" = true |
     .format.html."footnotes-hover" = true |
     .format.html."html-math-method" = "katex" |
-    .format.html."include-in-header" = ((.format.html."include-in-header" // []) + [{"text": "<script src=\"https://cdn.jsdelivr.net/npm/p5@2.3.1/lib/p5.min.js\"></script>\n"}] | unique) |
+    .format.html."include-in-header" = (((.format.html."include-in-header" // []) | map(select(.text != "<script src=\"https://cdn.jsdelivr.net/npm/p5@2.3.1/lib/p5.min.js\"></script>\n"))) + [{"text": "<script src=\"https://cdn.jsdelivr.net/npm/p5@2.3.1/lib/p5.min.js\"></script>\n"}]) |
     .format.html."link-external-icon" = true |
     .format.html."link-external-newwindow" = true |
     .format.html."smooth-scroll" = true |
@@ -77,6 +84,17 @@ quarto_course_create() {
     .execute.warning = false |
     .execute.message = false
   ' "$quarto_config" || return 1
+
+  if [[ -f $course_dir/cover.png ]]; then
+    yq -i '.book.image = "cover.png"' "$quarto_config" || return 1
+  fi
+
+  if [[ ! -e $bibliography ]]; then
+    : > "$bibliography" || return 1
+  elif [[ ! -f $bibliography ]]; then
+    print -u2 "error: bibliography exists but is not a file: $bibliography"
+    return 1
+  fi
 
   if [[ $created_project == true ]]; then
     print "Created and configured German Quarto course: $course_dir"
