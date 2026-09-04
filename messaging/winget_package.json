@@ -1,0 +1,28 @@
+{
+  "$schema": "https://aka.ms/winget-packages.schema.2.0.json",
+  "Sources": [
+    {
+      "SourceDetails": {
+        "Argument": "https://cdn.winget.microsoft.com/cache",
+        "Identifier": "Microsoft.Winget.Source_8wekyb3d8bbwe",
+        "Name": "winget",
+        "Type": "Microsoft.PreIndexed.Package"
+      },
+      "Packages": [
+        { "PackageIdentifier": "Telegram.TelegramDesktop", "Scope": "user" },
+        { "PackageIdentifier": "Discord.Discord", "Scope": "user" }
+      ]
+    },
+    {
+      "SourceDetails": {
+        "Argument": "https://storeedgefd.dsx.mp.microsoft.com/v9.0",
+        "Identifier": "StoreEdgeFD",
+        "Name": "msstore",
+        "Type": "Microsoft.Rest"
+      },
+      "Packages": [
+        { "PackageIdentifier": "9NKSQGP7F2NH", "Scope": "user" }
+      ]
+    }
+  ]
+}

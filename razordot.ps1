@@ -14,9 +14,11 @@
 $installFolders = @(
     "razordot/winget"
     #"core"
+    "creative"
     #"generic"
     #"windows"
     "git"
+    "messaging"
     #"starship"
     #"ffmpeg_ytdlp"
     #"rclone"

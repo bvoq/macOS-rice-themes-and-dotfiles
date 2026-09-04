@@ -12,12 +12,13 @@ install_folders=(
   # claude
   copilot
   core
+  creative
   # crypto
   # csharp
   # devops
   emacs
   ffmpeg_ytdlp
-  # formal
+  formal
   generic
   generic-cask
   microsoft-office

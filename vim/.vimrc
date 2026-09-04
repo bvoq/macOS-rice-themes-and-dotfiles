@@ -142,8 +142,8 @@ nnoremap <C-o><C-d><C-p> :OmniSharpPreviewDefinition<CR>
 autocmd BufRead,BufNewFile *.py let python_highlight_all=1
 
 """ Zenburn theme
-:let g:zenburn_high_Contrast=1
-:colors zenburn
+" :let g:zenburn_high_Contrast=1
+" :colors zenburn
 
 """ airline-theme compatible with Zenburn
 let g:airline_theme = 'zenburn'
