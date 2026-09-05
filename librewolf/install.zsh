@@ -1,5 +1,5 @@
 phase_1_admin_installs() {
-  local url latest_version installed_version tmp_dir dmg_path mount_point expected_sha256 actual_sha256 needs_install=1
+  local url latest_version installed_version tmp_dir dmg_path mount_point app_path expected_sha256 actual_sha256 needs_install=1
 
   url="$(curl -fsSL --compressed https://librewolf.net/installation/macos/ | grep -Eo 'https://dl\.librewolf\.net/librewolf/[^"]*macos-arm64-package\.dmg' | head -n 1)"
   [[ -n "$url" ]] || {
@@ -17,6 +17,7 @@ phase_1_admin_installs() {
     tmp_dir="$(mktemp -d)"
     dmg_path="$tmp_dir/LibreWolf.dmg"
     mount_point="$tmp_dir/mount"
+    app_path="$tmp_dir/LibreWolf.app"
     mkdir -p "$mount_point"
 
     curl -fL "$url" -o "$dmg_path"
@@ -29,12 +30,19 @@ phase_1_admin_installs() {
     fi
 
     hdiutil attach -nobrowse -readonly -mountpoint "$mount_point" "$dmg_path"
+    ditto "$mount_point/LibreWolf.app" "$app_path"
+    mkdir -p "$app_path/Contents/Resources/distribution"
+    cp -p librewolf/policies.json \
+      "$app_path/Contents/Resources/distribution/policies.json"
+    # The policy file changes the vendor-sealed bundle, so give the local copy
+    # a valid ad-hoc signature before installing it.
+    codesign --force --deep --sign - "$app_path"
+    codesign --verify --deep --strict "$app_path"
     rm -rf /Applications/LibreWolf.app
-    ditto "$mount_point/LibreWolf.app" /Applications/LibreWolf.app
+    ditto "$app_path" /Applications/LibreWolf.app
     hdiutil detach "$mount_point"
     xattr -dr com.apple.quarantine /Applications/LibreWolf.app
     rm -rf "$tmp_dir"
   fi
 
-  link_dotfile "librewolf/policies.json" "/Applications/LibreWolf.app/Contents/Resources/distribution/policies.json"
 }
