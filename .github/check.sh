@@ -2,7 +2,7 @@
 
 set -eu
 
-repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+repo_root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$repo_root"
 
 for command_name in git shfmt shellcheck; do
