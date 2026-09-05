@@ -11,7 +11,7 @@ phase_3_dotfiles() {
   mkdir -p "$kitty_dir"
 
   if [[ ! -f "$theme_file" ]]; then
-    cat > "$theme_file" <<'EOF'
+    cat > "$theme_file" << 'EOF'
 # Local kitty theme overrides.
 # This file is intentionally outside the repo and safe to customize.
 # Example:

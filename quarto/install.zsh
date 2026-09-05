@@ -4,7 +4,7 @@ phase_1_admin_installs() {
 
 phase_2_user_installs() {
   quarto install tinytex
-  # If you're running this on a server and don't have Chrome you might need to install: 
+  # If you're running this on a server and don't have Chrome you might need to install:
   # quarto install chrome-headless-shell
 }
 

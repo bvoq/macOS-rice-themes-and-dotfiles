@@ -1,11 +1,11 @@
 # Note, favorite theme is lux followed by sandstone
 
 quarto_course_create() {
-  if ! command -v quarto >/dev/null 2>&1; then
+  if ! command -v quarto > /dev/null 2>&1; then
     print -u2 "error: quarto not found on PATH"
     return 1
   fi
-  if ! command -v yq >/dev/null 2>&1; then
+  if ! command -v yq > /dev/null 2>&1; then
     print -u2 "error: yq not found on PATH"
     return 1
   fi
@@ -25,11 +25,11 @@ quarto_course_create() {
 
   if [[ ! -e $course_dir ]]; then
     mkdir -p "$course_parent" || return 1
-    pushd "$course_parent" >/dev/null || return 1
+    pushd "$course_parent" > /dev/null || return 1
     quarto create project book "$course_name" --no-prompt --no-open
     local create_exit=$?
-    popd >/dev/null || return 1
-    (( create_exit == 0 )) || return 1
+    popd > /dev/null || return 1
+    ((create_exit == 0)) || return 1
     created_project=true
   elif [[ ! -d $course_dir ]]; then
     print -u2 "error: $course_dir exists but is not a directory"
@@ -105,11 +105,11 @@ quarto_course_create() {
 }
 
 quarto_python_init() {
-  if ! command -v quarto >/dev/null 2>&1; then
+  if ! command -v quarto > /dev/null 2>&1; then
     print -u2 "error: quarto not found on PATH"
     return 1
   fi
-  if ! typeset -f mkvenv >/dev/null 2>&1; then
+  if ! typeset -f mkvenv > /dev/null 2>&1; then
     print -u2 "error: mkvenv not found (zsh-autoswitch-virtualenv loaded?)"
     return 1
   fi
@@ -129,7 +129,7 @@ quarto_python_init() {
     source .venv/bin/activate
   fi
   if [[ -z ${VIRTUAL_ENV:-} && -f .venv && -n ${VIRTUAL_ENV_DIR:-} ]]; then
-    local venv_name=$(<.venv)
+    local venv_name=$(< .venv)
     local venv_activate="$VIRTUAL_ENV_DIR/$venv_name/bin/activate"
     if [[ -f $venv_activate ]]; then
       source "$venv_activate" || return 1
@@ -148,7 +148,7 @@ quarto_python_init() {
   print -r -- "QUARTO_PYTHON=$VIRTUAL_ENV/bin/python" > _environment
 
   print "→ pyrightconfig.json"
-  cat > pyrightconfig.json <<'JSON'
+  cat > pyrightconfig.json << 'JSON'
 {
   "typeCheckingMode": "standard"
 }
@@ -161,7 +161,7 @@ JSON
     print "→ $starter already exists (skip)"
   else
     print "→ write $starter"
-    cat > "$starter" <<'QMD'
+    cat > "$starter" << 'QMD'
 ---
 title: "Python sample"
 format:
@@ -195,7 +195,7 @@ QMD
 
 # Quarto + p5.js (Observable JS) project bootstrap
 quarto_p5_init() {
-  if ! command -v quarto >/dev/null 2>&1; then
+  if ! command -v quarto > /dev/null 2>&1; then
     print -u2 "error: quarto not found on PATH"
     return 1
   fi
@@ -215,7 +215,7 @@ quarto_p5_init() {
     print "→ $starter already exists (skip)"
   else
     print "→ write $starter"
-    cat > "$starter" <<'QMD'
+    cat > "$starter" << 'QMD'
 ---
 title: "p5.js sketch"
 format:

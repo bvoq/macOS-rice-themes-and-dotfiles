@@ -13,7 +13,6 @@ while true; do
   kill -0 "$$" || exit
 done 2> /dev/null &
 
-
 # Close any open System Preferences panes, to prevent them from overriding
 # settings we’re about to change
 osascript -e 'tell application "System Preferences" to quit'
@@ -23,7 +22,6 @@ defaults write -g NSRecentDocumentsLimit -int 50
 defaults write com.apple.Preview NSRecentDocumentsLimit -int 50
 defaults write com.apple.TextEdit NSRecentDocumentsLimit -int 50
 defaults write com.apple.dt.Xcode NSRecentDocumentsLimit -int 50
-
 
 # Ask for the administrator password upfront
 sudo -v# Change Safari downloads location
@@ -320,7 +318,6 @@ defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 # defaults write com.apple.frameworks.diskimages skip-verify -bool true
 # defaults write com.apple.frameworks.diskimages skip-verify-locked -bool true
 # defaults write com.apple.frameworks.diskimages skip-verify-remote -bool true
-
 
 # Automatically open a new Finder window when a volume is mounted
 # defaults write com.apple.frameworks.diskimages auto-open-ro-root -bool true

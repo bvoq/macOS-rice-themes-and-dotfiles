@@ -25,7 +25,7 @@ install_macos_emacs_daemon() {
 
   launchctl_domain="gui/$(id -u)"
   if [[ -f "$plist" ]]; then
-    daemon_argument="$(plutil -extract ProgramArguments.1 raw -o - "$plist" 2>/dev/null)"
+    daemon_argument="$(plutil -extract ProgramArguments.1 raw -o - "$plist" 2> /dev/null)"
     if [[ "$daemon_argument" == --fg-daemon ]]; then
       echo "Emacs daemon LaunchAgent already exists: $plist (skip)"
       return 0
