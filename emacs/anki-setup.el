@@ -297,6 +297,33 @@ DECK may use slashes or Anki's double-colon separator."
     (cl-letf (((symbol-function #'org-id-get-create) #'ignore))
       (org-download-clipboard))))
 
+(defun my/anki-delete-image-at-point ()
+  "Delete the image link at point and the referenced image file."
+  (interactive)
+  (unless (and buffer-file-name
+               (string-match-p "\\.anki\\'" buffer-file-name))
+    (user-error "Open an .anki file before deleting an image"))
+  (let* ((context (org-element-context))
+         (link (if (eq (org-element-type context) 'link)
+                   context
+                 (org-element-lineage context '(link) t))))
+    (unless (and link
+                 (equal (org-element-property :type link) "file"))
+      (user-error "Point is not over an image link"))
+    (let* ((path (org-element-property :path link))
+           (file (expand-file-name path (file-name-directory buffer-file-name))))
+      (unless (image-type-from-file-name file)
+        (user-error "File link does not reference an image: %s" path))
+      (unless (file-exists-p file)
+        (user-error "Image file does not exist: %s" file))
+      (when (yes-or-no-p (format "Delete image %s? "
+                                 (abbreviate-file-name file)))
+        (delete-file file)
+        (delete-region (org-element-property :begin link)
+                       (org-element-property :end link))
+        (save-buffer)
+        (message "Deleted image %s" (abbreviate-file-name file))))))
+
 (add-to-list 'auto-mode-alist '("\\.anki\\'" . org-mode))
 (add-hook 'org-mode-hook
           (defun my/anki-enable-for-anki-file ()
@@ -316,7 +343,8 @@ DECK may use slashes or Anki's double-colon separator."
       (:prefix ("m" . "Local")
    (:prefix ("a" . "Anki")
     :desc "New Anki file" "n" #'my/anki-create-file
-    :desc "Open Anki file" "o" #'my/anki-open-file)))
+   :desc "Open Anki file" "o" #'my/anki-open-file
+   :desc "Delete image at point" "d" #'my/anki-delete-image-at-point)))
 
 (provide 'anki-setup)
 ;;; anki-setup.el ends here
