@@ -2,13 +2,23 @@ function open($name) { Start-Process $name }
 
 function la { eza -lAF @args }
 
-function which($name) {
-    $command = Get-Command $name -ErrorAction SilentlyContinue
-    if ($command -is [Management.Automation.FunctionInfo]) { $command.ScriptBlock.ToString() }
-    elseif ($command -is [Management.Automation.CmdletInfo] -or $command -is [Management.Automation.ApplicationInfo]) { $command.Definition }
-    else { "${name}: command not found" }
-}
+function which {
+    param($name)
 
+    $command = Get-Command $name -ErrorAction SilentlyContinue
+    if (-not $command) {
+        "${name}: command not found"
+        return
+    }
+
+    $type = $command.CommandType
+    if ($command -is [Management.Automation.FunctionInfo]) {
+        "${type}: $($command.ScriptBlock.ToString())"
+    } else {
+        "${type}: $($command.Definition)"
+    }
+
+}
 function sudo() {
     if ($args.Length -eq 1) {
         start-process $args[0] -verb "runAs"
